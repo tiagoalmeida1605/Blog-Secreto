@@ -1,0 +1,58 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family: "Inter", sans-serif;
+    background:#101010;
+    color:white;
+}
+
+nav{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px 50px;
+}
+
+ul{
+    display:flex;
+    list-style:none;
+    gap:20px;
+}
+
+a{
+    color:white;
+    text-decoration:none;
+}
+
+.hero{
+    height:80vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+}
+
+.hero h2{
+    font-size:60px;
+}
+
+.hero p{
+    margin-top:20px;
+    width:600px;
+    max-width:90%;
+}
+
+button{
+    margin-top:30px;
+    padding:15px 30px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:18px;
+    color: #101010;
+}
