@@ -1,58 +1,411 @@
+/* ==========================================================================
+   Blog Secreto — Identidade "Dossiê Confidencial"
+   Dark premium · blog editorial · arquivo secreto · tecnologia
+   ========================================================================== */
+
+:root{
+    /* Paleta base */
+    --bg: #080808;
+    --surface: #151515;
+    --surface-soft: rgba(21, 21, 21, 0.72);
+    --red: #C1121F;
+    --red-hover: #FF1E35;
+    --gold: #FFD166;
+    --text: #F8F9FA;
+    --text-secondary: #A7A7A7;
+
+    /* Derivados */
+    --border-hairline: rgba(255, 209, 102, 0.14);
+    --shadow-red: rgba(193, 18, 31, 0.35);
+    --shadow-gold: rgba(255, 209, 102, 0.14);
+    --glow-red: rgba(193, 18, 31, 0.28);
+    --glow-gold: rgba(255, 209, 102, 0.16);
+
+    /* Tipografia */
+    --font-display: "Montserrat", "Google Sans", sans-serif;
+    --font-body: "Inter", sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "Roboto Mono", Menlo, Consolas, monospace;
+
+    /* Forma e movimento */
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-lg: 30px;
+    --ease: cubic-bezier(.16, .84, .44, 1);
+}
+
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
 }
 
+html{
+    scroll-behavior:smooth;
+    scrollbar-width:thin;
+    scrollbar-color: var(--surface) var(--bg);
+}
+
 body{
-    font-family: "Inter", sans-serif;
-    background:#101010;
-    color:white;
+    position:relative;
+    font-family: var(--font-body);
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    overflow-x:hidden;
+}
+
+/* textura sutil de grão para profundidade premium */
+body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    z-index:999;
+    pointer-events:none;
+    opacity:.035;
+    mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::selection{
+    background:var(--red);
+    color:var(--text);
+}
+
+::-webkit-scrollbar{ width:10px; }
+::-webkit-scrollbar-track{ background:var(--bg); }
+::-webkit-scrollbar-thumb{ background:var(--surface); border-radius:10px; border:2px solid var(--bg); }
+::-webkit-scrollbar-thumb:hover{ background:var(--red); }
+
+a{
+    color:var(--text);
+    text-decoration:none;
+}
+
+/* ==========================================================================
+   Header / Navegação
+   ========================================================================== */
+
+header{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:var(--surface-soft);
+    backdrop-filter:blur(16px) saturate(140%);
+    -webkit-backdrop-filter:blur(16px) saturate(140%);
+    border-bottom:1px solid var(--border-hairline);
 }
 
 nav{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    padding:20px 50px;
+    flex-wrap:wrap;
+    gap:16px;
+    padding:20px clamp(24px, 5vw, 60px);
+    max-width:1400px;
+    margin:0 auto;
 }
 
-ul{
+nav h1{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:var(--font-display);
+    font-weight:800;
+    font-size:clamp(17px, 2vw, 21px);
+    letter-spacing:.07em;
+    text-transform:uppercase;
+    background:linear-gradient(120deg, var(--text) 0%, var(--gold) 70%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    -webkit-text-fill-color:transparent;
+}
+
+nav h1::before{
+    content:'';
+    width:8px;
+    height:8px;
+    flex-shrink:0;
+    border-radius:50%;
+    background:var(--red);
+    box-shadow:0 0 0 3px rgba(193,18,31,.18), 0 0 10px 2px rgba(193,18,31,.55);
+    animation:pulse-dot 2.6s ease-in-out infinite;
+}
+
+nav ul{
     display:flex;
     list-style:none;
-    gap:20px;
+    gap:clamp(16px, 3vw, 32px);
 }
 
-a{
-    color:white;
-    text-decoration:none;
+nav ul li a{
+    position:relative;
+    display:inline-block;
+    padding:4px 2px;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    color:rgba(248,249,250,.7);
+    transition:color .3s var(--ease), letter-spacing .3s var(--ease);
+}
+
+nav ul li a::after{
+    content:'';
+    position:absolute;
+    left:0;
+    bottom:-2px;
+    width:100%;
+    height:2px;
+    background:linear-gradient(90deg, var(--red), var(--gold));
+    transform:scaleX(0);
+    transform-origin:left;
+    transition:transform .35s var(--ease);
+}
+
+nav ul li a:hover,
+nav ul li a:focus-visible{
+    color:var(--text);
+    letter-spacing:.12em;
+}
+
+nav ul li a:hover::after,
+nav ul li a:focus-visible::after{
+    transform:scaleX(1);
+}
+
+/* ==========================================================================
+   Hero — painel "dossiê"
+   ========================================================================== */
+
+main{
+    padding:clamp(28px, 4vw, 56px) clamp(20px, 5vw, 60px);
+    max-width:1400px;
+    margin:0 auto;
 }
 
 .hero{
-    height:80vh;
+    position:relative;
+    overflow:hidden;
+    isolation:isolate;
+    max-width:1240px;
+    margin:0 auto;
+    min-height:min(70vh, 620px);
     display:flex;
     flex-direction:column;
     justify-content:center;
     align-items:center;
     text-align:center;
+    padding:clamp(48px, 8vw, 96px) clamp(24px, 6vw, 72px);
+    border-radius:var(--radius-lg);
+    border:1px solid var(--border-hairline);
+    background-color:var(--surface);
+    background-image:
+            radial-gradient(680px circle at 8% 8%, var(--glow-red), transparent 60%),
+            radial-gradient(620px circle at 95% 100%, var(--glow-gold), transparent 60%);
+    background-repeat:no-repeat;
+    box-shadow:
+            0 40px 80px -30px rgba(0,0,0,.6),
+            inset 0 0 0 1px rgba(255,255,255,.03),
+            0 30px 60px -20px var(--shadow-red);
+}
+
+.hero::before,
+.hero::after{
+    content:'';
+    position:absolute;
+    width:46px;
+    height:46px;
+    opacity:0;
+    animation:corner-in .8s var(--ease) .15s forwards;
+    pointer-events:none;
+}
+
+.hero::before{
+    top:26px;
+    left:26px;
+    border-top:2px solid var(--gold);
+    border-left:2px solid var(--gold);
+    border-radius:8px 0 0 0;
+}
+
+.hero::after{
+    bottom:26px;
+    right:26px;
+    border-bottom:2px solid var(--gold);
+    border-right:2px solid var(--gold);
+    border-radius:0 0 8px 0;
+    animation-delay:.25s;
 }
 
 .hero h2{
-    font-size:60px;
+    position:relative;
+    z-index:1;
+    font-family:var(--font-display);
+    font-weight:800;
+    font-size:clamp(34px, 6vw, 60px);
+    line-height:1.08;
+    letter-spacing:-.01em;
+    color:var(--text);
+    opacity:0;
+    animation:reveal-up .8s var(--ease) .3s forwards;
 }
 
 .hero p{
-    margin-top:20px;
-    width:600px;
-    max-width:90%;
+    position:relative;
+    z-index:1;
+    margin-top:22px;
+    width:min(600px, 90%);
+    color:var(--text-secondary);
+    font-size:clamp(15px, 2vw, 18px);
+    line-height:1.7;
+    opacity:0;
+    animation:reveal-up .8s var(--ease) .45s forwards;
 }
 
 button{
-    margin-top:30px;
-    padding:15px 30px;
+    position:relative;
+    z-index:1;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    margin-top:34px;
+    padding:16px 32px;
     border:none;
-    border-radius:10px;
+    border-radius:var(--radius-sm);
     cursor:pointer;
-    font-size:18px;
-    color: #101010;
+    background-image:linear-gradient(135deg, var(--red) 0%, var(--gold) 100%);
+    background-size:180% 180%;
+    background-position:0% 0%;
+    box-shadow:
+            0 14px 30px -12px var(--shadow-red),
+            0 4px 14px -4px var(--shadow-gold);
+    transition:transform .4s var(--ease), box-shadow .4s var(--ease), background-position .5s var(--ease);
+    opacity:0;
+    animation:reveal-up .8s var(--ease) .6s forwards;
+}
+
+button a{
+    color:var(--bg);
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:20px;
+    letter-spacing:.01em;
+}
+
+button::after{
+    content:'';
+    width:7px;
+    height:7px;
+    border-top:2px solid var(--bg);
+    border-right:2px solid var(--bg);
+    transform:rotate(45deg);
+    transition:transform .35s var(--ease);
+}
+
+button:hover,
+button:focus-visible{
+    transform:translateY(-3px);
+    background-position:100% 100%;
+    box-shadow:
+            0 20px 40px -14px var(--shadow-red),
+            0 8px 20px -6px rgba(255,209,102,.28);
+}
+
+button:hover::after,
+button:focus-visible::after{
+    transform:rotate(45deg) translate(2px,-2px);
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+
+footer{
+    border-top:1px solid var(--border-hairline);
+    padding:26px 20px;
+    text-align:center;
+}
+
+footer p{
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--text-secondary);
+}
+
+/* ==========================================================================
+   Foco acessível
+   ========================================================================== */
+
+a:focus-visible,
+button:focus-visible{
+    outline:2px solid var(--gold);
+    outline-offset:4px;
+    border-radius:var(--radius-sm);
+}
+
+/* ==========================================================================
+   Animações
+   ========================================================================== */
+
+@keyframes reveal-up{
+    from{ opacity:0; transform:translateY(18px); }
+    to{ opacity:1; transform:translateY(0); }
+}
+
+@keyframes corner-in{
+    from{ opacity:0; transform:scale(.7); }
+    to{ opacity:.6; transform:scale(1); }
+}
+
+@keyframes pulse-dot{
+    0%, 100%{ opacity:1; transform:scale(1); }
+    50%{ opacity:.5; transform:scale(1.25); }
+}
+
+/* ==========================================================================
+   Responsivo
+   ========================================================================== */
+
+@media (max-width:900px){
+    .hero{ min-height:auto; }
+}
+
+@media (max-width:640px){
+    nav{ padding:16px 20px; }
+    nav ul{ gap:14px; }
+    nav ul li a{ font-size:12px; }
+    .hero{ padding:48px 22px; }
+    .hero::before,
+    .hero::after{ width:28px; height:28px; }
+    .hero::before{ top:16px; left:16px; }
+    .hero::after{ bottom:16px; right:16px; }
+    button{ width:100%; justify-content:center; }
+    button a{ font-size:17px; }
+}
+
+@media (max-width:420px){
+    nav{ flex-direction:column; align-items:flex-start; gap:12px; }
+    nav ul{ gap:12px; }
+}
+
+/* ==========================================================================
+   Movimento reduzido (acessibilidade)
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce){
+    *,
+    *::before,
+    *::after{
+        animation-duration:.01ms !important;
+        animation-iteration-count:1 !important;
+        transition-duration:.01ms !important;
+        scroll-behavior:auto !important;
+    }
 }
