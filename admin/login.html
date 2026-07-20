@@ -36,22 +36,31 @@
             <h1>Blog Secreto</h1>
             <p class="text-muted">Acesso Restrito ao Sistema</p>
         </div>
-        <form action="index.html" method="GET">
+        <form id="form-login">
             <div class="form-group">
                 <label>Usuário de Acesso</label>
-                <input type="text" placeholder="admin" required>
+                <input type="text" id="login-user" placeholder="admin" required>
             </div>
             <div class="form-group">
                 <label>Chave de Segurança</label>
-                <input type="password" placeholder="••••••••" required>
-            </div>
-            <div class="form-options">
-                <label><input type="checkbox"> Lembrar credenciais</label>
-                <a href="#">Esqueci a chave</a>
+                <input type="password" id="login-pass" placeholder="••••••••" required>
             </div>
             <button type="submit" class="btn btn-primary" style="width: 100%;">Autenticar</button>
         </form>
-    </div>
-</div>
+
+        <script src="js/auth.js"></script>
+        <script>
+            document.getElementById('form-login').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const u = document.getElementById('login-user').value;
+                const p = document.getElementById('login-pass').value;
+
+                if (Auth.login(u, p)) {
+                    window.location.href = 'index.html'; // Entra no painel
+                } else {
+                    alert('Credenciais Inválidas! Acesso negado.');
+                }
+            });
+        </script>
 </body>
 </html>
