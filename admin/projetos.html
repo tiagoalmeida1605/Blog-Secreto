@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projetos - Admin Secreto</title>
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <span style="color: var(--primary);">●</span> Admin Secreto
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="index.html">Visão Geral</a></li>
+            <li><a href="projetos.html" class="active">Projetos</a></li>
+            <li><a href="configuracoes.html">Configurações</a></li>
+            <li style="margin-top: auto;"><a href="login.html">Desconectar</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <h2>Gerenciar Projetos</h2>
+            <button class="btn btn-primary" onclick="abrirModal()">Adicionar Projeto</button>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Status</th>
+                        <th>Versão</th>
+                        <th>Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tabela-projetos">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div class="modal-overlay" id="modal-projeto">
+    <div class="modal-content">
+        <h3 style="margin-bottom: 24px;">Configuração de Projeto</h3>
+        <form id="form-projeto" style="display: flex; flex-direction: column; gap: 16px;">
+            <input type="text" id="proj-nome" placeholder="Nome do Projeto" required style="padding: 12px; background: var(--bg-card); border: 1px solid var(--border); color: #fff; border-radius: 4px;">
+            <input type="text" id="proj-status" placeholder="Status (Ex: Ativo)" required style="padding: 12px; background: var(--bg-card); border: 1px solid var(--border); color: #fff; border-radius: 4px;">
+            <input type="text" id="proj-versao" placeholder="Versão" required style="padding: 12px; background: var(--bg-card); border: 1px solid var(--border); color: #fff; border-radius: 4px;">
+            <div style="display: flex; gap: 12px; margin-top: 16px; justify-content: flex-end;">
+                <button type="button" class="btn btn-outline" onclick="fecharModal()">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Salvar Registro</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="js/projetos.js"></script>
+</body>
+</html>
