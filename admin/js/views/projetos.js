@@ -15,6 +15,30 @@ const inputBusca = document.getElementById('input-busca');
 const selectFiltroStatus = document.getElementById('filtro-status');
 const modalTitulo = document.getElementById('modal-titulo');
 
+function escapeHTML(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function safeUrl(url, fallback = '#') {
+    const value = String(url || '').trim();
+    if (!value || /^(javascript|vbscript|data):/i.test(value)) return fallback;
+    if (value === '#' || value.startsWith('./') || value.startsWith('../') || value.startsWith('/')) return value;
+
+    try {
+        const parsed = new URL(value, window.location.href);
+        return ['http:', 'https:', 'mailto:'].includes(parsed.protocol)
+            ? value
+            : fallback;
+    } catch (error) {
+        return fallback;
+    }
+}
+
 // ==========================================
 // RENDERIZAÇÃO DA TABELA E FILTROS
 // ==========================================
@@ -58,22 +82,23 @@ function renderizarTabela() {
 
         // Trata a lista de tecnologias para virar badges
         const techBadges = Array.isArray(proj.tecnologias)
-            ? proj.tecnologias.map(t => `<span class="tech-badge" style="font-size:11px; padding:2px 8px; background:var(--bg-panel); border:1px solid var(--border); border-radius:12px; margin-right:4px;">${t}</span>`).join('')
+            ? proj.tecnologias.map(t => `<span class="tech-badge" style="font-size:11px; padding:2px 8px; background:var(--bg-panel); border:1px solid var(--border); border-radius:12px; margin-right:4px;">${escapeHTML(t)}</span>`).join('')
             : '';
+        const imageUrl = safeUrl(proj.imagem || 'https://via.placeholder.com/40', 'https://via.placeholder.com/40');
 
         tr.innerHTML = `
             <td>
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <img src="${proj.imagem || 'https://via.placeholder.com/40'}" alt="" style="width:40px; height:40px; border-radius:6px; object-fit:cover; border:1px solid var(--border);">
+                    <img src="${imageUrl}" alt="" style="width:40px; height:40px; border-radius:6px; object-fit:cover; border:1px solid var(--border);">
                     <div>
-                        <strong>${proj.nome}</strong>
+                        <strong>${escapeHTML(proj.nome)}</strong>
                         <div style="margin-top: 4px;">${techBadges}</div>
                     </div>
                 </div>
             </td>
-            <td><span style="color: ${proj.status === 'Ativo' ? '#2ecc71' : proj.status === 'Em Teste' ? 'var(--accent)' : 'var(--text-muted)'}; font-weight: 600;">${proj.status}</span></td>
-            <td><code>${proj.versao}</code></td>
-            <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-muted); font-size: 0.85rem;">${proj.descricao}</td>
+            <td><span style="color: ${proj.status === 'Ativo' ? '#2ecc71' : proj.status === 'Em Teste' ? 'var(--accent)' : 'var(--text-muted)'}; font-weight: 600;">${escapeHTML(proj.status)}</span></td>
+            <td><code>${escapeHTML(proj.versao)}</code></td>
+            <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-muted); font-size: 0.85rem;">${escapeHTML(proj.descricao)}</td>
             <td>
                 <div style="display: flex; gap: 8px;">
                     <button class="btn btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="abrirModalEdicao(${proj.id})">Editar</button>
