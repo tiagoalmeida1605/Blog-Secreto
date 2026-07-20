@@ -1,64 +1,190 @@
-// Simulação de Banco de Dados Local (Pronto para virar chamadas Fetch/API)
-let dbProjetos = [
-    { id: 1, nome: "Sistema Nexus", status: "Ativo", versao: "v1.2.0" },
-    { id: 2, nome: "Cryptos API", status: "Em Teste", versao: "v0.8.5-beta" }
-];
+/**
+ * ==========================================================================
+ * View: Gerenciamento de Projetos (CRUD Completo + Filtros + Modais)
+ * ==========================================================================
+ */
 
+// Estado interno da página
+let idProjetoEmEdicao = null;
+let idProjetoParaExcluir = null;
+
+// Elementos do DOM
 const tabela = document.getElementById('tabela-projetos');
-const modal = document.getElementById('modal-projeto');
 const form = document.getElementById('form-projeto');
+const inputBusca = document.getElementById('input-busca');
+const selectFiltroStatus = document.getElementById('filtro-status');
+const modalTitulo = document.getElementById('modal-titulo');
 
-// Read (GET)
+// ==========================================
+// RENDERIZAÇÃO DA TABELA E FILTROS
+// ==========================================
+
 function renderizarTabela() {
+    if (!tabela) return;
+
     tabela.innerHTML = '';
-    dbProjetos.forEach(proj => {
+    let projetos = Store.getProjetos();
+
+    // Aplica Filtro de Busca por Texto
+    const termoBusca = inputBusca ? inputBusca.value.toLowerCase() : '';
+    if (termoBusca) {
+        projetos = projetos.filter(p =>
+            p.nome.toLowerCase().includes(termoBusca) ||
+            p.descricao.toLowerCase().includes(termoBusca) ||
+            p.tecnologias.some(t => t.toLowerCase().includes(termoBusca))
+        );
+    }
+
+    // Aplica Filtro por Status
+    const statusFiltro = selectFiltroStatus ? selectFiltroStatus.value : 'todos';
+    if (statusFiltro !== 'todos') {
+        projetos = projetos.filter(p => p.status.toLowerCase() === statusFiltro.toLowerCase());
+    }
+
+    // Se não encontrar nada
+    if (projetos.length === 0) {
+        tabela.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 32px;">
+                    Nenhum projeto encontrado.
+                </td>
+            </tr>`;
+        return;
+    }
+
+    // Monta as linhas
+    projetos.forEach(proj => {
         const tr = document.createElement('tr');
+
+        // Trata a lista de tecnologias para virar badges
+        const techBadges = Array.isArray(proj.tecnologias)
+            ? proj.tecnologias.map(t => `<span class="tech-badge" style="font-size:11px; padding:2px 8px; background:var(--bg-panel); border:1px solid var(--border); border-radius:12px; margin-right:4px;">${t}</span>`).join('')
+            : '';
+
         tr.innerHTML = `
-            <td><strong>${proj.nome}</strong></td>
-            <td><span style="color: var(--accent);">${proj.status}</span></td>
-            <td>${proj.versao}</td>
-            <td style="display: flex; gap: 8px;">
-                <button class="btn btn-outline" onclick="editarProjeto(${proj.id})">Editar</button>
-                <button class="btn btn-danger" onclick="excluirProjeto(${proj.id})">Excluir</button>
+            <td>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <img src="${proj.imagem || 'https://via.placeholder.com/40'}" alt="" style="width:40px; height:40px; border-radius:6px; object-fit:cover; border:1px solid var(--border);">
+                    <div>
+                        <strong>${proj.nome}</strong>
+                        <div style="margin-top: 4px;">${techBadges}</div>
+                    </div>
+                </div>
+            </td>
+            <td><span style="color: ${proj.status === 'Ativo' ? '#2ecc71' : proj.status === 'Em Teste' ? 'var(--accent)' : 'var(--text-muted)'}; font-weight: 600;">${proj.status}</span></td>
+            <td><code>${proj.versao}</code></td>
+            <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-muted); font-size: 0.85rem;">${proj.descricao}</td>
+            <td>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="abrirModalEdicao(${proj.id})">Editar</button>
+                    <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="abrirModalExclusao(${proj.id})">Excluir</button>
+                </div>
             </td>
         `;
         tabela.appendChild(tr);
     });
 }
 
-// Modal Control
-function abrirModal() { modal.classList.add('active'); form.reset(); }
-function fecharModal() { modal.classList.remove('active'); }
+// Eventos de Filtro em Tempo Real
+if (inputBusca) inputBusca.addEventListener('input', renderizarTabela);
+if (selectFiltroStatus) selectFiltroStatus.addEventListener('change', renderizarTabela);
 
-// Create & Update (POST/PUT)
-form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const nome = document.getElementById('proj-nome').value;
-    const status = document.getElementById('proj-status').value;
-    const versao = document.getElementById('proj-versao').value;
+// ==========================================
+// MODAL DE ADICIONAR / EDITAR
+// ==========================================
 
-    // Lógica simples de "Add" (para escalar, adicionar lógica de "Update" com ID)
-    const novoProjeto = {
-        id: Date.now(),
-        nome, status, versao
-    };
+function abrirModalNovo() {
+    idProjetoEmEdicao = null;
+    form.reset();
+    if (modalTitulo) modalTitulo.textContent = 'Novo Projeto';
+    UI.openModal('modal-projeto');
+}
 
-    dbProjetos.push(novoProjeto);
-    renderizarTabela();
-    fecharModal();
-});
+function abrirModalEdicao(id) {
+    const proj = Store.getProjetoById(id);
+    if (!proj) return;
 
-// Delete (DELETE)
-function excluirProjeto(id) {
-    if(confirm("Confirmar expurgo do registro?")) {
-        dbProjetos = dbProjetos.filter(p => p.id !== id);
+    idProjetoEmEdicao = id;
+    if (modalTitulo) modalTitulo.textContent = 'Editar Projeto';
+
+    // Preenche os campos do formulário
+    document.getElementById('proj-nome').value = proj.nome || '';
+    document.getElementById('proj-desc').value = proj.descricao || '';
+    document.getElementById('proj-tech').value = Array.isArray(proj.tecnologias) ? proj.tecnologias.join(', ') : '';
+    document.getElementById('proj-status').value = proj.status || 'Ativo';
+    document.getElementById('proj-versao').value = proj.versao || '';
+    document.getElementById('proj-imagem').value = proj.imagem || '';
+    document.getElementById('proj-link').value = proj.link || '';
+
+    UI.openModal('modal-projeto');
+}
+
+function fecharModalForm() {
+    UI.closeModal('modal-projeto');
+    form.reset();
+    idProjetoEmEdicao = null;
+}
+
+// Submit do Formulário (Salvar / Criar / Atualizar)
+if (form) {
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const tecnologiasInput = document.getElementById('proj-tech').value;
+        const arrayTechs = tecnologiasInput.split(',').map(t => t.trim()).filter(t => t.length > 0);
+
+        const dadosProjeto = {
+            nome: document.getElementById('proj-nome').value,
+            descricao: document.getElementById('proj-desc').value,
+            tecnologias: arrayTechs,
+            status: document.getElementById('proj-status').value,
+            versao: document.getElementById('proj-versao').value,
+            imagem: document.getElementById('proj-imagem').value || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80',
+            link: document.getElementById('proj-link').value || '#'
+        };
+
+        if (idProjetoEmEdicao) {
+            // Atualizar
+            Store.updateProjeto(idProjetoEmEdicao, dadosProjeto);
+            UI.showAlert('Projeto atualizado com sucesso!');
+        } else {
+            // Criar
+            Store.addProjeto(dadosProjeto);
+            UI.showAlert('Novo projeto cadastrado com sucesso!');
+        }
+
         renderizarTabela();
+        fecharModalForm();
+    });
+}
+
+// ==========================================
+// MODAL DE CONFIRMAÇÃO DE EXCLUSÃO
+// ==========================================
+
+function abrirModalExclusao(id) {
+    idProjetoParaExcluir = id;
+    UI.openModal('modal-confirmar-exclusao');
+}
+
+function fecharModalExclusao() {
+    idProjetoParaExcluir = null;
+    UI.closeModal('modal-confirmar-exclusao');
+}
+
+function confirmarExclusao() {
+    if (idProjetoParaExcluir) {
+        Store.deleteProjeto(idProjetoParaExcluir);
+        renderizarTabela();
+        UI.showAlert('Registro excluído do banco.', 'danger');
+        fecharModalExclusao();
     }
 }
 
-function editarProjeto(id) {
-    alert("Função de edição em construção. Preparando endpoints.");
-}
+// ==========================================
+// INICIALIZAÇÃO
+// ==========================================
 
-// Initialize
-renderizarTabela();
+document.addEventListener('DOMContentLoaded', () => {
+    renderizarTabela();
+});
