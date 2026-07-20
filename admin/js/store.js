@@ -10,84 +10,274 @@ const Store = {
         CONFIG: 'secreto_admin_config'
     },
 
+    LEGACY_SAMPLE_PROJECTS: [
+        {
+            id: '1',
+            nome: 'Sistema Nexus',
+            descricao: 'Painel de controle focado em privacidade e monitoramento de anomalias em redes locais.'
+        },
+        {
+            id: '2',
+            nome: 'Cryptos API',
+            descricao: 'API para criptografia end-to-end e troca segura de chaves públicas.'
+        },
+        {
+            id: '3',
+            nome: 'Dossiê Scraper',
+            descricao: 'Automação de extração de dados públicos (OSINT) e relatórios.'
+        }
+    ],
+
     init: function() {
-        if (!localStorage.getItem(this.KEYS.PROJETOS)) {
-            const initialData = [
-                {
-                    id: 1,
-                    nome: "Sistema Nexus",
-                    descricao: "Painel de controle focado em privacidade e monitoramento de anomalias em redes locais.",
-                    tecnologias: ["JavaScript", "Node.js", "WebSockets"],
-                    status: "Ativo",
-                    versao: "v1.2.0",
-                    imagem: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80",
-                    link: "#"
-                },
-                {
-                    id: 2,
-                    nome: "Cryptos API",
-                    descricao: "API para criptografia end-to-end e troca segura de chaves públicas.",
-                    tecnologias: ["Python", "FastAPI", "Docker"],
-                    status: "Em Teste",
-                    versao: "v0.8.5-beta",
-                    imagem: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=600&q=80",
-                    link: "#"
-                },
-                {
-                    id: 3,
-                    nome: "Dossiê Scraper",
-                    descricao: "Automação de extração de dados públicos (OSINT) e relatórios.",
-                    tecnologias: ["Python", "Selenium"],
-                    status: "Arquivado",
-                    versao: "v2.0.1",
-                    imagem: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=600&q=80",
-                    link: "#"
-                }
-            ];
-            localStorage.setItem(this.KEYS.PROJETOS, JSON.stringify(initialData));
+        const saved = this.readRawProjetos();
+
+        if (saved === null) {
+            this.saveProjetos([]);
+            return;
+        }
+
+        const parsed = this.parseProjetos(saved);
+        const normalized = this.normalizeProjetos(parsed, { removeLegacySamples: true });
+        const normalizedSerialized = JSON.stringify(normalized);
+
+        if (saved !== normalizedSerialized) {
+            this.saveProjetos(normalized);
         }
     },
 
     getProjetos: function() {
-        return JSON.parse(localStorage.getItem(this.KEYS.PROJETOS)) || [];
+        const saved = this.readRawProjetos();
+
+        if (saved === null) {
+            this.saveProjetos([]);
+            return [];
+        }
+
+        const parsed = this.parseProjetos(saved);
+        const normalized = this.normalizeProjetos(parsed);
+        const normalizedSerialized = JSON.stringify(normalized);
+
+        if (saved !== normalizedSerialized) {
+            this.saveProjetos(normalized);
+        }
+
+        return normalized;
     },
 
     getProjetoById: function(id) {
-        const projetos = this.getProjetos();
-        return projetos.find(p => p.id === Number(id));
+        const normalizedId = this.normalizeId(id);
+        return this.getProjetos().find((projeto) => projeto.id === normalizedId) || null;
     },
 
     addProjeto: function(projeto) {
         const projetos = this.getProjetos();
-        projeto.id = Date.now();
-        projetos.unshift(projeto); // Adiciona no início da lista
-        localStorage.setItem(this.KEYS.PROJETOS, JSON.stringify(projetos));
-        return projeto;
+        const novoProjeto = this.normalizeProjeto({
+            ...projeto,
+            id: this.createId()
+        });
+
+        projetos.unshift(novoProjeto);
+        this.saveProjetos(this.normalizeProjetos(projetos));
+        return novoProjeto;
     },
 
     updateProjeto: function(id, dadosAtualizados) {
+        const normalizedId = this.normalizeId(id);
         const projetos = this.getProjetos();
-        const index = projetos.findIndex(p => p.id === Number(id));
-        if (index !== -1) {
-            projetos[index] = { ...projetos[index], ...dadosAtualizados, id: Number(id) };
-            localStorage.setItem(this.KEYS.PROJETOS, JSON.stringify(projetos));
-        }
+        const index = projetos.findIndex((projeto) => projeto.id === normalizedId);
+
+        if (index === -1) return null;
+
+        const projetoAtualizado = this.normalizeProjeto({
+            ...projetos[index],
+            ...dadosAtualizados,
+            id: normalizedId
+        });
+
+        projetos[index] = projetoAtualizado;
+        this.saveProjetos(this.normalizeProjetos(projetos));
+        return projetoAtualizado;
     },
 
     deleteProjeto: function(id) {
-        let projetos = this.getProjetos();
-        projetos = projetos.filter(p => p.id !== Number(id));
-        localStorage.setItem(this.KEYS.PROJETOS, JSON.stringify(projetos));
+        const normalizedId = this.normalizeId(id);
+        const projetos = this.getProjetos();
+        const filtrados = projetos.filter((projeto) => projeto.id !== normalizedId);
+
+        if (filtrados.length === projetos.length) return false;
+
+        this.saveProjetos(filtrados);
+        return true;
     },
 
     getStats: function() {
         const projetos = this.getProjetos();
+
         return {
             totalProjetos: projetos.length,
-            ativos: projetos.filter(p => p.status.toLowerCase() === 'ativo').length,
-            emTeste: projetos.filter(p => p.status.toLowerCase() === 'em teste').length
+            ativos: projetos.filter((projeto) => this.normalizeForCompare(projeto.status) === 'ativo').length,
+            emTeste: projetos.filter((projeto) => this.normalizeForCompare(projeto.status) === 'em teste').length
         };
+    },
+
+    readRawProjetos: function() {
+        try {
+            return localStorage.getItem(this.KEYS.PROJETOS);
+        } catch (error) {
+            console.warn('[Store] Não foi possível ler os projetos:', error);
+            return null;
+        }
+    },
+
+    parseProjetos: function(rawValue) {
+        try {
+            const parsed = rawValue ? JSON.parse(rawValue) : [];
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+            console.warn('[Store] Projetos corrompidos no LocalStorage. O banco local foi reiniciado.', error);
+            return [];
+        }
+    },
+
+    saveProjetos: function(projetos) {
+        const normalized = Array.isArray(projetos) ? projetos : [];
+
+        try {
+            localStorage.setItem(this.KEYS.PROJETOS, JSON.stringify(normalized));
+            return true;
+        } catch (error) {
+            console.warn('[Store] Não foi possível salvar os projetos:', error);
+            return false;
+        }
+    },
+
+    normalizeProjetos: function(projetos, options = {}) {
+        const uniqueIds = new Set();
+        const uniqueFingerprints = new Set();
+        const normalized = [];
+
+        (Array.isArray(projetos) ? projetos : []).forEach((rawProjeto) => {
+            const projeto = this.normalizeProjeto(rawProjeto);
+
+            if (!projeto.nome) return;
+            if (options.removeLegacySamples && this.isLegacySample(projeto)) return;
+            if (uniqueIds.has(projeto.id)) return;
+
+            const fingerprint = this.createFingerprint(projeto);
+            if (uniqueFingerprints.has(fingerprint)) return;
+
+            uniqueIds.add(projeto.id);
+            uniqueFingerprints.add(fingerprint);
+            normalized.push(projeto);
+        });
+
+        return normalized;
+    },
+
+    normalizeProjeto: function(projeto = {}) {
+        return {
+            id: this.normalizeId(projeto.id || this.createId()),
+            nome: this.sanitizeText(projeto.nome),
+            descricao: this.sanitizeText(projeto.descricao),
+            tecnologias: this.normalizeTechnologies(projeto.tecnologias),
+            status: this.sanitizeText(projeto.status) || 'Ativo',
+            versao: this.sanitizeText(projeto.versao),
+            imagem: this.safeUrl(projeto.imagem, ''),
+            link: this.safeUrl(projeto.link, '#', { allowMailto: true })
+        };
+    },
+
+    normalizeTechnologies: function(value) {
+        const tecnologias = Array.isArray(value)
+            ? value
+            : String(value || '').split(',');
+
+        const unique = new Set();
+
+        tecnologias
+            .map((tecnologia) => this.sanitizeText(tecnologia))
+            .filter(Boolean)
+            .forEach((tecnologia) => unique.add(tecnologia));
+
+        return [...unique];
+    },
+
+    normalizeId: function(id) {
+        return String(id || '').trim();
+    },
+
+    createId: function() {
+        if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+            return `proj-${window.crypto.randomUUID()}`;
+        }
+
+        if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
+            const values = new Uint32Array(2);
+            window.crypto.getRandomValues(values);
+            return `proj-${values[0].toString(36)}-${values[1].toString(36)}`;
+        }
+
+        const first = Math.random().toString(36).slice(2, 10);
+        const second = Math.random().toString(36).slice(2, 10);
+        return `proj-${first}-${second}`;
+    },
+
+    sanitizeText: function(value) {
+        return String(value || '')
+            .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
+            .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+            .trim();
+    },
+
+    safeUrl: function(url, fallback = '#', options = {}) {
+        const value = String(url || '').trim();
+        if (!value || value === '#') return fallback;
+        if (/^(javascript|vbscript|data):/i.test(value)) return fallback;
+        if (value.startsWith('//')) return fallback;
+
+        if (value.startsWith('./') || value.startsWith('../') || value.startsWith('/') || value.startsWith('#')) {
+            return value;
+        }
+
+        try {
+            const parsed = new URL(value, window.location.href);
+            const allowedProtocols = options.allowMailto
+                ? ['http:', 'https:', 'mailto:']
+                : ['http:', 'https:'];
+
+            return allowedProtocols.includes(parsed.protocol) ? parsed.href : fallback;
+        } catch (error) {
+            return fallback;
+        }
+    },
+
+    isLegacySample: function(projeto) {
+        const projectName = this.normalizeForCompare(projeto.nome);
+        const projectDescription = this.normalizeForCompare(projeto.descricao);
+
+        return this.LEGACY_SAMPLE_PROJECTS.some((sample) => (
+            this.normalizeId(projeto.id) === sample.id &&
+            projectName === this.normalizeForCompare(sample.nome) &&
+            projectDescription === this.normalizeForCompare(sample.descricao)
+        ));
+    },
+
+    createFingerprint: function(projeto) {
+        return [
+            this.normalizeForCompare(projeto.nome),
+            this.normalizeForCompare(projeto.descricao),
+            this.normalizeForCompare(projeto.versao)
+        ].join('|');
+    },
+
+    normalizeForCompare: function(value) {
+        return String(value || '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .trim();
     }
 };
 
+window.Store = Store;
 Store.init();

@@ -5,8 +5,12 @@
  */
 
 const UI = {
+    initialized: false,
+
     // Inicializa eventos globais
     init: function() {
+        if (this.initialized) return;
+        this.initialized = true;
         this.setupSidebarResponsive();
     },
 
@@ -75,7 +79,9 @@ const UI = {
     }
 };
 
+window.UI = UI;
+
 // Dispara a inicialização da UI quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', () => {
     UI.init();
-});
+}, { once: true });

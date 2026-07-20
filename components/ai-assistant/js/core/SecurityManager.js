@@ -97,6 +97,10 @@ export class SecurityManager {
             return '#';
         }
 
+        if (trimmed.startsWith('//')) {
+            return '#';
+        }
+
         if (
             trimmed.startsWith('./') ||
             trimmed.startsWith('../') ||

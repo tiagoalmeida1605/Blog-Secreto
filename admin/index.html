@@ -66,12 +66,15 @@
   document.addEventListener('DOMContentLoaded', () => {
     const stats = Store.getStats();
     const cards = document.querySelectorAll('.stat-card h3');
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
 
     if(cards.length >= 2) {
-      cards[0].textContent = stats.totalProjetos;
-      cards[1].textContent = `Hoje, ${new Date().getHours()}:${new Date().getMinutes()}`;
+      cards[0].textContent = stats.ativos;
+      cards[1].textContent = `Hoje, ${hours}:${minutes}`;
     }
-  });
+  }, { once: true });
 </script>
 <script type="module" src="../components/ai-assistant/js/core/ChatManager.js"></script>
 </body>

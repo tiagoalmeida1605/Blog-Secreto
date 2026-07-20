@@ -1,36 +1,10 @@
 import { SecurityManager } from '../core/SecurityManager.js';
 
-export const DEFAULT_PROJECTS = [
-    {
-        id: 1,
-        nome: 'Sistema Nexus',
-        descricao: 'Painel de controle focado em privacidade e monitoramento de anomalias em redes locais.',
-        tecnologias: ['JavaScript', 'Node.js', 'WebSockets'],
-        status: 'Ativo',
-        versao: 'v1.2.0',
-        imagem: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80',
-        link: '#'
-    },
-    {
-        id: 2,
-        nome: 'Cryptos API',
-        descricao: 'API para criptografia end-to-end e troca segura de chaves públicas.',
-        tecnologias: ['Python', 'FastAPI', 'Docker'],
-        status: 'Em Teste',
-        versao: 'v0.8.5-beta',
-        imagem: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=600&q=80',
-        link: '#'
-    },
-    {
-        id: 3,
-        nome: 'Dossiê Scraper',
-        descricao: 'Automação de extração de dados públicos (OSINT) e relatórios.',
-        tecnologias: ['Python', 'Selenium'],
-        status: 'Arquivado',
-        versao: 'v2.0.1',
-        imagem: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=600&q=80',
-        link: '#'
-    }
+const PROJECTS_STORAGE_KEY = 'secreto_admin_projetos';
+const LEGACY_SAMPLE_PROJECTS = [
+    ['1', 'Sistema Nexus', 'Painel de controle focado em privacidade e monitoramento de anomalias em redes locais.'],
+    ['2', 'Cryptos API', 'API para criptografia end-to-end e troca segura de chaves públicas.'],
+    ['3', 'Dossiê Scraper', 'Automação de extração de dados públicos (OSINT) e relatórios.']
 ];
 
 export class StorageManager {
@@ -204,8 +178,91 @@ export class StorageManager {
             return window.Store.getProjetos();
         }
 
-        const saved = SecurityManager.safeJsonParse(localStorage.getItem('secreto_admin_projetos'), null);
-        return Array.isArray(saved) && saved.length ? saved : DEFAULT_PROJECTS;
+        const saved = SecurityManager.safeJsonParse(localStorage.getItem(PROJECTS_STORAGE_KEY), []);
+        return this.normalizeProjects(Array.isArray(saved) ? saved : []);
+    }
+
+    normalizeProjects(projects) {
+        const uniqueIds = new Set();
+        const uniqueFingerprints = new Set();
+        const normalized = [];
+
+        projects.forEach((rawProject) => {
+            const project = this.normalizeProject(rawProject);
+            if (!project.nome) return;
+            if (this.isLegacySampleProject(project)) return;
+            if (uniqueIds.has(project.id)) return;
+
+            const fingerprint = this.createProjectFingerprint(project);
+            if (uniqueFingerprints.has(fingerprint)) return;
+
+            uniqueIds.add(project.id);
+            uniqueFingerprints.add(fingerprint);
+            normalized.push(project);
+        });
+
+        return normalized;
+    }
+
+    normalizeProject(project = {}) {
+        const normalized = {
+            id: String(project.id || '').trim(),
+            nome: SecurityManager.sanitize(project.nome || project.title || ''),
+            descricao: SecurityManager.sanitize(project.descricao || project.description || ''),
+            tecnologias: this.normalizeTechnologies(project.tecnologias || project.tags),
+            status: SecurityManager.sanitize(project.status || 'Ativo'),
+            versao: SecurityManager.sanitize(project.versao || ''),
+            imagem: this.safeProjectUrl(project.imagem || project.image || '', ''),
+            link: SecurityManager.safeUrl(project.link || project.href || '#')
+        };
+
+        if (!normalized.id) {
+            normalized.id = this.createProjectFingerprint(normalized);
+        }
+
+        return normalized;
+    }
+
+    normalizeTechnologies(value) {
+        const technologies = Array.isArray(value)
+            ? value
+            : String(value || '').split(',');
+        const unique = new Set();
+
+        technologies
+            .map((technology) => SecurityManager.sanitize(technology))
+            .filter(Boolean)
+            .forEach((technology) => unique.add(technology));
+
+        return [...unique];
+    }
+
+    safeProjectUrl(url, fallback = '#') {
+        const value = String(url || '').trim();
+        if (!value || value === '#') return fallback;
+        if (/^(javascript|vbscript|data):/i.test(value)) return fallback;
+        if (value.startsWith('//')) return fallback;
+        return SecurityManager.safeUrl(value);
+    }
+
+    isLegacySampleProject(project) {
+        const id = String(project.id || '').trim();
+        const name = SecurityManager.normalizeForSearch(project.nome);
+        const description = SecurityManager.normalizeForSearch(project.descricao);
+
+        return LEGACY_SAMPLE_PROJECTS.some(([sampleId, sampleName, sampleDescription]) => (
+            id === sampleId &&
+            name === SecurityManager.normalizeForSearch(sampleName) &&
+            description === SecurityManager.normalizeForSearch(sampleDescription)
+        ));
+    }
+
+    createProjectFingerprint(project) {
+        return [
+            SecurityManager.normalizeForSearch(project.nome),
+            SecurityManager.normalizeForSearch(project.descricao),
+            SecurityManager.normalizeForSearch(project.versao)
+        ].join('|');
     }
 
     getPosts() {
