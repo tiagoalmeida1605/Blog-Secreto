@@ -4,10 +4,23 @@
  * ==========================================================================
  */
 
+const AI_ASSISTANT_PROJECT = {
+    id: 'assistente-ia-blog-secreto',
+    nome: 'Assistente IA do Blog Secreto',
+    descricao: 'Sistema público de chat e busca local com memória de conversa, temas, permissões, modo admin protegido e APIs preparadas.',
+    tecnologias: ['JavaScript ES Modules', 'LocalStorage', 'Busca local', 'UI responsiva', 'APIs preparadas'],
+    status: 'Público',
+    versao: 'v0.1-alpha',
+    imagem: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=600&q=80',
+    link: '../components/ai-assistant/assistant.html'
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     const grid = document.getElementById('grid-projetos-publicos');
 
     if (!grid) return;
+
+    bindAssistantPublicActions();
 
     const projetos = getProjetosPublicos();
 
@@ -57,7 +70,8 @@ function getProjetosPublicos() {
     const dadosLocais = localStorage.getItem('secreto_admin_projetos');
 
     if (!dadosLocais) {
-        return [
+        return ensureAssistantProject([
+            AI_ASSISTANT_PROJECT,
             {
                 id: 1,
                 nome: 'Sistema Nexus',
@@ -88,15 +102,37 @@ function getProjetosPublicos() {
                 imagem: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=600&q=80',
                 link: '#'
             }
-        ];
+        ]);
     }
 
     try {
         const projetos = JSON.parse(dadosLocais);
-        return Array.isArray(projetos) ? projetos : [];
+        return ensureAssistantProject(Array.isArray(projetos) ? projetos : []);
     } catch (error) {
-        return [];
+        return ensureAssistantProject([]);
     }
+}
+
+function ensureAssistantProject(projetos) {
+    const hasAssistant = projetos.some((proj) => String(proj.id) === AI_ASSISTANT_PROJECT.id ||
+        normalizeProjectName(proj.nome) === normalizeProjectName(AI_ASSISTANT_PROJECT.nome));
+
+    return hasAssistant ? projetos : [AI_ASSISTANT_PROJECT, ...projetos];
+}
+
+function bindAssistantPublicActions() {
+    document.querySelectorAll('[data-open-ai-assistant]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const assistant = window.__BlogSecretoAssistant;
+
+            if (assistant && assistant.ui && typeof assistant.ui.open === 'function') {
+                assistant.ui.open();
+                return;
+            }
+
+            document.querySelector('.ai-launcher')?.click();
+        });
+    });
 }
 
 function escapeHTML(value) {
@@ -121,4 +157,12 @@ function safeUrl(url, fallback) {
     } catch (error) {
         return fallback;
     }
+}
+
+function normalizeProjectName(value) {
+    return String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
 }
