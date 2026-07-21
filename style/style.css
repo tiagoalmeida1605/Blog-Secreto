@@ -1,37 +1,6 @@
 /* ==========================================================================
-   Blog Secreto — Identidade "Dossiê Confidencial"
-   Dark premium · blog editorial · arquivo secreto · tecnologia
+   Blog Secreto — Estilos Globais
    ========================================================================== */
-
-:root {
-    /* Paleta base */
-    --bg: #080808;
-    --surface: #151515;
-    --surface-soft: rgba(21, 21, 21, 0.72);
-    --red: #C1121F;
-    --red-hover: #FF1E35;
-    --gold: #FFD166;
-    --text: #F8F9FA;
-    --text-secondary: #A7A7A7;
-
-    /* Derivados */
-    --border-hairline: rgba(255, 209, 102, 0.14);
-    --shadow-red: rgba(193, 18, 31, 0.35);
-    --shadow-gold: rgba(255, 209, 102, 0.14);
-    --glow-red: rgba(193, 18, 31, 0.28);
-    --glow-gold: rgba(255, 209, 102, 0.16);
-
-    /* Tipografia */
-    --font-display: "Montserrat", "Google Sans", sans-serif;
-    --font-body: "Inter", sans-serif;
-    --font-mono: ui-monospace, "SF Mono", "Roboto Mono", Menlo, Consolas, monospace;
-
-    /* Forma e movimento */
-    --radius-sm: 10px;
-    --radius-md: 16px;
-    --radius-lg: 30px;
-    --ease: cubic-bezier(.16, .84, .44, 1);
-}
 
 *, *::before, *::after {
     margin: 0;
@@ -42,13 +11,13 @@
 html {
     scroll-behavior: smooth;
     scrollbar-width: thin;
-    scrollbar-color: var(--surface) var(--bg);
+    scrollbar-color: var(--card) var(--background);
 }
 
 body {
     position: relative;
     font-family: var(--font-body);
-    background: var(--bg);
+    background: var(--background);
     color: var(--text);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
@@ -65,20 +34,20 @@ body::before {
     inset: 0;
     z-index: 999;
     pointer-events: none;
-    opacity: .035;
+    opacity: .025;
     mix-blend-mode: overlay;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 ::selection {
-    background: var(--red);
-    color: var(--text);
+    background: var(--primary);
+    color: #121212;
 }
 
 ::-webkit-scrollbar { width: 10px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--surface); border-radius: 10px; border: 2px solid var(--bg); }
-::-webkit-scrollbar-thumb:hover { background: var(--red); }
+::-webkit-scrollbar-track { background: var(--background); }
+::-webkit-scrollbar-thumb { background: var(--card); border-radius: 10px; border: 2px solid var(--background); }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
 a {
     color: var(--text);
@@ -134,8 +103,13 @@ nav h1::before {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--red);
-    box-shadow: 0 0 12px var(--red);
+    background: var(--primary);
+    box-shadow: 0 0 12px var(--glow-primary);
+}
+
+/* Brilho discreto na logo no Modo Escuro */
+[data-theme="dark"] nav h1 {
+    text-shadow: 0 0 12px rgba(211, 47, 47, 0.4);
 }
 
 nav ul {
@@ -152,13 +126,12 @@ nav ul li a {
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--text-secondary);
-    transition: color 0.3s var(--ease);
     padding: 4px 0;
 }
 
 nav ul li a:hover,
 nav ul li a.active {
-    color: var(--gold);
+    color: var(--text);
 }
 
 nav ul li a::after {
@@ -168,7 +141,7 @@ nav ul li a::after {
     left: 0;
     width: 0%;
     height: 2px;
-    background: var(--gold);
+    background: var(--primary);
     transition: width 0.3s var(--ease);
 }
 
@@ -177,15 +150,15 @@ nav ul li a.active::after {
     width: 100%;
 }
 
-/* Buttons */
+/* Botões Globais */
 .btn, button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 14px 28px;
-    border: 1px solid var(--border-hairline);
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    background: linear-gradient(135deg, var(--surface), rgba(193, 18, 31, 0.2));
+    background: var(--card);
     color: var(--text);
     font-family: var(--font-mono);
     font-size: 14px;
@@ -193,15 +166,14 @@ nav ul li a.active::after {
     letter-spacing: 0.05em;
     text-transform: uppercase;
     cursor: pointer;
-    transition: all 0.3s var(--ease);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 15px var(--shadow);
 }
 
 .btn:hover, button:hover {
-    border-color: var(--gold);
-    background: linear-gradient(135deg, var(--red), rgba(193, 18, 31, 0.8));
-    color: #FFF;
-    box-shadow: 0 6px 24px var(--shadow-red);
+    border-color: var(--primary-hover);
+    background: var(--primary);
+    color: #121212;
+    box-shadow: 0 6px 24px var(--shadow-primary);
     transform: translateY(-2px);
 }
 
@@ -216,24 +188,25 @@ nav ul li a.active::after {
     text-align: center;
     padding: clamp(48px, 8vw, 96px) clamp(24px, 6vw, 72px);
     border-radius: var(--radius-lg);
-    border: 1px solid var(--border-hairline);
+    border: 1px solid var(--border);
     background-color: var(--surface);
-    background-image: radial-gradient(680px circle at 8% 8%, var(--glow-red), transparent 60%), radial-gradient(620px circle at 95% 100%, var(--glow-gold), transparent 60%);
+    background-image: radial-gradient(680px circle at 8% 8%, var(--glow-primary), transparent 60%),
+    radial-gradient(620px circle at 95% 100%, var(--glow-secondary), transparent 60%);
     background-repeat: no-repeat;
-    box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.03), 0 30px 60px -20px var(--shadow-red);
+    box-shadow: 0 30px 60px -20px var(--shadow), inset 0 0 0 1px var(--border-hairline);
 }
 
 .hero-kicker {
     font-family: var(--font-mono);
     font-size: 12px;
-    color: var(--gold);
+    color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.15em;
     margin-bottom: 16px;
     padding: 6px 14px;
-    border: 1px solid var(--border-hairline);
+    border: 1px solid var(--border);
     border-radius: 999px;
-    background: rgba(255, 209, 102, 0.05);
+    background: var(--card);
 }
 
 .hero h2 {

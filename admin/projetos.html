@@ -4,36 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projetos - Admin Secreto</title>
+    <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('secreto_theme') || 'dark');</script>
     <link rel="stylesheet" href="css/admin.css">
-    <link rel="stylesheet" href="../components/ai-assistant/css/assistant.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="js/auth.js"></script>
     <script>Auth.checkGuard();</script>
 </head>
 <body>
 <div class="admin-layout">
     <aside class="sidebar">
-        <div class="sidebar-brand">
-            <span style="color: var(--primary);">●</span> Admin Secreto
-        </div>
+        <div class="sidebar-brand"><i class="ph-fill ph-hexagon"></i> Secreto</div>
         <ul class="sidebar-nav">
-            <li><a href="index.html">Visão Geral</a></li>
-            <li><a href="projetos.html" class="active">Projetos</a></li>
-            <li><a href="configuracoes.html">Configurações</a></li>
-            <li style="margin-top: auto;"><a href="login.html">Desconectar</a></li>
+            <li><a href="index.html"><i class="ph ph-squares-four"></i> Visão Geral</a></li>
+            <li><a href="projetos.html" class="active"><i class="ph ph-folder-notch"></i> Projetos</a></li>
+            <li><a href="configuracoes.html"><i class="ph ph-gear"></i> Configurações</a></li>
+            <li style="margin-top: auto;"><a href="login.html"><i class="ph ph-sign-out"></i> Desconectar</a></li>
         </ul>
     </aside>
 
     <main class="main-content">
         <header class="topbar">
-            <h2>Gerenciar Projetos</h2>
-            <button class="btn btn-primary" id="btn-novo-projeto" type="button">+ Novo Projeto</button>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <button id="mobile-menu-btn" class="btn-icon"><i class="ph ph-list"></i></button>
+                <h2 style="font-size: 1.2rem;">Gerenciar Projetos</h2>
+            </div>
+            <div class="topbar-actions">
+                <button class="btn btn-primary" id="btn-novo-projeto"><i class="ph ph-plus"></i> Novo</button>
+            </div>
         </header>
 
         <div class="content-wrapper">
-
-            <div style="display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;">
-                <input type="text" id="input-busca" placeholder="Pesquisar por nome, descrição ou tecnologia..." style="flex: 1; min-width: 250px; padding: 12px; background: var(--bg-card); border: 1px solid var(--border); color: #fff; border-radius: var(--radius);">
-                <select id="filtro-status" style="padding: 12px; background: var(--bg-card); border: 1px solid var(--border); color: #fff; border-radius: var(--radius);">
+            <div class="card-panel" style="margin-bottom: 24px; display: flex; gap: 16px; flex-wrap: wrap; padding: 16px;">
+                <div style="flex: 1; min-width: 250px; position: relative;">
+                    <i class="ph ph-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                    <input type="text" id="input-busca" class="form-control" placeholder="Pesquisar projetos..." style="padding-left: 40px;">
+                </div>
+                <select id="filtro-status" class="form-control" style="width: auto; min-width: 180px;">
                     <option value="todos">Todos os Status</option>
                     <option value="Ativo">Ativo</option>
                     <option value="Em Teste">Em Teste</option>
@@ -45,15 +51,14 @@
                 <table>
                     <thead>
                     <tr>
-                        <th>Projeto / Tecnologias</th>
+                        <th>Projeto</th>
                         <th>Status</th>
                         <th>Versão</th>
                         <th>Descrição</th>
                         <th>Ações</th>
                     </tr>
                     </thead>
-                    <tbody id="tabela-projetos">
-                    </tbody>
+                    <tbody id="tabela-projetos"></tbody>
                 </table>
             </div>
         </div>
@@ -61,55 +66,54 @@
 </div>
 
 <div class="modal-overlay" id="modal-projeto">
-    <div class="modal-content" style="max-width: 600px;">
-        <h3 id="modal-titulo" style="margin-bottom: 20px;">Configuração do Projeto</h3>
-        <form id="form-projeto" style="display: flex; flex-direction: column; gap: 16px;">
-
+    <div class="modal-content">
+        <h3 id="modal-titulo" style="margin-bottom: 24px; font-size: 1.25rem;">Configuração do Projeto</h3>
+        <form id="form-projeto">
             <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
-                <div>
-                    <label class="text-muted" style="display:block; margin-bottom:4px; font-size:12px;">Nome do Projeto</label>
-                    <input type="text" id="proj-nome" required placeholder="Ex: Meu App" style="width:100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border); color: #fff; border-radius: 4px;">
+                <div class="form-group">
+                    <label>Nome do Projeto</label>
+                    <input type="text" class="form-control" id="proj-nome" required placeholder="Ex: API Gateway">
                 </div>
-                <div>
-                    <label class="text-muted" style="display:block; margin-bottom:4px; font-size:12px;">Versão</label>
-                    <input type="text" id="proj-versao" required placeholder="Ex: v1.0.0" style="width:100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border); color: #fff; border-radius: 4px;">
+                <div class="form-group">
+                    <label>Versão</label>
+                    <input type="text" class="form-control" id="proj-versao" required placeholder="v1.0.0">
                 </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                <div>
-                    <label class="text-muted" style="display:block; margin-bottom:4px; font-size:12px;">Status</label>
-                    <select id="proj-status" style="width:100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border); color: #fff; border-radius: 4px;">
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="proj-status" class="form-control">
                         <option value="Ativo">Ativo</option>
                         <option value="Em Teste">Em Teste</option>
                         <option value="Arquivado">Arquivado</option>
                     </select>
                 </div>
-                <div>
-                    <label class="text-muted" style="display:block; margin-bottom:4px; font-size:12px;">Tecnologias (separadas por vírgula)</label>
-                    <input type="text" id="proj-tech" placeholder="Ex: JS, Node, Docker" style="width:100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border); color: #fff; border-radius: 4px;">
+                <div class="form-group">
+                    <label>Tecnologias (vírgula)</label>
+                    <input type="text" class="form-control" id="proj-tech" placeholder="React, Node">
                 </div>
             </div>
 
-            <div>
-                <label class="text-muted" style="display:block; margin-bottom:4px; font-size:12px;">Descrição</label>
-                <textarea id="proj-desc" rows="3" required placeholder="Resumo do projeto..." style="width:100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border); color: #fff; border-radius: 4px; resize: vertical;"></textarea>
+            <div class="form-group">
+                <label>Descrição</label>
+                <textarea id="proj-desc" class="form-control" required placeholder="Breve resumo..."></textarea>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                <div>
-                    <label class="text-muted" style="display:block; margin-bottom:4px; font-size:12px;">URL da Imagem</label>
-                    <input type="url" id="proj-imagem" placeholder="https://..." style="width:100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border); color: #fff; border-radius: 4px;">
+                <div class="form-group">
+                    <label>URL Imagem</label>
+                    <input type="url" class="form-control" id="proj-imagem" placeholder="https://...">
                 </div>
-                <div>
-                    <label class="text-muted" style="display:block; margin-bottom:4px; font-size:12px;">Link de Acesso</label>
-                    <input type="text" id="proj-link" placeholder="#" style="width:100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border); color: #fff; border-radius: 4px;">
+                <div class="form-group">
+                    <label>Link Acesso</label>
+                    <input type="text" class="form-control" id="proj-link" placeholder="https://...">
                 </div>
             </div>
 
-            <div style="display: flex; gap: 12px; margin-top: 16px; justify-content: flex-end;">
+            <div style="display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end;">
                 <button type="button" class="btn btn-outline" id="btn-cancelar-projeto">Cancelar</button>
-                <button type="submit" class="btn btn-primary">Salvar Registro</button>
+                <button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> Salvar</button>
             </div>
         </form>
     </div>
@@ -117,11 +121,14 @@
 
 <div class="modal-overlay" id="modal-confirmar-exclusao">
     <div class="modal-content" style="max-width: 400px; text-align: center;">
-        <h3 style="color: #ff4d4d; margin-bottom: 12px;">Confirmar Exclusão</h3>
-        <p class="text-muted" style="margin-bottom: 24px;">Tem certeza que deseja apagar este projeto do banco de dados? Esta ação não pode ser desfeita.</p>
+        <div style="width: 56px; height: 56px; background: rgba(255, 77, 77, 0.1); color: var(--danger); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 16px;">
+            <i class="ph ph-warning"></i>
+        </div>
+        <h3 style="margin-bottom: 12px;">Confirmar Exclusão</h3>
+        <p class="text-muted" style="margin-bottom: 32px;">Esta ação apagará permanentemente o projeto. Não é possível desfazer.</p>
         <div style="display: flex; gap: 12px; justify-content: center;">
-            <button class="btn btn-outline" id="btn-cancelar-exclusao" type="button">Cancelar</button>
-            <button class="btn btn-danger" id="btn-confirmar-exclusao" type="button" style="background: #ff4d4d; color: #fff;">Sim, Excluir</button>
+            <button class="btn btn-outline" id="btn-cancelar-exclusao">Cancelar</button>
+            <button class="btn btn-danger" id="btn-confirmar-exclusao">Sim, Excluir</button>
         </div>
     </div>
 </div>
@@ -129,6 +136,5 @@
 <script src="js/store.js"></script>
 <script src="js/components.js"></script>
 <script src="js/views/projetos.js"></script>
-<script type="module" src="../components/ai-assistant/js/core/ChatManager.js"></script>
 </body>
 </html>

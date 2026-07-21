@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - Admin Secreto</title>
+  <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('secreto_theme') || 'dark');</script>
   <link rel="stylesheet" href="css/admin.css">
-  <link rel="stylesheet" href="../components/ai-assistant/css/assistant.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="js/auth.js"></script>
   <script>Auth.checkGuard();</script>
 </head>
@@ -13,47 +14,68 @@
 <div class="admin-layout">
   <aside class="sidebar">
     <div class="sidebar-brand">
-      <span style="color: var(--primary);">●</span> Admin Secreto
+      <i class="ph-fill ph-hexagon"></i> Secreto
     </div>
     <ul class="sidebar-nav">
-      <li><a href="index.html" class="active">Visão Geral</a></li>
-      <li><a href="projetos.html">Projetos</a></li>
-      <li><a href="configuracoes.html">Configurações</a></li>
-      <li style="margin-top: auto;"><a href="login.html">Desconectar</a></li>
+      <li><a href="index.html" class="active"><i class="ph ph-squares-four"></i> Visão Geral</a></li>
+      <li><a href="projetos.html"><i class="ph ph-folder-notch"></i> Projetos</a></li>
+      <li><a href="configuracoes.html"><i class="ph ph-gear"></i> Configurações</a></li>
+      <li style="margin-top: auto;"><a href="login.html" onclick="Auth.logout(event)"><i class="ph ph-sign-out"></i> Desconectar</a></li>
     </ul>
   </aside>
 
   <main class="main-content">
     <header class="topbar">
-      <h2>Dashboard</h2>
-      <div class="user-profile">Agente 01</div>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <button id="mobile-menu-btn" class="btn-icon"><i class="ph ph-list"></i></button>
+        <h2 style="font-size: 1.2rem;">Dashboard</h2>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn-icon" id="theme-toggle-btn"><i class="ph ph-sun"></i></button>
+        <button class="btn-icon"><i class="ph ph-bell"></i></button>
+        <div class="user-profile">
+          <div class="user-avatar">A</div> Agente 01
+        </div>
+      </div>
     </header>
 
     <div class="content-wrapper">
       <div class="grid-cards">
         <div class="stat-card">
-          <p class="text-muted">Projetos Ativos</p>
-          <h3>12</h3>
+          <div class="stat-card-header">
+            <p class="text-muted">Projetos Ativos</p>
+            <i class="ph-fill ph-folder-notch-open"></i>
+          </div>
+          <h3 id="stat-ativos">0</h3>
         </div>
         <div class="stat-card">
-          <p class="text-muted">Última Atualização</p>
-          <h3>Hoje, 10:42</h3>
+          <div class="stat-card-header">
+            <p class="text-muted">Projetos em Teste</p>
+            <i class="ph-fill ph-flask"></i>
+          </div>
+          <h3 id="stat-teste">0</h3>
         </div>
         <div class="stat-card">
-          <p class="text-muted">Versão do Sistema</p>
-          <h3>v0.1-alpha</h3>
+          <div class="stat-card-header">
+            <p class="text-muted">Última Atualização</p>
+            <i class="ph-fill ph-clock-counter-clockwise"></i>
+          </div>
+          <h3 id="stat-time" style="font-size: 1.5rem;">--:--</h3>
         </div>
         <div class="stat-card">
-          <p class="text-muted">Status do Servidor</p>
-          <h3 style="color: #2ecc71;">Operacional</h3>
+          <div class="stat-card-header">
+            <p class="text-muted">Status da API</p>
+            <i class="ph-fill ph-check-circle" style="color: var(--success)"></i>
+          </div>
+          <h3 style="color: var(--success); font-size: 1.5rem;">Operacional</h3>
         </div>
       </div>
 
-      <div class="table-container" style="padding: 24px;">
-        <h3 style="margin-bottom: 16px;">Ações Rápidas</h3>
-        <div style="display: flex; gap: 12px;">
-          <button class="btn btn-primary" onclick="window.location.href='projetos.html'">+ Novo Projeto</button>
-          <button class="btn btn-outline">Forçar Backup</button>
+      <div class="card-panel">
+        <h3 style="margin-bottom: 24px; font-size: 1.1rem;">Ações Rápidas</h3>
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="window.location.href='projetos.html'"><i class="ph ph-plus"></i> Novo Projeto</button>
+          <button class="btn btn-outline" onclick="UI.showAlert('Backup iniciado em segundo plano!')"><i class="ph ph-cloud-arrow-up"></i> Forçar Backup</button>
         </div>
       </div>
     </div>
@@ -62,20 +84,14 @@
 <script src="js/store.js"></script>
 <script src="js/components.js"></script>
 <script>
-  // Lógica simples direto na view do Dashboard para popular os cards
   document.addEventListener('DOMContentLoaded', () => {
     const stats = Store.getStats();
-    const cards = document.querySelectorAll('.stat-card h3');
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('stat-ativos').textContent = stats.ativos;
+    document.getElementById('stat-teste').textContent = stats.emTeste;
 
-    if(cards.length >= 2) {
-      cards[0].textContent = stats.ativos;
-      cards[1].textContent = `Hoje, ${hours}:${minutes}`;
-    }
+    const now = new Date();
+    document.getElementById('stat-time').textContent = `Hoje, ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
   }, { once: true });
 </script>
-<script type="module" src="../components/ai-assistant/js/core/ChatManager.js"></script>
 </body>
 </html>

@@ -1,0 +1,102 @@
+/* ==========================================================================
+   Sistema de Temas Dinâmicos (Vanilla CSS Variables)
+   - Tema Claro (🌞): Amarelo / Dourado (Acolhedor, Moderno, Luminous)
+   - Tema Escuro (🌙): Vermelho / Cyber (Tecnológico, Premium, Deep)
+   ========================================================================== */
+
+:root {
+    /* 🌞 TEMA CLARO */
+    --background: #FFFDF6;
+    --surface: #FFFFFF;
+    --surface-soft: rgba(255, 255, 255, 0.85);
+    --card: #FFF8E1;
+
+    --primary: #FFD54A;
+    --primary-hover: #FFC107;
+    --secondary: #FFE082;
+
+    --border: #F5D76E;
+    --border-hairline: rgba(245, 215, 110, 0.5);
+
+    --text: #212121;
+    --text-secondary: #616161;
+
+    --shadow: rgba(0, 0, 0, 0.06);
+    --shadow-primary: rgba(255, 213, 74, 0.35);
+    --glow-primary: rgba(255, 213, 74, 0.25);
+    --glow-secondary: rgba(255, 224, 130, 0.35);
+
+    /* Tipografia e Estrutura */
+    --font-display: "Montserrat", "Google Sans", sans-serif;
+    --font-body: "Inter", sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "Roboto Mono", Menlo, Consolas, monospace;
+
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-lg: 30px;
+    --ease: cubic-bezier(.16, .84, .44, 1);
+}
+
+[data-theme="dark"] {
+    /* 🌙 TEMA ESCURO */
+    --background: #121212;
+    --surface: #1A1A1A;
+    --surface-soft: rgba(26, 26, 26, 0.85);
+    --card: #202020;
+
+    --primary: #D32F2F;
+    --primary-hover: #F44336;
+    --secondary: #8B0000;
+
+    --border: #2E2E2E;
+    --border-hairline: rgba(255, 255, 255, 0.1);
+
+    --text: #F5F5F5;
+    --text-secondary: #BDBDBD;
+
+    --shadow: rgba(0, 0, 0, 0.5);
+    --shadow-primary: rgba(211, 47, 47, 0.3);
+    --glow-primary: rgba(211, 47, 47, 0.25);
+    --glow-secondary: rgba(139, 0, 0, 0.35);
+}
+
+/* Transição Suave Universal para Troca de Tema */
+body,
+body *,
+body *::before,
+body *::after {
+    transition: background-color 0.35s var(--ease),
+    color 0.35s var(--ease),
+    border-color 0.35s var(--ease),
+    box-shadow 0.35s var(--ease),
+    text-shadow 0.35s var(--ease);
+}
+
+/* Estilização e Animação do Botão de Troca de Tema */
+.theme-toggle-btn {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 6px 10px !important;
+    cursor: pointer;
+    font-size: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    line-height: 1;
+}
+
+.theme-toggle-btn:hover {
+    transform: scale(1.15) rotate(8deg);
+}
+
+.theme-transitioning .theme-toggle-btn span {
+    animation: themePulse 0.35s var(--ease);
+}
+
+@keyframes themePulse {
+    0% { transform: scale(1) rotate(0deg); opacity: 1; }
+    50% { transform: scale(0.4) rotate(-90deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}

@@ -4,58 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configurações - Admin Secreto</title>
+    <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('secreto_theme') || 'dark');</script>
     <link rel="stylesheet" href="css/admin.css">
-    <link rel="stylesheet" href="../components/ai-assistant/css/assistant.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="js/auth.js"></script>
     <script>Auth.checkGuard();</script>
 </head>
 <body>
 <div class="admin-layout">
     <aside class="sidebar">
-        <div class="sidebar-brand">
-            <span style="color: var(--primary);">●</span> Admin Secreto
-        </div>
+        <div class="sidebar-brand"><i class="ph-fill ph-hexagon"></i> Secreto</div>
         <ul class="sidebar-nav">
-            <li><a href="index.html">Visão Geral</a></li>
-            <li><a href="projetos.html">Projetos</a></li>
-            <li><a href="configuracoes.html" class="active">Configurações</a></li>
-            <li style="margin-top: auto;"><a href="login.html">Desconectar</a></li>
+            <li><a href="index.html"><i class="ph ph-squares-four"></i> Visão Geral</a></li>
+            <li><a href="projetos.html"><i class="ph ph-folder-notch"></i> Projetos</a></li>
+            <li><a href="configuracoes.html" class="active"><i class="ph ph-gear"></i> Configurações</a></li>
+            <li style="margin-top: auto;"><a href="login.html"><i class="ph ph-sign-out"></i> Desconectar</a></li>
         </ul>
     </aside>
 
     <main class="main-content">
         <header class="topbar">
-            <h2>Configurações do Sistema</h2>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <button id="mobile-menu-btn" class="btn-icon"><i class="ph ph-list"></i></button>
+                <h2 style="font-size: 1.2rem;">Configurações do Sistema</h2>
+            </div>
         </header>
 
         <div class="content-wrapper">
-            <div class="table-container" style="padding: 32px; max-width: 600px;">
-                <form style="display: flex; flex-direction: column; gap: 24px;">
-                    <div>
-                        <label class="text-muted" style="display: block; margin-bottom: 8px;">Nome do Diretório (Site)</label>
-                        <input type="text" value="Blog Secreto" style="width: 100%; padding: 12px; background: var(--bg-panel); border: 1px solid var(--border); color: #fff; border-radius: 4px;">
+            <div class="card-panel" style="max-width: 600px;">
+                <form>
+                    <div class="form-group">
+                        <label>Nome do Diretório (Site)</label>
+                        <input type="text" class="form-control" value="Blog Secreto">
                     </div>
-                    <div>
-                        <label class="text-muted" style="display: block; margin-bottom: 8px;">Idioma Base</label>
-                        <select style="width: 100%; padding: 12px; background: var(--bg-panel); border: 1px solid var(--border); color: #fff; border-radius: 4px;">
+                    <div class="form-group">
+                        <label>Idioma Base</label>
+                        <select class="form-control">
                             <option>Português (Brasil)</option>
                             <option>English (US)</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="text-muted" style="display: block; margin-bottom: 8px;">Tema do Admin</label>
-                        <div style="display: flex; gap: 16px;">
-                            <label><input type="radio" name="theme" checked> Dark Mode Clássico</label>
-                            <label><input type="radio" name="theme" disabled> Terminal (Breve)</label>
+                    <div class="form-group" style="margin-bottom: 32px;">
+                        <label style="margin-bottom: 12px; display: block;">Preferência Visual</label>
+                        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                            <div style="padding: 16px; border: 1px solid var(--primary); background: var(--primary-light); border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; gap: 12px; flex: 1; min-width: 200px;">
+                                <i class="ph-fill ph-check-circle" style="color: var(--primary)"></i> Auto (Sistema)
+                            </div>
+                            <div style="padding: 16px; border: 1px solid var(--border); background: var(--bg-base); border-radius: var(--radius-sm); cursor: not-allowed; opacity: 0.6; display: flex; align-items: center; gap: 12px; flex: 1; min-width: 200px;">
+                                <i class="ph ph-terminal"></i> Terminal (Breve)
+                            </div>
                         </div>
                     </div>
-                    <hr style="border: 0; border-top: 1px solid var(--border);">
-                    <button type="button" class="btn btn-primary" style="align-self: flex-start;">Salvar Preferências</button>
+                    <hr style="border: 0; border-top: 1px solid var(--border); margin: 32px 0;">
+                    <button type="button" class="btn btn-primary" onclick="UI.showAlert('Configurações salvas com sucesso!')">
+                        <i class="ph ph-floppy-disk"></i> Salvar Preferências
+                    </button>
                 </form>
             </div>
         </div>
     </main>
 </div>
-<script type="module" src="../components/ai-assistant/js/core/ChatManager.js"></script>
+<script src="js/components.js"></script>
 </body>
 </html>

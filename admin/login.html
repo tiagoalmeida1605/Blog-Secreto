@@ -4,63 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Admin Secreto</title>
+    <script>
+        const theme = localStorage.getItem('secreto_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+    </script>
     <link rel="stylesheet" href="css/admin.css">
-    <style>
-        .login-wrapper {
-            display: flex; align-items: center; justify-content: center;
-            min-height: 100vh; width: 100%; background: var(--bg-dark);
-        }
-        .login-box {
-            background: var(--bg-panel); border: 1px solid var(--border);
-            padding: 48px; border-radius: var(--radius); width: 100%; max-width: 400px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
-        .login-header { text-align: center; margin-bottom: 32px; }
-        .login-header h1 { color: var(--accent); margin-bottom: 8px; }
-        .form-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
-        .form-group label { font-size: 0.9rem; color: var(--text-muted); }
-        .form-group input {
-            padding: 12px; background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: var(--radius); color: var(--text-main); font-family: inherit;
-        }
-        .form-group input:focus { outline: none; border-color: var(--primary); }
-        .form-options { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 24px; }
-        .form-options a { color: var(--text-muted); text-decoration: none; }
-        .form-options a:hover { color: var(--accent); }
-    </style>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
 <div class="login-wrapper">
     <div class="login-box">
         <div class="login-header">
-            <h1>Blog Secreto</h1>
-            <p class="text-muted">Acesso Restrito ao Sistema</p>
+            <i class="ph ph-fingerprint"></i>
+            <h1>Admin Secreto</h1>
+            <p class="text-muted">Acesso restrito à central de comando.</p>
         </div>
         <form id="form-login">
             <div class="form-group">
-                <label>Usuário de Acesso</label>
-                <input type="text" id="login-user" placeholder="admin" required>
+                <label>Usuário</label>
+                <input type="text" class="form-control" id="login-user" placeholder="admin" required autocomplete="username">
             </div>
-            <div class="form-group">
+            <div class="form-group" style="margin-bottom: 32px;">
                 <label>Chave de Segurança</label>
-                <input type="password" id="login-pass" placeholder="••••••••" required>
+                <input type="password" class="form-control" id="login-pass" placeholder="••••••••" required autocomplete="current-password">
             </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Autenticar</button>
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1rem;">
+                Autenticar <i class="ph ph-arrow-right"></i>
+            </button>
         </form>
+    </div>
+</div>
 
-        <script src="js/auth.js"></script>
-        <script>
-            document.getElementById('form-login').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const u = document.getElementById('login-user').value;
-                const p = document.getElementById('login-pass').value;
+<script src="js/auth.js"></script>
+<script>
+    document.getElementById('form-login').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const u = document.getElementById('login-user').value;
+        const p = document.getElementById('login-pass').value;
 
-                if (Auth.login(u, p)) {
-                    window.location.href = 'index.html'; // Entra no painel
-                } else {
-                    alert('Credenciais Inválidas! Acesso negado.');
-                }
-            });
-        </script>
+        // O botão vira loading visualmente
+        const btn = this.querySelector('button');
+        btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Processando...';
+        btn.disabled = true;
+
+        setTimeout(() => { // Simula leve delay para UX premium
+            if (Auth.login(u, p)) {
+                window.location.href = 'index.html';
+            } else {
+                alert('Credenciais Inválidas! Acesso negado.');
+                btn.innerHTML = 'Autenticar <i class="ph ph-arrow-right"></i>';
+                btn.disabled = false;
+            }
+        }, 600);
+    });
+</script>
 </body>
 </html>
