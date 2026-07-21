@@ -19,22 +19,23 @@
         <ul>
             <li><a href="../index.html">Home</a></li>
             <li><a href="projetos.html">Projetos</a></li>
-            <li><a href="contato.html">Contato</a></li>
+            <li><a href="contato.html" class="active">Contato</a></li>
         </ul>
     </nav>
 </header>
+
 <main>
     <div class="page-wrapper">
         <header class="page-header">
-            <h2>Estabelecer Conexão</h2>
-            <p>Canal de comunicação seguro. Preencha as credenciais abaixo.</p>
+            <h2>Transmissão & Contato</h2>
+            <p>Envie uma mensagem direta ou escolha um canal alternativo de comunicação.</p>
         </header>
 
         <section class="contact-layout">
-            <form class="contact-form" action="#" method="POST" onsubmit="event.preventDefault();">
+            <form class="contact-form" action="#" method="POST">
                 <div class="form-group">
-                    <label for="nome">Identificação (Nome)</label>
-                    <input type="text" id="nome" name="nome" placeholder="John Doe" required>
+                    <label for="nome">Identificação (Nome / Alias)</label>
+                    <input type="text" id="nome" name="nome" placeholder="Ex: Agente Zero" required>
                 </div>
 
                 <div class="form-group">
@@ -44,31 +45,33 @@
 
                 <div class="form-group">
                     <label for="mensagem">Transmissão (Mensagem)</label>
-                    <textarea id="mensagem" name="mensagem" placeholder="Digite sua mensagem encriptada aqui..." required></textarea>
+                    <textarea id="mensagem" name="mensagem" placeholder="Digite sua mensagem aqui..." required></textarea>
                 </div>
 
-                <button type="submit">
-                    <span class="btn-text">Enviar Dados</span>
+                <button type="submit" class="btn">
+                    <span>Enviar Transmissão</span>
                 </button>
             </form>
 
             <aside class="contact-info">
                 <h3>Outros Canais</h3>
-                <p class="project-desc">Acesso alternativo aos meus diretórios e perfis de comunicação pública.</p>
+                <p>Acesso alternativo aos diretórios e perfis de comunicação pública.</p>
 
                 <ul class="social-list">
-                    <li><a href="#" target="_blank" rel="noopener noreferrer">GitHub (/dev-agent)</a></li>
-                    <li><a href="#" target="_blank" rel="noopener noreferrer">Instagram (@dev_secreto)</a></li>
-                    <li><a href="#" target="_blank" rel="noopener noreferrer">Discord (DevSec#0000)</a></li>
-                    <li><a href="mailto:fake@email.com">Email (contato@blogsecreto.com)</a></li>
+                    <li><a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub (/dev-agent)</a></li>
+                    <li><a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram (@dev_secreto)</a></li>
+                    <li><a href="https://discord.com" target="_blank" rel="noopener noreferrer">Discord (DevSec#0000)</a></li>
+                    <li><a href="mailto:contato@blogsecreto.com">Email (contato@blogsecreto.com)</a></li>
                 </ul>
             </aside>
         </section>
     </div>
 </main>
+
 <footer>
-    <p>© 2026 Blog Secreto</p>
+    <p>© 2026 Blog Secreto • Todos os direitos reservados</p>
 </footer>
+
 <script type="module" src="../components/ai-assistant/js/core/ChatManager.js"></script>
 </body>
 </html>
