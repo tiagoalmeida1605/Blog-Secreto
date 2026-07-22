@@ -156,7 +156,14 @@ export class UIController {
             }
 
             if (event.key === 'Escape') {
-                this.closeDeveloperDashboard();
+                if (this.root.dataset.aiDevOpen === 'true') {
+                    this.closeDeveloperDashboard();
+                    return;
+                }
+
+                if (this.root.dataset.aiOpen === 'true') {
+                    this.close();
+                }
             }
         });
     }
@@ -219,12 +226,15 @@ export class UIController {
     open() {
         this.root.dataset.aiOpen = 'true';
         this.elements.shell.setAttribute('aria-hidden', 'false');
+        document.documentElement.dataset.aiAssistantOpen = 'true';
         this.focusInput();
     }
 
     close() {
         this.root.dataset.aiOpen = 'false';
         this.elements.shell.setAttribute('aria-hidden', 'true');
+        document.documentElement.removeAttribute('data-ai-assistant-open');
+        this.closeDeveloperDashboard();
     }
 
     toggle() {

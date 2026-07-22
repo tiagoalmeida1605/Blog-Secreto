@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - Admin Secreto</title>
-  <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('secreto_theme') || 'dark');</script>
+  <script>
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('secreto_theme') || 'dark');
+  </script>
   <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="../components/ai-assistant/css/assistant.css">
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="js/auth.js"></script>
   <script>Auth.checkGuard();</script>
@@ -14,7 +17,7 @@
 <div class="admin-layout">
   <aside class="sidebar">
     <div class="sidebar-brand">
-      <i class="ph-fill ph-hexagon"></i> Secreto
+      <i class="ph-fill ph-hexagon"></i> Admin Secreto
     </div>
     <ul class="sidebar-nav">
       <li><a href="index.html" class="active"><i class="ph ph-squares-four"></i> Visão Geral</a></li>
@@ -26,63 +29,50 @@
 
   <main class="main-content">
     <header class="topbar">
-      <div style="display: flex; align-items: center; gap: 16px;">
-        <button id="mobile-menu-btn" class="btn-icon"><i class="ph ph-list"></i></button>
-        <h2 style="font-size: 1.2rem;">Dashboard</h2>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button id="mobile-menu-btn" class="btn-icon" type="button"><i class="ph ph-list"></i></button>
+        <h2>Dashboard</h2>
       </div>
       <div class="topbar-actions">
-        <button class="btn-icon" id="theme-toggle-btn"><i class="ph ph-sun"></i></button>
-        <button class="btn-icon"><i class="ph ph-bell"></i></button>
-        <div class="user-profile">
-          <div class="user-avatar">A</div> Agente 01
-        </div>
+        <button class="btn-icon" id="theme-toggle-btn" type="button" title="Alternar Tema"><i class="ph ph-sun"></i></button>
+        <div class="user-profile">Agente 01</div>
       </div>
     </header>
 
     <div class="content-wrapper">
       <div class="grid-cards">
         <div class="stat-card">
-          <div class="stat-card-header">
-            <p class="text-muted">Projetos Ativos</p>
-            <i class="ph-fill ph-folder-notch-open"></i>
-          </div>
+          <p class="text-muted">Projetos Ativos</p>
           <h3 id="stat-ativos">0</h3>
         </div>
         <div class="stat-card">
-          <div class="stat-card-header">
-            <p class="text-muted">Projetos em Teste</p>
-            <i class="ph-fill ph-flask"></i>
-          </div>
+          <p class="text-muted">Projetos em Teste</p>
           <h3 id="stat-teste">0</h3>
         </div>
         <div class="stat-card">
-          <div class="stat-card-header">
-            <p class="text-muted">Última Atualização</p>
-            <i class="ph-fill ph-clock-counter-clockwise"></i>
-          </div>
-          <h3 id="stat-time" style="font-size: 1.5rem;">--:--</h3>
+          <p class="text-muted">Última Atualização</p>
+          <h3 id="stat-time">--:--</h3>
         </div>
         <div class="stat-card">
-          <div class="stat-card-header">
-            <p class="text-muted">Status da API</p>
-            <i class="ph-fill ph-check-circle" style="color: var(--success)"></i>
-          </div>
-          <h3 style="color: var(--success); font-size: 1.5rem;">Operacional</h3>
+          <p class="text-muted">Status do Servidor</p>
+          <h3 style="color: var(--success);">Operacional</h3>
         </div>
       </div>
 
       <div class="card-panel">
-        <h3 style="margin-bottom: 24px; font-size: 1.1rem;">Ações Rápidas</h3>
-        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-          <button class="btn btn-primary" onclick="window.location.href='projetos.html'"><i class="ph ph-plus"></i> Novo Projeto</button>
-          <button class="btn btn-outline" onclick="UI.showAlert('Backup iniciado em segundo plano!')"><i class="ph ph-cloud-arrow-up"></i> Forçar Backup</button>
+        <h3 style="margin-bottom: 16px;">Ações Rápidas</h3>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <button class="btn btn-primary" type="button" onclick="window.location.href='projetos.html'">+ Novo Projeto</button>
+          <button class="btn btn-outline" type="button" onclick="UI.showAlert('Backup do sistema gerado com sucesso!')">Forçar Backup</button>
         </div>
       </div>
     </div>
   </main>
 </div>
+
 <script src="js/store.js"></script>
 <script src="js/components.js"></script>
+<script type="module" src="../components/ai-assistant/js/core/ChatManager.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const stats = Store.getStats();
@@ -91,7 +81,7 @@
 
     const now = new Date();
     document.getElementById('stat-time').textContent = `Hoje, ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-  }, { once: true });
+  });
 </script>
 </body>
 </html>

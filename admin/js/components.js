@@ -1,6 +1,6 @@
 /**
  * ==========================================================================
- * Components - Lógica Global de Interface (UI) Moderna
+ * Components - Lógica Global de UI (Tema, Sidebar Mobile, Toasts e Modais)
  * ==========================================================================
  */
 const UI = {
@@ -17,14 +17,14 @@ const UI = {
         const themeBtn = document.getElementById('theme-toggle-btn');
         const root = document.documentElement;
 
-        // Verifica preferência salva
+        // Recupera o tema do LocalStorage (Padrão: dark)
         const savedTheme = localStorage.getItem('secreto_theme') || 'dark';
         root.setAttribute('data-theme', savedTheme);
         this.updateThemeIcon(savedTheme);
 
         if (themeBtn) {
             themeBtn.addEventListener('click', () => {
-                const currentTheme = root.getAttribute('data-theme');
+                const currentTheme = root.getAttribute('data-theme') || 'dark';
                 const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
                 root.setAttribute('data-theme', newTheme);
@@ -44,24 +44,24 @@ const UI = {
     setupSidebarMobile: function() {
         const mobileBtn = document.getElementById('mobile-menu-btn');
         const sidebar = document.querySelector('.sidebar');
-
         if (!mobileBtn || !sidebar) return;
 
-        // Criar overlay
-        const overlay = document.createElement('div');
-        overlay.className = 'sidebar-overlay';
-        document.body.appendChild(overlay);
+        let overlay = document.querySelector('.sidebar-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'sidebar-overlay';
+            document.body.appendChild(overlay);
+        }
 
         const toggleSidebar = () => {
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('active');
-            document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+            const isOpen = sidebar.classList.toggle('open');
+            overlay.classList.toggle('active', isOpen);
+            document.body.style.overflow = isOpen ? 'hidden' : '';
         };
 
         mobileBtn.addEventListener('click', toggleSidebar);
         overlay.addEventListener('click', toggleSidebar);
 
-        // Fecha ao clicar em um link no mobile
         const navLinks = document.querySelectorAll('.sidebar-nav a');
         navLinks.forEach(link => {
             link.addEventListener('click', () => {
@@ -74,45 +74,44 @@ const UI = {
 
     showAlert: function(message, type = 'success') {
         const alertBox = document.createElement('div');
-        const icon = type === 'success' ? 'ph-check-circle' : 'ph-warning-circle';
-
-        alertBox.innerHTML = `<i class="ph ${icon}" style="font-size: 1.25rem;"></i> <span>${message}</span>`;
+        alertBox.className = `alert-toast alert-${type}`;
 
         Object.assign(alertBox.style, {
-            position: 'fixed', bottom: '24px', right: '24px', padding: '16px 24px',
-            background: 'var(--bg-surface)', border: `1px solid var(--${type})`,
-            borderLeft: `4px solid var(--${type})`, color: 'var(--text-main)',
-            borderRadius: 'var(--radius-sm)', boxShadow: 'var(--shadow-lg)',
-            zIndex: '9999', opacity: '0', transform: 'translateX(20px)',
-            transition: 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
-            fontWeight: '500', display: 'flex', alignItems: 'center', gap: '12px'
+            position: 'fixed', bottom: '24px', right: '24px', padding: '14px 20px',
+            background: 'var(--bg-surface)', border: '1px solid var(--border)',
+            borderLeft: `4px solid ${type === 'success' ? 'var(--success)' : 'var(--danger)'}`,
+            color: 'var(--text-main)', borderRadius: 'var(--radius-sm)',
+            boxShadow: 'var(--shadow-lg)', zIndex: '99999', opacity: '0',
+            transform: 'translateY(10px)', transition: 'all 0.3s ease',
+            fontWeight: '500', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '10px'
         });
 
+        alertBox.innerHTML = `<i class="ph ${type === 'success' ? 'ph-check-circle' : 'ph-warning-circle'}" style="font-size:1.2rem; color:${type === 'success' ? 'var(--success)' : 'var(--danger)'}"></i> ${message}`;
         document.body.appendChild(alertBox);
 
-        requestAnimationFrame(() => {
+        setTimeout(() => {
             alertBox.style.opacity = '1';
-            alertBox.style.transform = 'translateX(0)';
-        });
+            alertBox.style.transform = 'translateY(0)';
+        }, 10);
 
         setTimeout(() => {
             alertBox.style.opacity = '0';
-            alertBox.style.transform = 'translateX(20px)';
+            alertBox.style.transform = 'translateY(10px)';
             setTimeout(() => alertBox.remove(), 300);
-        }, 4000);
+        }, 3500);
     },
 
     openModal: function(modalId) {
         const modal = document.getElementById(modalId);
-        if(modal) {
+        if (modal) {
             modal.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Previne scroll no body
+            document.body.style.overflow = 'hidden';
         }
     },
 
     closeModal: function(modalId) {
         const modal = document.getElementById(modalId);
-        if(modal) {
+        if (modal) {
             modal.classList.remove('active');
             document.body.style.overflow = '';
         }

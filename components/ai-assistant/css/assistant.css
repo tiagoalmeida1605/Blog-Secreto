@@ -10,7 +10,8 @@
     --ai-gold: #ffd166;
     --ai-green: #39d98a;
     --ai-blue: #5dade2;
-    --ai-viewport-height: 100vh;
+    --ai-viewport-height: 100dvh;
+    --ai-viewport-offset-top: 0px;
     --ai-z-index: 1200;
     font-family: var(--ai-font);
     letter-spacing: 0;
@@ -97,8 +98,8 @@
 
 .ai-launcher {
     position: fixed;
-    right: 24px;
-    bottom: 24px;
+    right: max(24px, env(safe-area-inset-right, 0px));
+    bottom: max(24px, env(safe-area-inset-bottom, 0px));
     z-index: var(--ai-z-index);
     width: 58px;
     height: 58px;
@@ -113,6 +114,8 @@
     place-items: center;
     transition: transform var(--ai-transition), box-shadow var(--ai-transition), border-color var(--ai-transition);
     box-shadow: 0 14px 35px rgba(0, 0, 0, 0.32);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .ai-launcher:hover,
@@ -141,11 +144,12 @@
 
 .ai-shell {
     position: fixed;
-    right: 24px;
-    bottom: 96px;
+    right: max(24px, env(safe-area-inset-right, 0px));
+    bottom: max(96px, calc(env(safe-area-inset-bottom, 0px) + 72px));
     z-index: calc(var(--ai-z-index) + 1);
     width: min(960px, calc(100vw - 48px));
     height: min(720px, calc(var(--ai-viewport-height) - 128px));
+    max-height: calc(var(--ai-viewport-height) - 128px);
     min-height: 560px;
     display: grid;
     grid-template-rows: auto 1fr;
@@ -858,17 +862,31 @@
 }
 
 @media (max-width: 768px) {
+    html[data-ai-assistant-open="true"] {
+        overflow: hidden;
+        overscroll-behavior: none;
+    }
+
+    html[data-ai-assistant-open="true"] body {
+        overflow: hidden;
+        touch-action: none;
+    }
+
     .ai-launcher {
-        right: 16px;
-        bottom: 16px;
+        right: max(16px, env(safe-area-inset-right, 0px));
+        bottom: max(16px, env(safe-area-inset-bottom, 0px));
         width: 54px;
         height: 54px;
     }
 
     .ai-shell {
-        inset: 8px;
+        top: calc(var(--ai-viewport-offset-top, 0px) + 8px);
+        right: max(8px, env(safe-area-inset-right, 0px));
+        bottom: auto;
+        left: max(8px, env(safe-area-inset-left, 0px));
         width: auto;
         height: calc(var(--ai-viewport-height) - 16px);
+        max-height: calc(var(--ai-viewport-height) - 16px);
         min-height: 0;
         border-radius: var(--ai-radius);
     }
@@ -877,6 +895,7 @@
         align-items: flex-start;
         gap: 10px;
         padding: 12px;
+        padding-top: max(12px, env(safe-area-inset-top, 0px));
     }
 
     .ai-header__actions {
@@ -886,14 +905,15 @@
 
     .ai-icon-button {
         min-width: 34px;
-        height: 32px;
+        min-height: 36px;
+        height: 36px;
         padding: 0 8px;
         font-size: 11px;
     }
 
     .ai-theme-select select {
         width: 86px;
-        height: 32px;
+        height: 36px;
         font-size: 11px;
     }
 
@@ -908,6 +928,8 @@
         padding: 10px 12px;
         max-height: 112px;
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
     }
 
     .ai-side-menu__header {
@@ -922,16 +944,24 @@
 
     .ai-suggestion {
         width: auto;
+        min-height: 40px;
         white-space: nowrap;
     }
 
     .ai-messages {
         padding: 14px 12px;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
     }
 
     .ai-composer {
         grid-template-columns: 1fr;
         padding: 10px;
+        padding-bottom: max(10px, env(safe-area-inset-bottom, 0px));
+    }
+
+    .ai-composer textarea {
+        font-size: 16px;
     }
 
     .ai-composer__actions {
@@ -940,7 +970,7 @@
 
     .ai-stop-button,
     .ai-send-button {
-        min-height: 42px;
+        min-height: 44px;
         flex: 1;
     }
 
@@ -951,10 +981,23 @@
     }
 }
 
+/* Galaxy A26 5G e similares (~360–425 CSS px) */
 @media (max-width: 425px) {
+    .ai-launcher {
+        right: max(14px, env(safe-area-inset-right, 0px));
+        bottom: max(14px, env(safe-area-inset-bottom, 0px));
+        width: 52px;
+        height: 52px;
+    }
+
     .ai-shell {
-        inset: 0;
+        top: var(--ai-viewport-offset-top, 0px);
+        right: 0;
+        bottom: auto;
+        left: 0;
+        width: 100%;
         height: var(--ai-viewport-height);
+        max-height: var(--ai-viewport-height);
         border-radius: 0;
         border-left: 0;
         border-right: 0;
@@ -962,6 +1005,8 @@
 
     .ai-header {
         min-height: 68px;
+        padding-left: max(12px, env(safe-area-inset-left, 0px));
+        padding-right: max(12px, env(safe-area-inset-right, 0px));
     }
 
     .ai-avatar {
@@ -978,8 +1023,25 @@
         font-size: 11px;
     }
 
+    .ai-header__identity {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .ai-header__identity > div {
+        min-width: 0;
+    }
+
+    .ai-header h2,
+    .ai-header p {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
     .ai-header__actions {
         max-width: 58%;
+        flex: 0 1 auto;
     }
 
     .ai-icon-button {
@@ -1004,6 +1066,7 @@
 
     .ai-message__bubble {
         padding: 10px;
+        width: 100%;
     }
 
     .ai-message__content {
@@ -1016,7 +1079,73 @@
     }
 }
 
-@media (max-width: 375px) {
+/* Baseline Galaxy A26 5G: 360 CSS px */
+@media (max-width: 360px) {
+    .ai-header {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 10px 12px;
+        padding-top: max(10px, env(safe-area-inset-top, 0px));
+    }
+
+    .ai-header__actions {
+        max-width: none;
+        justify-content: flex-start;
+        gap: 6px;
+    }
+
+    .ai-theme-select {
+        order: 10;
+        flex: 1 1 100%;
+        width: 100%;
+    }
+
+    .ai-theme-select select {
+        width: 100%;
+    }
+
+    .ai-side-menu {
+        max-height: 100px;
+        padding: 8px 10px;
+    }
+
+    .ai-messages {
+        padding: 12px 10px;
+    }
+
+    .ai-message {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .ai-message--user {
+        grid-template-columns: 1fr;
+    }
+
+    .ai-message__avatar {
+        display: none;
+    }
+
+    .ai-message--user .ai-message__bubble,
+    .ai-message__bubble {
+        grid-column: 1;
+        width: 100%;
+        justify-self: stretch;
+    }
+
+    .ai-composer {
+        padding: 8px 10px;
+        padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+        gap: 8px;
+    }
+
+    .ai-result-card {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 375px) and (min-width: 361px) {
     .ai-header__actions {
         max-width: 62%;
     }

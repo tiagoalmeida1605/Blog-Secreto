@@ -5,32 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Admin Secreto</title>
     <script>
-        const theme = localStorage.getItem('secreto_theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('secreto_theme') || 'dark');
     </script>
     <link rel="stylesheet" href="css/admin.css">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .login-wrapper {
+            display: flex; align-items: center; justify-content: center;
+            min-height: 100vh; width: 100%; background: var(--bg-base);
+        }
+        .login-box {
+            background: var(--bg-surface); border: 1px solid var(--border);
+            padding: 40px; border-radius: var(--radius-md); width: 100%; max-width: 400px;
+            box-shadow: var(--shadow-lg);
+        }
+        .login-header { text-align: center; margin-bottom: 28px; }
+        .login-header i { font-size: 2.8rem; color: var(--primary); margin-bottom: 8px; }
+    </style>
 </head>
 <body>
 <div class="login-wrapper">
     <div class="login-box">
         <div class="login-header">
-            <i class="ph ph-fingerprint"></i>
-            <h1>Admin Secreto</h1>
-            <p class="text-muted">Acesso restrito à central de comando.</p>
+            <i class="ph-fill ph-hexagon"></i>
+            <h2>Blog Secreto</h2>
+            <p class="text-muted">Acesso Restrito ao Painel</p>
         </div>
         <form id="form-login">
             <div class="form-group">
                 <label>Usuário</label>
-                <input type="text" class="form-control" id="login-user" placeholder="admin" required autocomplete="username">
+                <input type="text" id="login-user" class="form-control" placeholder="admin" required>
             </div>
-            <div class="form-group" style="margin-bottom: 32px;">
+            <div class="form-group" style="margin-bottom: 24px;">
                 <label>Chave de Segurança</label>
-                <input type="password" class="form-control" id="login-pass" placeholder="••••••••" required autocomplete="current-password">
+                <input type="password" id="login-pass" class="form-control" placeholder="••••••••" required>
             </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1rem;">
-                Autenticar <i class="ph ph-arrow-right"></i>
-            </button>
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">Autenticar</button>
         </form>
     </div>
 </div>
@@ -42,20 +52,11 @@
         const u = document.getElementById('login-user').value;
         const p = document.getElementById('login-pass').value;
 
-        // O botão vira loading visualmente
-        const btn = this.querySelector('button');
-        btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Processando...';
-        btn.disabled = true;
-
-        setTimeout(() => { // Simula leve delay para UX premium
-            if (Auth.login(u, p)) {
-                window.location.href = 'index.html';
-            } else {
-                alert('Credenciais Inválidas! Acesso negado.');
-                btn.innerHTML = 'Autenticar <i class="ph ph-arrow-right"></i>';
-                btn.disabled = false;
-            }
-        }, 600);
+        if (Auth.login(u, p)) {
+            window.location.href = 'index.html';
+        } else {
+            alert('Credenciais Inválidas! Acesso negado.');
+        }
     });
 </script>
 </body>
