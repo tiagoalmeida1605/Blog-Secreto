@@ -6,19 +6,61 @@
  * e renderiza dinamicamente os cards na página pública.
  */
 
+/**
+ * ==========================================================================
+ * Script Público: Exibição dos Projetos (pages/projetos.html)
+ * ==========================================================================
+ * Lê os projetos do Firebase Firestore
+ * e renderiza dinamicamente os cards na página pública.
+ */
+
+import { db } from "../firebase/firebase.js";
+
+import {
+    collection,
+    getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 (function initProjetosPublicos() {
     if (window.__ProjetosPublicosLoaded) return;
     window.__ProjetosPublicosLoaded = true;
 
-    const PROJECTS_STORAGE_KEY = 'secreto_admin_projetos';
     const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80';
 
-    function init() {
+    async function init() {
         const grid = document.getElementById('grid-projetos-publicos');
         if (!grid) return;
-
         bindAssistantPublicActions();
-        renderProjetos(grid, getProjetosPublicos());
+        const projetos = await getProjetosPublicos();
+        renderProjetos(grid, projetos);
+    }
+
+    async function getProjetosPublicos() {
+        try {
+            const snapshot = await getDocs(collection(db, "projetos"));
+            return snapshot.docs.map((documento) => {
+                const dados = documento.data();
+                return {
+                    id: documento.id,
+                    // Firestore usa "titulo"
+                    // O card antigo usa "nome"
+                    nome: dados.titulo || "Projeto sem nome",
+                    descricao: dados.descricao || "",
+                    tecnologias: dados.tecnologias || [],
+                    imagem: dados.imagem || "",
+                    // usa site primeiro, depois github
+                    link: dados.site || dados.github || "#",
+                    status: dados.status || "Ativo",
+                    versao: dados.versao || ""
+                };
+            });
+        } catch (erro) {
+            console.error(
+                "Erro ao buscar projetos no Firestore:",
+                erro
+            );
+            return [];
+        }
     }
 
     function renderProjetos(grid, projetos) {
