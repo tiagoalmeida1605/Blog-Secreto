@@ -2,14 +2,6 @@
  * ==========================================================================
  * Script Público: Exibição dos Projetos (pages/projetos.html)
  * ==========================================================================
- * Lê os projetos do LocalStorage (chave única: secreto_admin_projetos)
- * e renderiza dinamicamente os cards na página pública.
- */
-
-/**
- * ==========================================================================
- * Script Público: Exibição dos Projetos (pages/projetos.html)
- * ==========================================================================
  * Lê os projetos do Firebase Firestore
  * e renderiza dinamicamente os cards na página pública.
  */
