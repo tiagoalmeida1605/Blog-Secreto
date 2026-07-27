@@ -28,30 +28,42 @@ import {
     }
 
     async function getProjetosPublicos() {
+
+        console.log("entrei no getProjetosPublicos");
+
         try {
+
             const snapshot = await getDocs(collection(db, "projetos"));
-            return snapshot.docs.map((documento) => {
+
+            console.log("Projetos encontrados:", snapshot.size);
+
+            const projetos = snapshot.docs.map((documento) => {
+
                 const dados = documento.data();
+
+                console.log("Dados do projeto:", dados);
+
                 return {
                     id: documento.id,
-                    // Firestore usa "titulo"
-                    // O card antigo usa "nome"
                     nome: dados.titulo || "Projeto sem nome",
                     descricao: dados.descricao || "",
                     tecnologias: dados.tecnologias || [],
                     imagem: dados.imagem || "",
-                    // usa site primeiro, depois github
                     link: dados.site || dados.github || "#",
                     status: dados.status || "Ativo",
                     versao: dados.versao || ""
                 };
+
             });
+
+            return projetos;
+
         } catch (erro) {
-            console.error(
-                "Erro ao buscar projetos no Firestore:",
-                erro
-            );
+
+            console.error("Erro Firestore:", erro);
+
             return [];
+
         }
     }
 
