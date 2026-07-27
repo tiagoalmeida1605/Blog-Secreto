@@ -2,7 +2,15 @@
  * ==========================================================================
  * Admin CRUD - Gerenciamento de Projetos (admin/projetos.html)
  * ==========================================================================
- * Dependências: Store (store.js), UI (components.js)
+ * Dependências: FirebaseStore (js/firebase-store.js), UI (components.js)
+ * Fonte de dados: Firebase Firestore, coleção "projetos"
+ *
+ * Observação sobre nomes de campos:
+ * O documento no Firestore usa os campos "titulo" e "site"/"github"
+ * (mesmo formato lido pela página pública em ../js/projetos.js).
+ * As funções normalizeProjetoParaExibicao() e montarDadosParaFirestore()
+ * fazem a ponte entre esse formato e os campos do formulário (nome, link).
+ * ==========================================================================
  */
 
 (function initAdminProjetos() {
@@ -13,6 +21,7 @@
 
     let editingId = null;
     let deleteTargetId = null;
+    let cacheProjetos = []; // últimos documentos crus vindos do Firestore
 
     /* ------------------------------------------------------------------ */
     /*  Inicialização                                                     */
@@ -40,13 +49,9 @@
         if (btnConfirmarExclusao) btnConfirmarExclusao.addEventListener('click', () => confirmarExclusao());
         if (form) form.addEventListener('submit', (e) => handleSubmit(e));
 
-        if (inputBusca) {
-            inputBusca.addEventListener('input', () => renderTabela());
-        }
-
-        if (filtroStatus) {
-            filtroStatus.addEventListener('change', () => renderTabela());
-        }
+        // Busca/filtro usam o cache local (instantâneo, sem nova leitura no Firestore)
+        if (inputBusca) inputBusca.addEventListener('input', () => renderTabelaFiltrada());
+        if (filtroStatus) filtroStatus.addEventListener('change', () => renderTabelaFiltrada());
 
         // Delegação de eventos para botões de ação nas linhas
         const tabela = document.getElementById('tabela-projetos');
@@ -78,9 +83,26 @@
     }
 
     /* ------------------------------------------------------------------ */
-    /*  Renderização da Tabela                                            */
+    /*  Carregamento (Firestore) + Renderização da Tabela                 */
     /* ------------------------------------------------------------------ */
-    function renderTabela() {
+    async function renderTabela() {
+        const tabela = document.getElementById('tabela-projetos');
+        if (!tabela) return;
+
+        tabela.replaceChildren(createInfoRow('Carregando projetos...'));
+
+        try {
+            cacheProjetos = await FirebaseStore.getProjetos();
+        } catch (erro) {
+            console.error('Erro ao carregar projetos do Firestore:', erro);
+            UI.showAlert('Não foi possível carregar os projetos do Firestore. Veja o console.', 'error');
+            cacheProjetos = [];
+        }
+
+        renderTabelaFiltrada();
+    }
+
+    function renderTabelaFiltrada() {
         const tabela = document.getElementById('tabela-projetos');
         if (!tabela) return;
 
@@ -88,13 +110,7 @@
         const fragment = document.createDocumentFragment();
 
         if (!projetos.length) {
-            const row = document.createElement('tr');
-            const cell = document.createElement('td');
-            cell.colSpan = 5;
-            cell.textContent = 'Nenhum projeto encontrado.';
-            cell.style.cssText = 'text-align: center; padding: 40px 16px; color: var(--text-muted);';
-            row.appendChild(cell);
-            fragment.appendChild(row);
+            fragment.appendChild(createInfoRow('Nenhum projeto encontrado.'));
         } else {
             projetos.forEach((projeto) => {
                 fragment.appendChild(createProjectRow(projeto));
@@ -104,24 +120,68 @@
         tabela.replaceChildren(fragment);
     }
 
+    function createInfoRow(mensagem) {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = 5;
+        cell.textContent = mensagem;
+        cell.style.cssText = 'text-align: center; padding: 40px 16px; color: var(--text-muted);';
+        row.appendChild(cell);
+        return row;
+    }
+
     function getProjetosFiltrados() {
-        const projetos = Store.getProjetos();
         const busca = (document.getElementById('input-busca')?.value || '').toLowerCase().trim();
         const filtro = document.getElementById('filtro-status')?.value || 'todos';
 
-        if (!busca && filtro === 'todos') return projetos;
+        return cacheProjetos
+            .map(normalizeProjetoParaExibicao)
+            .filter((projeto) => {
+                if (filtro !== 'todos' && projeto.status !== filtro) return false;
+                if (!busca) return true;
 
-        return projetos.filter((projeto) => {
-            if (filtro !== 'todos' && projeto.status !== filtro) return false;
-            if (!busca) return true;
-
-            const text = `${projeto.nome} ${projeto.descricao} ${(projeto.tecnologias || []).join(' ')}`.toLowerCase();
-            return text.includes(busca);
-        });
+                const text = `${projeto.nome} ${projeto.descricao} ${(projeto.tecnologias || []).join(' ')}`.toLowerCase();
+                return text.includes(busca);
+            });
     }
 
     /* ------------------------------------------------------------------ */
-    /*  Criação de Linhas (delegado para views/projetos.js)               */
+    /*  Normalização (Firestore <-> Formulário)                           */
+    /* ------------------------------------------------------------------ */
+    function normalizeProjetoParaExibicao(doc) {
+        return {
+            id: doc.id,
+            nome: doc.titulo || doc.nome || 'Projeto sem nome',
+            descricao: doc.descricao || '',
+            tecnologias: Array.isArray(doc.tecnologias)
+                ? doc.tecnologias
+                : String(doc.tecnologias || '').split(',').map((t) => t.trim()).filter(Boolean),
+            imagem: doc.imagem || '',
+            link: doc.site || doc.github || doc.link || '#',
+            status: doc.status || 'Ativo',
+            versao: doc.versao || ''
+        };
+    }
+
+    function montarDadosParaFirestore(form) {
+        const tecnologias = form.tech
+            .split(',')
+            .map((t) => t.trim())
+            .filter(Boolean);
+
+        return {
+            titulo: form.nome,
+            descricao: form.descricao,
+            status: form.status,
+            versao: form.versao,
+            tecnologias,
+            imagem: form.imagem,
+            site: form.link
+        };
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  Criação de Linhas                                                 */
     /* ------------------------------------------------------------------ */
     function createProjectRow(projeto) {
         const row = document.createElement('tr');
@@ -239,11 +299,13 @@
     }
 
     function abrirModalEditar(id) {
-        const projeto = Store.getProjetoById(id);
-        if (!projeto) {
+        const doc = cacheProjetos.find((p) => p.id === id);
+        if (!doc) {
             UI.showAlert('Projeto não encontrado.', 'error');
             return;
         }
+
+        const projeto = normalizeProjetoParaExibicao(doc);
 
         editingId = id;
         document.getElementById('modal-titulo').textContent = 'Editar Projeto';
@@ -262,34 +324,45 @@
         editingId = null;
     }
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
 
-        const dados = {
+        const formValues = {
             nome: document.getElementById('proj-nome').value.trim(),
             versao: document.getElementById('proj-versao').value.trim(),
             status: document.getElementById('proj-status').value,
-            tecnologias: document.getElementById('proj-tech').value.trim(),
+            tech: document.getElementById('proj-tech').value.trim(),
             descricao: document.getElementById('proj-desc').value.trim(),
             imagem: document.getElementById('proj-imagem').value.trim(),
             link: document.getElementById('proj-link').value.trim() || '#'
         };
 
-        if (!dados.nome || !dados.descricao) {
+        if (!formValues.nome || !formValues.descricao) {
             UI.showAlert('Preencha o nome e a descrição do projeto.', 'error');
             return;
         }
 
-        if (editingId) {
-            Store.updateProjeto(editingId, dados);
-            UI.showAlert('Projeto atualizado com sucesso!');
-        } else {
-            Store.addProjeto(dados);
-            UI.showAlert('Projeto criado com sucesso!');
-        }
+        const dados = montarDadosParaFirestore(formValues);
+        const submitButton = e.target.querySelector('button[type="submit"]');
+        if (submitButton) submitButton.disabled = true;
 
-        fecharModal();
-        renderTabela();
+        try {
+            if (editingId) {
+                await FirebaseStore.updateProjeto(editingId, dados);
+                UI.showAlert('Projeto atualizado com sucesso!');
+            } else {
+                await FirebaseStore.addProjeto(dados);
+                UI.showAlert('Projeto criado com sucesso!');
+            }
+
+            fecharModal();
+            await renderTabela();
+        } catch (erro) {
+            console.error('Erro ao salvar projeto no Firestore:', erro);
+            UI.showAlert('Erro ao salvar o projeto no Firestore. Veja o console.', 'error');
+        } finally {
+            if (submitButton) submitButton.disabled = false;
+        }
     }
 
     /* ------------------------------------------------------------------ */
@@ -305,13 +378,18 @@
         deleteTargetId = null;
     }
 
-    function confirmarExclusao() {
+    async function confirmarExclusao() {
         if (!deleteTargetId) return;
 
-        Store.deleteProjeto(deleteTargetId);
-        UI.showAlert('Projeto excluído com sucesso!');
-        fecharModalExclusao();
-        renderTabela();
+        try {
+            await FirebaseStore.deleteProjeto(deleteTargetId);
+            UI.showAlert('Projeto excluído com sucesso!');
+            fecharModalExclusao();
+            await renderTabela();
+        } catch (erro) {
+            console.error('Erro ao excluir projeto no Firestore:', erro);
+            UI.showAlert('Erro ao excluir o projeto no Firestore. Veja o console.', 'error');
+        }
     }
 
     /* ------------------------------------------------------------------ */
@@ -352,6 +430,6 @@
         init();
     }
 
-    // Expõe funções para o Assistente IA usar
+    // Expõe função para o Assistente IA usar
     window.abrirModalNovo = abrirModalNovo;
 })();
