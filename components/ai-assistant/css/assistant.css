@@ -903,6 +903,11 @@
     }
 }
 
+/* ==========================================================================
+   RESPONSIVIDADE DA INTERFACE DA IA
+   ========================================================================== */
+
+/* Tablets (até 1024px) */
 @media (max-width: 1024px) {
     .ai-shell {
         width: min(820px, calc(100vw - 32px));
@@ -915,6 +920,7 @@
     }
 }
 
+/* Celulares Grandes e Tablets Menores (até 768px) */
 @media (max-width: 768px) {
     html[data-ai-assistant-open="true"] {
         overflow: hidden;
@@ -926,55 +932,51 @@
         touch-action: none;
     }
 
+    /* Oculta o FAB / Launcher quando o chat está aberto no mobile (opcional mas recomendado) */
+    html[data-ai-assistant-open="true"] .ai-launcher {
+        display: none !important;
+    }
+
     .ai-launcher,
     #ai-assistant-root > .ai-launcher,
     .ai-assistant > .ai-launcher {
         right: max(16px, env(safe-area-inset-right, 0px)) !important;
         bottom: max(16px, env(safe-area-inset-bottom, 0px)) !important;
-        width: 54px !important;
-        height: 54px !important;
-        min-width: 54px !important;
-        min-height: 54px !important;
-        max-width: 54px !important;
-        max-height: 54px !important;
+        width: 56px !important;
+        height: 56px !important;
     }
 
+    /* O chat ocupa a tela toda (estilo modal/app) no mobile */
     .ai-shell {
-        top: calc(var(--ai-viewport-offset-top, 0px) + 8px);
-        right: max(8px, env(safe-area-inset-right, 0px));
-        bottom: auto;
-        left: max(8px, env(safe-area-inset-left, 0px));
-        width: auto;
-        height: calc(var(--ai-viewport-height) - 16px);
-        max-height: calc(var(--ai-viewport-height) - 16px);
-        min-height: 0;
-        border-radius: var(--ai-radius);
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100vw;
+        height: 100dvh;
+        max-height: 100dvh;
+        border-radius: 0;
+        border: none;
+        transform: translateY(100%); /* Anima de baixo para cima */
+    }
+
+    .ai-assistant[data-ai-open="true"] .ai-shell {
+        transform: translateY(0);
     }
 
     .ai-header {
-        align-items: flex-start;
-        gap: 10px;
-        padding: 12px;
+        min-height: 64px;
+        padding: 12px 16px;
         padding-top: max(12px, env(safe-area-inset-top, 0px));
+        flex-wrap: wrap; /* Permite que ações pulem para a linha de baixo se faltar espaço */
+    }
+
+    .ai-header__identity {
+        flex: 1 1 auto;
     }
 
     .ai-header__actions {
-        max-width: 52%;
-        gap: 6px;
-    }
-
-    .ai-icon-button {
-        min-width: 34px;
-        min-height: 36px;
-        height: 36px;
-        padding: 0 8px;
-        font-size: 11px;
-    }
-
-    .ai-theme-select select {
-        width: 86px;
-        height: 36px;
-        font-size: 11px;
+        flex: 0 0 auto;
     }
 
     .ai-body {
@@ -982,56 +984,57 @@
         grid-template-rows: auto minmax(0, 1fr);
     }
 
+    /* Transforma o menu lateral em um menu horizontal no topo do chat */
     .ai-side-menu {
         border-right: 0;
         border-bottom: 1px solid var(--ai-border);
-        padding: 10px 12px;
-        max-height: 112px;
+        padding: 12px 16px;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        overscroll-behavior-x: contain;
-    }
-
-    .ai-side-menu__header {
-        margin-bottom: 8px;
+        white-space: nowrap; /* Impede a quebra de linha das sugestões */
     }
 
     .ai-suggestion-list {
-        display: flex;
+        display: inline-flex;
         gap: 8px;
-        min-width: max-content;
     }
 
     .ai-suggestion {
         width: auto;
-        min-height: 40px;
-        white-space: nowrap;
+        min-height: 36px;
     }
 
     .ai-messages {
-        padding: 14px 12px;
-        -webkit-overflow-scrolling: touch;
-        overscroll-behavior: contain;
+        padding: 16px;
+    }
+
+    .ai-message {
+        gap: 8px;
+    }
+
+    .ai-message__bubble {
+        width: 100%; /* Balões ocupam toda a largura possível no mobile */
     }
 
     .ai-composer {
         grid-template-columns: 1fr;
-        padding: 10px;
-        padding-bottom: max(10px, env(safe-area-inset-bottom, 0px));
+        padding: 12px 16px;
+        padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
     }
 
     .ai-composer textarea {
-        font-size: 16px;
+        font-size: 16px; /* Evita zoom automático no input em iPhones */
     }
 
     .ai-composer__actions {
-        justify-content: stretch;
+        display: flex;
+        gap: 8px;
     }
 
     .ai-stop-button,
     .ai-send-button {
+        flex: 1; /* Botões dividem o espaço restante */
         min-height: 44px;
-        flex: 1;
     }
 
     .ai-dev-dashboard {
@@ -1041,40 +1044,8 @@
     }
 }
 
-/* Galaxy A26 5G e similares (~360–425 CSS px) */
+/* Celulares Comuns (até 425px - Incluindo Galaxy A26 5G de 412px) */
 @media (max-width: 425px) {
-    .ai-launcher {
-        right: max(14px, env(safe-area-inset-right, 0px));
-        bottom: max(14px, env(safe-area-inset-bottom, 0px));
-        width: 52px;
-        height: 52px;
-    }
-
-    .ai-shell {
-        top: var(--ai-viewport-offset-top, 0px);
-        right: 0;
-        bottom: auto;
-        left: 0;
-        width: 100%;
-        height: var(--ai-viewport-height);
-        max-height: var(--ai-viewport-height);
-        border-radius: 0;
-        border-left: 0;
-        border-right: 0;
-    }
-
-    .ai-header {
-        min-height: 68px;
-        padding-left: max(12px, env(safe-area-inset-left, 0px));
-        padding-right: max(12px, env(safe-area-inset-right, 0px));
-    }
-
-    .ai-avatar {
-        width: 38px;
-        height: 38px;
-        font-size: 13px;
-    }
-
     .ai-header h2 {
         font-size: 15px;
     }
@@ -1083,100 +1054,47 @@
         font-size: 11px;
     }
 
-    .ai-header__identity {
-        flex: 1 1 auto;
-        min-width: 0;
+    .ai-avatar {
+        width: 38px;
+        height: 38px;
+        font-size: 14px;
     }
 
-    .ai-header__identity > div {
-        min-width: 0;
+    /* Reduz avatares nas mensagens para dar mais espaço à leitura */
+    .ai-message {
+        grid-template-columns: 28px minmax(0, 1fr);
     }
 
-    .ai-header h2,
-    .ai-header p {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+    .ai-message--user {
+        grid-template-columns: minmax(0, 1fr) 28px;
     }
 
-    .ai-header__actions {
-        max-width: 58%;
-        flex: 0 1 auto;
+    .ai-message__avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 10px;
     }
 
     .ai-icon-button {
         min-width: 32px;
-        padding: 0 7px;
-    }
-
-    .ai-message {
-        grid-template-columns: 30px minmax(0, 1fr);
-        gap: 8px;
-    }
-
-    .ai-message--user {
-        grid-template-columns: minmax(0, 1fr) 30px;
-    }
-
-    .ai-message__avatar {
-        width: 30px;
-        height: 30px;
-        font-size: 10px;
-    }
-
-    .ai-message__bubble {
-        padding: 10px;
-        width: 100%;
-    }
-
-    .ai-message__content {
-        font-size: 13px;
-    }
-
-    .ai-dev-grid,
-    .ai-log-filters {
-        grid-template-columns: 1fr;
+        padding: 0 6px;
     }
 }
 
-/* Baseline Galaxy A26 5G: 360 CSS px */
+/* Celulares Estreitos (Até 360px - Ex: iPhone SE) */
 @media (max-width: 360px) {
     .ai-header {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 8px;
         padding: 10px 12px;
-        padding-top: max(10px, env(safe-area-inset-top, 0px));
-    }
-
-    .ai-header__actions {
-        max-width: none;
-        justify-content: flex-start;
-        gap: 6px;
-    }
-
-    .ai-theme-select {
-        order: 10;
-        flex: 1 1 100%;
-        width: 100%;
-    }
-
-    .ai-theme-select select {
-        width: 100%;
-    }
-
-    .ai-side-menu {
-        max-height: 100px;
-        padding: 8px 10px;
+        gap: 8px;
     }
 
     .ai-messages {
         padding: 12px 10px;
     }
 
+    /* Em telas muito estreitas, removemos os avatares das mensagens */
     .ai-message {
         grid-template-columns: 1fr;
-        gap: 6px;
     }
 
     .ai-message--user {
@@ -1191,70 +1109,22 @@
     .ai-message__bubble {
         grid-column: 1;
         width: 100%;
-        justify-self: stretch;
     }
 
     .ai-composer {
-        padding: 8px 10px;
-        padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
-        gap: 8px;
-    }
-
-    .ai-result-card {
         padding: 10px;
     }
 }
 
-@media (max-width: 375px) and (min-width: 361px) {
-    .ai-header__actions {
-        max-width: 62%;
-    }
-
-    .ai-theme-select {
-        order: 10;
-        width: 100%;
-    }
-
-    .ai-theme-select select {
-        width: 100%;
-    }
-
-    .ai-side-menu {
-        max-height: 104px;
-    }
-}
-
-@media (max-width: 320px) {
-    .ai-header {
-        display: grid;
-        grid-template-columns: 1fr;
-    }
-
-    .ai-header__actions {
-        max-width: none;
-        justify-content: flex-start;
-    }
-
-    .ai-side-menu {
-        max-height: 96px;
-    }
-
-    .ai-message {
-        grid-template-columns: 1fr;
-    }
-
-    .ai-message--user {
-        grid-template-columns: 1fr;
-    }
-
-    .ai-message__avatar {
-        display: none;
-    }
-
-    .ai-message--user .ai-message__bubble,
-    .ai-message__bubble {
-        grid-column: 1;
-        width: 100%;
+/* Acessibilidade - Redução de Animações */
+@media (prefers-reduced-motion: reduce) {
+    .ai-assistant *,
+    .ai-assistant *::before,
+    .ai-assistant *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
     }
 }
 

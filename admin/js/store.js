@@ -31,13 +31,24 @@ const Store = {
     init: function() {
         const saved = this.readRawProjetos();
 
+        // Primeira execução: semear projetos padrão
         if (saved === null) {
-            this.saveProjetos([]);
+            const defaultProjects = this.LEGACY_SAMPLE_PROJECTS.map((sample) => ({
+                id: sample.id,
+                nome: sample.nome,
+                descricao: sample.descricao,
+                tecnologias: ['Python', 'JavaScript'],
+                status: 'Ativo',
+                versao: '1.0.0',
+                imagem: '',
+                link: '#'
+            }));
+            this.saveProjetos(defaultProjects);
             return;
         }
 
         const parsed = this.parseProjetos(saved);
-        const normalized = this.normalizeProjetos(parsed, { removeLegacySamples: true });
+        const normalized = this.normalizeProjetos(parsed);
         const normalizedSerialized = JSON.stringify(normalized);
 
         if (saved !== normalizedSerialized) {
