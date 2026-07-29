@@ -22,6 +22,7 @@
     <ul class="sidebar-nav">
       <li><a href="index.html" class="active"><i class="ph ph-squares-four"></i> Visão Geral</a></li>
       <li><a href="projetos.html"><i class="ph ph-folder-notch"></i> Projetos</a></li>
+      <li><a href="tags.html"><i class="ph ph-tag"></i> Tags</a></li>
       <li><a href="configuracoes.html"><i class="ph ph-gear"></i> Configurações</a></li>
       <li style="margin-top: auto;"><a href="login.html" onclick="Auth.logout(event)"><i class="ph ph-sign-out"></i> Desconectar</a></li>
     </ul>
@@ -71,13 +72,15 @@
 </div>
 
 <script type="module" src="../firebase/firebase.js"></script>
-<script type="module" src="./js/firebase-store.js"></script>
+<script type="module" src="js/services/projetoService.js"></script>
 <script src="js/components.js"></script>
 <script type="module" src="../components/ai-assistant/js/core/ChatManager.js"></script>
-<script>
+<script type="module">
+  import { ProjetoService } from './js/services/projetoService.js';
+
   document.addEventListener('DOMContentLoaded', async () => {
     try {
-      const projetos = await FirebaseStore.getProjetos();
+      const projetos = await ProjetoService.getProjetos();
 
       const normalizeStatus = (valor) => String(valor || '')
               .normalize('NFD')

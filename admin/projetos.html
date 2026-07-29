@@ -8,6 +8,7 @@
         document.documentElement.setAttribute('data-theme', localStorage.getItem('secreto_theme') || 'dark');
     </script>
     <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/tags.css">
     <link rel="stylesheet" href="../components/ai-assistant/css/assistant.css">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="js/auth.js"></script>
@@ -22,6 +23,7 @@
         <ul class="sidebar-nav">
             <li><a href="index.html"><i class="ph ph-squares-four"></i> Visão Geral</a></li>
             <li><a href="projetos.html" class="active"><i class="ph ph-folder-notch"></i> Projetos</a></li>
+            <li><a href="tags.html"><i class="ph ph-tag"></i> Tags</a></li>
             <li><a href="configuracoes.html"><i class="ph ph-gear"></i> Configurações</a></li>
             <li style="margin-top: auto;"><a href="login.html" onclick="Auth.logout(event)"><i class="ph ph-sign-out"></i> Desconectar</a></li>
         </ul>
@@ -42,7 +44,7 @@
         <div class="content-wrapper">
             <div class="card-panel" style="margin-bottom: 24px; padding: 16px;">
                 <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-                    <input type="text" id="input-busca" class="form-control" placeholder="Buscar por nome ou tecnologia..." style="flex: 1; min-width: 200px;">
+                    <input type="text" id="input-busca" class="form-control" placeholder="Buscar por nome ou tag..." style="flex: 1; min-width: 200px;">
                     <select id="filtro-status" class="form-control" style="width: auto; min-width: 160px;">
                         <option value="todos">Todos os Status</option>
                         <option value="Ativo">Ativo</option>
@@ -71,20 +73,20 @@
 </div>
 
 <div class="modal-overlay" id="modal-projeto">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width: 620px;">
         <h3 id="modal-titulo" style="margin-bottom: 20px;">Novo Projeto</h3>
         <form id="form-projeto">
             <div class="form-group">
-                <label>Nome do Projeto</label>
+                <label for="proj-nome">Nome do Projeto</label>
                 <input type="text" class="form-control" id="proj-nome" required>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                 <div class="form-group">
-                    <label>Versão</label>
+                    <label for="proj-versao">Versão</label>
                     <input type="text" class="form-control" id="proj-versao" required>
                 </div>
                 <div class="form-group">
-                    <label>Status</label>
+                    <label for="proj-status">Status</label>
                     <select id="proj-status" class="form-control">
                         <option value="Ativo">Ativo</option>
                         <option value="Em Teste">Em Teste</option>
@@ -92,21 +94,30 @@
                     </select>
                 </div>
             </div>
+            
+            <!-- Seletor Profissional de Tags -->
             <div class="form-group">
-                <label>Tecnologias (separadas por vírgula)</label>
-                <input type="text" class="form-control" id="proj-tech" placeholder="React, Node.js">
+                <label>Tags do Projeto</label>
+                <div class="tag-selector-wrapper" id="proj-tags-selector">
+                    <input type="text" class="tag-selector-search" id="proj-tags-search" placeholder="Pesquisar tag...">
+                    <div class="tag-selector-grid" id="proj-tags-grid">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Carregando tags...</span>
+                    </div>
+                </div>
+                <div class="tag-selected-badges" id="proj-tags-selected-display"></div>
             </div>
+
             <div class="form-group">
-                <label>Descrição</label>
+                <label for="proj-desc">Descrição</label>
                 <textarea id="proj-desc" class="form-control" required></textarea>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                 <div class="form-group">
-                    <label>URL Imagem</label>
+                    <label for="proj-imagem">URL Imagem</label>
                     <input type="url" class="form-control" id="proj-imagem" placeholder="https://...">
                 </div>
                 <div class="form-group">
-                    <label>Link do Projeto</label>
+                    <label for="proj-link">Link do Projeto</label>
                     <input type="text" class="form-control" id="proj-link" placeholder="#">
                 </div>
             </div>
@@ -130,10 +141,10 @@
 </div>
 
 <script type="module" src="../firebase/firebase.js"></script>
-<script type="module" src="./js/firebase-store.js"></script>
-<script src="js/store.js"></script>
+<script type="module" src="js/services/tagService.js"></script>
+<script type="module" src="js/services/projetoService.js"></script>
 <script src="js/components.js"></script>
-<script src="js/projetos.js"></script>
+<script type="module" src="js/projetos.js"></script>
 <script type="module" src="../components/ai-assistant/js/core/ChatManager.js"></script>
 </body>
 </html>

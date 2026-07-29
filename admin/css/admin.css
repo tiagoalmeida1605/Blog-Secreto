@@ -365,3 +365,35 @@ textarea.form-control { resize: vertical; min-height: 100px; }
     .grid-cards { grid-template-columns: 1fr; }
     .modal-content { padding: 20px; width: 95%; }
 }
+/* ==========================================================================
+   9. ULTRA MOBILE (Samsung Galaxy A26 5G e dispositivos com tela < 360px)
+   ========================================================================== */
+@media (max-width: 480px) {
+    .topbar { padding: 12px 12px; flex-wrap: wrap; gap: 8px; }
+    .topbar h2 { font-size: 1.3rem; }
+    .topbar-actions { flex-direction: column; gap: 8px; width: 100%; }
+    
+    .content-wrapper { padding: 12px; }
+    .grid-cards { grid-template-columns: 1fr; }
+    
+    .modal-content { padding: 16px; max-width: 100%; }
+    .form-group label { font-size: 0.8rem; }
+    .form-control { padding: 10px 12px; font-size: 0.9rem; }
+    
+    th, td { padding: 12px 10px; font-size: 0.8rem; }
+    
+    .btn { padding: 8px 12px; font-size: 0.85rem; }
+    
+    .card-panel { padding: 16px; }
+}
+
+@media (max-width: 360px) {
+    .topbar { padding: 8px 8px; }
+    .topbar h2 { font-size: 1.1rem; }
+    .content-wrapper { padding: 8px; }
+    
+    .modal-content { padding: 12px; }
+    th, td { padding: 8px 6px; font-size: 0.7rem; }
+    
+    .card-panel { padding: 12px; }
+}

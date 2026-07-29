@@ -2,8 +2,8 @@
  * ==========================================================================
  * Script Público: Exibição dos Projetos (pages/projetos.html)
  * ==========================================================================
- * Busca projetos no Firebase Firestore
- * e renderiza dinamicamente os cards públicos.
+ * Busca projetos no Firebase Firestore e tags
+ * e renderiza dinamicamente os cards públicos com dados de tags.
  * ==========================================================================
  */
 
@@ -22,12 +22,28 @@ import {
     const FALLBACK_IMAGE =
         "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80";
 
+    let tagsCache = new Map();
+
     async function init() {
         const grid = document.getElementById("grid-projetos-publicos");
         if (!grid) return;
         bindAssistantPublicActions();
+        await carregarTags();
         const projetos = await getProjetosPublicos();
         renderProjetos(grid, projetos);
+    }
+
+    async function carregarTags() {
+        try {
+            const snapshot = await getDocs(collection(db, "tags"));
+            tagsCache.clear();
+            snapshot.docs.forEach((doc) => {
+                tagsCache.set(doc.id, doc.data());
+            });
+        } catch (erro) {
+            console.error("Erro ao carregar tags:", erro);
+            tagsCache.clear();
+        }
     }
 
     async function getProjetosPublicos() {
@@ -43,7 +59,7 @@ import {
                     id: doc.id,
                     nome: dados.titulo || "Projeto sem nome",
                     descricao: dados.descricao || "",
-                    tecnologias: dados.tecnologias || [],
+                    tags: Array.isArray(dados.tags) ? dados.tags : [],
                     imagem: dados.imagem || "",
                     link: dados.site || dados.github || "#",
                     status: dados.status || "Ativo",
@@ -227,16 +243,26 @@ import {
 
 
 
-        (projeto.tecnologias || [])
-            .forEach((tecnologia) => {
+        (projeto.tags || [])
+            .forEach((tagSlug) => {
 
+                const tagInfo = tagsCache.get(tagSlug);
 
                 const badge =
                     document.createElement("span");
                 badge.className =
                     "tech-badge";
-                badge.textContent =
-                    tecnologia;
+
+                if (tagInfo) {
+                    badge.style.backgroundColor = `${tagInfo.cor || '#3776AB'}25`;
+                    badge.style.color = tagInfo.cor || '#3776AB';
+                    badge.style.borderColor = `${tagInfo.cor || '#3776AB'}50`;
+                    badge.textContent =
+                        `${tagInfo.icone || '🏷️'} ${tagInfo.nome}`;
+                } else {
+                    badge.textContent = tagSlug;
+                }
+
                 techList.appendChild(badge);
             });
 
@@ -249,13 +275,16 @@ import {
         link.rel =
             "noopener noreferrer";
 
+
         link.className =
             "project-link";
 
-        link.textContent =
-            projectUrl !== "#"
-                ? "Acessar Projeto"
-                : "Ver Repositório";
+
+        link.innerHTML =
+            `
+            <i class="ph ph-arrow-up-right" style="font-size: 1rem;"></i>
+            Acessar
+            `;
 
         article.append(
             image,
@@ -265,11 +294,12 @@ import {
             techList,
             link
         );
+
         return article;
+
     }
 
     function bindAssistantPublicActions() {
-
         document
             .querySelectorAll("[data-open-ai-assistant]")
             .forEach((button) => {

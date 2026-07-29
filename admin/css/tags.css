@@ -1,0 +1,244 @@
+/* ==========================================================================
+   Admin Tags CSS (admin/css/tags.css)
+   ========================================================================== */
+
+/* Grid do Filtro Superior */
+.tags-filter-bar {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.tags-filter-bar .form-control {
+    height: 44px;
+}
+
+/* Badge de Tag com Cor Customizada */
+.tag-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.3;
+    border: 1px solid transparent;
+    transition: var(--transition);
+}
+
+.tag-badge .tag-icon {
+    font-size: 1rem;
+}
+
+/* Swatch de Cor na Tabela */
+.color-preview-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: monospace;
+    font-size: 0.8rem;
+}
+
+.color-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-block;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Modal Form Customizations */
+.color-picker-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.color-input-custom {
+    width: 48px;
+    height: 44px;
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-base);
+    cursor: pointer;
+}
+
+.preset-colors {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+
+.color-swatch-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.color-swatch-btn:hover {
+    transform: scale(1.15);
+}
+
+.color-swatch-btn.active {
+    border-color: var(--text-main);
+    box-shadow: 0 0 0 2px var(--bg-surface);
+}
+
+/* Checkbox Switch Ativo */
+.form-switch {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.form-switch input[type="checkbox"] {
+    width: 42px;
+    height: 22px;
+    appearance: none;
+    background: var(--border);
+    border-radius: 20px;
+    position: relative;
+    outline: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.form-switch input[type="checkbox"]:checked {
+    background: var(--success);
+}
+
+.form-switch input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+.form-switch input[type="checkbox"]:checked::before {
+    transform: translateX(20px);
+}
+
+/* ==========================================================================
+   Seletor de Tags (Usado na Modal do Cadastro de Projetos)
+   ========================================================================== */
+.tag-selector-wrapper {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-base);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 260px;
+}
+
+.tag-selector-search {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    color: var(--text-main);
+}
+
+.tag-selector-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+    max-height: 180px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.tag-selector-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: var(--transition);
+    user-select: none;
+}
+
+.tag-selector-item:hover {
+    border-color: var(--primary);
+    background: var(--bg-surface-hover);
+}
+
+.tag-selector-item.selected {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    font-weight: 600;
+}
+
+.tag-selector-item input[type="checkbox"] {
+    accent-color: var(--primary);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.tag-selected-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+    min-height: 28px;
+}
+
+/* Responsividade Responsiva (Galaxy A26 5G & Mobile) */
+@media (max-width: 768px) {
+    .tags-filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .tags-filter-bar .form-control {
+        width: 100% !important;
+        min-width: 100% !important;
+    }
+
+    .tag-selector-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+}
+
+/* Ultra mobile: Samsung Galaxy A26 5G e dispositivos com tela < 360px */
+@media (max-width: 480px) {
+    .tag-selector-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+}
+
+@media (max-width: 360px) {
+    .tag-selector-grid {
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        font-size: 0.75rem;
+    }
+    
+    .tag-selector-item {
+        padding: 4px 6px;
+        font-size: 0.75rem;
+        gap: 4px;
+    }
+}

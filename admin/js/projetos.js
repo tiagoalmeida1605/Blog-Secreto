@@ -2,16 +2,13 @@
  * ==========================================================================
  * Admin CRUD - Gerenciamento de Projetos (admin/projetos.html)
  * ==========================================================================
- * Dependências: FirebaseStore (js/firebase-store.js), UI (components.js)
- * Fonte de dados: Firebase Firestore, coleção "projetos"
- *
- * Observação sobre nomes de campos:
- * O documento no Firestore usa os campos "titulo" e "site"/"github"
- * (mesmo formato lido pela página pública em ../js/projetos.js).
- * As funções normalizeProjetoParaExibicao() e montarDadosParaFirestore()
- * fazem a ponte entre esse formato e os campos do formulário (nome, link).
+ * Dependências: ProjetoService, TagService, UI (components.js)
+ * Fonte de dados: Firebase Firestore, coleções "projetos" e "tags"
  * ==========================================================================
  */
+
+import { TagService } from "./services/tagService.js";
+import { ProjetoService } from "./services/projetoService.js";
 
 (function initAdminProjetos() {
     if (window.__AdminProjetosLoaded) return;
@@ -21,14 +18,35 @@
 
     let editingId = null;
     let deleteTargetId = null;
-    let cacheProjetos = []; // últimos documentos crus vindos do Firestore
+    let cacheProjetos = [];
+    let cacheTags = [];
+    let cacheTagsMap = new Map();
+    let selectedTagSlugs = new Set();
 
     /* ------------------------------------------------------------------ */
     /*  Inicialização                                                     */
     /* ------------------------------------------------------------------ */
-    function init() {
+    async function init() {
         setupEventListeners();
-        renderTabela();
+        await carregarTags();
+        await renderTabela();
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  Carregamento de Tags                                              */
+    /* ------------------------------------------------------------------ */
+    async function carregarTags() {
+        try {
+            cacheTags = await TagService.getTags();
+            cacheTagsMap = new Map();
+            cacheTags.forEach(tag => {
+                if (tag.slug) cacheTagsMap.set(tag.slug, tag);
+            });
+        } catch (erro) {
+            console.error('Erro ao carregar tags para o seletor:', erro);
+            cacheTags = [];
+            cacheTagsMap = new Map();
+        }
     }
 
     /* ------------------------------------------------------------------ */
@@ -43,15 +61,23 @@
         const inputBusca = document.getElementById('input-busca');
         const filtroStatus = document.getElementById('filtro-status');
 
+        const inputTagsSearch = document.getElementById('proj-tags-search');
+
         if (btnNovo) btnNovo.addEventListener('click', () => abrirModalNovo());
         if (btnCancelar) btnCancelar.addEventListener('click', () => fecharModal());
         if (btnCancelarExclusao) btnCancelarExclusao.addEventListener('click', () => fecharModalExclusao());
         if (btnConfirmarExclusao) btnConfirmarExclusao.addEventListener('click', () => confirmarExclusao());
         if (form) form.addEventListener('submit', (e) => handleSubmit(e));
 
-        // Busca/filtro usam o cache local (instantâneo, sem nova leitura no Firestore)
         if (inputBusca) inputBusca.addEventListener('input', () => renderTabelaFiltrada());
         if (filtroStatus) filtroStatus.addEventListener('change', () => renderTabelaFiltrada());
+
+        // Busca interna do seletor de tags
+        if (inputTagsSearch) {
+            inputTagsSearch.addEventListener('input', (e) => {
+                renderGridTagsSeletor(e.target.value);
+            });
+        }
 
         // Delegação de eventos para botões de ação nas linhas
         const tabela = document.getElementById('tabela-projetos');
@@ -83,6 +109,120 @@
     }
 
     /* ------------------------------------------------------------------ */
+    /*  Seletor Interativo de Tags                                        */
+    /* ------------------------------------------------------------------ */
+    function prepararSeletorTags(initialSlugs = []) {
+        selectedTagSlugs = new Set(initialSlugs);
+        const searchInput = document.getElementById('proj-tags-search');
+        if (searchInput) searchInput.value = '';
+
+        renderGridTagsSeletor();
+        renderBadgesTagsSelecionadas();
+    }
+
+    function renderGridTagsSeletor(filtroTexto = '') {
+        const grid = document.getElementById('proj-tags-grid');
+        if (!grid) return;
+
+        const busca = (filtroTexto || '').toLowerCase().trim();
+
+        const tagsFiltradas = cacheTags.filter(tag => {
+            if (tag.ativo === false) return false;
+            if (!busca) return true;
+            return `${tag.nome} ${tag.slug} ${tag.categoria}`.toLowerCase().includes(busca);
+        });
+
+        if (!tagsFiltradas.length) {
+            grid.replaceChildren();
+            const emptyMsg = document.createElement('span');
+            emptyMsg.style.cssText = 'color: var(--text-muted); font-size: 0.85rem; padding: 8px; grid-column: 1/-1;';
+            emptyMsg.textContent = cacheTags.length ? 'Nenhuma tag encontrada.' : 'Nenhuma tag cadastrada no sistema.';
+            grid.appendChild(emptyMsg);
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+
+        tagsFiltradas.forEach(tag => {
+            const isSelected = selectedTagSlugs.has(tag.slug);
+
+            const label = document.createElement('label');
+            label.className = `tag-selector-item ${isSelected ? 'selected' : ''}`;
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = tag.slug;
+            checkbox.checked = isSelected;
+
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    selectedTagSlugs.add(tag.slug);
+                    label.classList.add('selected');
+                } else {
+                    selectedTagSlugs.delete(tag.slug);
+                    label.classList.remove('selected');
+                }
+                renderBadgesTagsSelecionadas();
+            });
+
+            const iconSpan = document.createElement('span');
+            iconSpan.textContent = tag.icone || '🏷️';
+
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = tag.nome;
+            nameSpan.style.cssText = 'overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
+
+            label.append(checkbox, iconSpan, nameSpan);
+            fragment.appendChild(label);
+        });
+
+        grid.replaceChildren(fragment);
+    }
+
+    function renderBadgesTagsSelecionadas() {
+        const container = document.getElementById('proj-tags-selected-display');
+        if (!container) return;
+
+        container.replaceChildren();
+
+        if (selectedTagSlugs.size === 0) {
+            const hint = document.createElement('span');
+            hint.style.cssText = 'color: var(--text-muted); font-size: 0.8rem; font-style: italic;';
+            hint.textContent = 'Nenhuma tag selecionada.';
+            container.appendChild(hint);
+            return;
+        }
+
+        selectedTagSlugs.forEach(slug => {
+            const tagInfo = cacheTagsMap.get(slug) || { nome: slug, cor: '#3776AB', icone: '🏷️' };
+
+            const badge = document.createElement('span');
+            badge.className = 'tag-badge';
+            badge.style.backgroundColor = `${tagInfo.cor || '#3776AB'}25`;
+            badge.style.color = tagInfo.cor || '#3776AB';
+            badge.style.borderColor = `${tagInfo.cor || '#3776AB'}60`;
+            badge.style.fontSize = '0.78rem';
+            badge.style.padding = '3px 10px';
+
+            badge.textContent = `${tagInfo.icone || '🏷️'} ${tagInfo.nome}`;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.style.cssText = 'background: none; border: none; color: inherit; cursor: pointer; font-size: 0.85rem; margin-left: 4px; padding: 0; line-height: 1;';
+            removeBtn.innerHTML = '&times;';
+            removeBtn.title = `Remover ${tagInfo.nome}`;
+            removeBtn.addEventListener('click', () => {
+                selectedTagSlugs.delete(slug);
+                renderGridTagsSeletor(document.getElementById('proj-tags-search')?.value || '');
+                renderBadgesTagsSelecionadas();
+            });
+
+            badge.appendChild(removeBtn);
+            container.appendChild(badge);
+        });
+    }
+
+    /* ------------------------------------------------------------------ */
     /*  Carregamento (Firestore) + Renderização da Tabela                 */
     /* ------------------------------------------------------------------ */
     async function renderTabela() {
@@ -92,10 +232,11 @@
         tabela.replaceChildren(createInfoRow('Carregando projetos...'));
 
         try {
-            cacheProjetos = await FirebaseStore.getProjetos();
+            await carregarTags();
+            cacheProjetos = await ProjetoService.getProjetos();
         } catch (erro) {
             console.error('Erro ao carregar projetos do Firestore:', erro);
-            UI.showAlert('Não foi possível carregar os projetos do Firestore. Veja o console.', 'error');
+            window.UI?.showAlert('Não foi possível carregar os projetos do Firestore.', 'error');
             cacheProjetos = [];
         }
 
@@ -140,7 +281,12 @@
                 if (filtro !== 'todos' && projeto.status !== filtro) return false;
                 if (!busca) return true;
 
-                const text = `${projeto.nome} ${projeto.descricao} ${(projeto.tecnologias || []).join(' ')}`.toLowerCase();
+                const nomesTags = (projeto.tags || []).map(slug => {
+                    const tagObj = cacheTagsMap.get(slug);
+                    return tagObj ? `${tagObj.nome} ${slug}` : slug;
+                }).join(' ');
+
+                const text = `${projeto.nome} ${projeto.descricao} ${nomesTags}`.toLowerCase();
                 return text.includes(busca);
             });
     }
@@ -149,13 +295,25 @@
     /*  Normalização (Firestore <-> Formulário)                           */
     /* ------------------------------------------------------------------ */
     function normalizeProjetoParaExibicao(doc) {
+        let tagSlugs = [];
+
+        if (Array.isArray(doc.tags)) {
+            tagSlugs = doc.tags.map(t => String(t).trim().toLowerCase()).filter(Boolean);
+        }
+        else if (Array.isArray(doc.tecnologias)) {
+            tagSlugs = doc.tecnologias.map(t => TagService.generateSlug(t)).filter(Boolean);
+        } else if (doc.tecnologias) {
+            tagSlugs = String(doc.tecnologias)
+                .split(',')
+                .map(t => TagService.generateSlug(t.trim()))
+                .filter(Boolean);
+        }
+
         return {
             id: doc.id,
             nome: doc.titulo || doc.nome || 'Projeto sem nome',
             descricao: doc.descricao || '',
-            tecnologias: Array.isArray(doc.tecnologias)
-                ? doc.tecnologias
-                : String(doc.tecnologias || '').split(',').map((t) => t.trim()).filter(Boolean),
+            tags: tagSlugs,
             imagem: doc.imagem || '',
             link: doc.site || doc.github || doc.link || '#',
             status: doc.status || 'Ativo',
@@ -164,17 +322,12 @@
     }
 
     function montarDadosParaFirestore(form) {
-        const tecnologias = form.tech
-            .split(',')
-            .map((t) => t.trim())
-            .filter(Boolean);
-
         return {
             titulo: form.nome,
             descricao: form.descricao,
             status: form.status,
             versao: form.versao,
-            tecnologias,
+            tags: Array.from(selectedTagSlugs),
             imagem: form.imagem,
             site: form.link
         };
@@ -211,15 +364,22 @@
         image.addEventListener('error', () => image.src = PLACEHOLDER_IMAGE, { once: true });
 
         name.textContent = projeto.nome;
-        name.style.cssText = 'display: block; font-size: 0.95rem; margin-bottom: 4px;';
+        name.style.cssText = 'display: block; font-size: 0.95rem; margin-bottom: 6px;';
 
-        badges.style.display = 'flex';
-        badges.style.gap = '6px';
+        badges.style.cssText = 'display: flex; gap: 6px; flex-wrap: wrap;';
 
-        (projeto.tecnologias || []).forEach((tecnologia) => {
+        (projeto.tags || []).forEach((slug) => {
+            const tagInfo = cacheTagsMap.get(slug) || { nome: slug, cor: '#888888', icone: '🏷️' };
+
             const badge = document.createElement('span');
-            badge.textContent = tecnologia;
-            badge.style.cssText = 'font-size:0.65rem; padding:2px 8px; background:var(--bg-base); border:1px solid var(--border); border-radius:12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;';
+            badge.className = 'tag-badge';
+            badge.style.backgroundColor = `${tagInfo.cor || '#888888'}20`;
+            badge.style.color = tagInfo.cor || '#888888';
+            badge.style.borderColor = `${tagInfo.cor || '#888888'}50`;
+            badge.style.fontSize = '0.68rem';
+            badge.style.padding = '2px 8px';
+
+            badge.textContent = `${tagInfo.icone || '🏷️'} ${tagInfo.nome}`;
             badges.appendChild(badge);
         });
 
@@ -291,17 +451,19 @@
     /* ------------------------------------------------------------------ */
     /*  Modal - Novo / Editar                                             */
     /* ------------------------------------------------------------------ */
-    function abrirModalNovo() {
+    async function abrirModalNovo() {
         editingId = null;
         document.getElementById('modal-titulo').textContent = 'Novo Projeto';
         document.getElementById('form-projeto').reset();
-        UI.openModal('modal-projeto');
+        await carregarTags();
+        prepararSeletorTags([]);
+        window.UI?.openModal('modal-projeto');
     }
 
-    function abrirModalEditar(id) {
+    async function abrirModalEditar(id) {
         const doc = cacheProjetos.find((p) => p.id === id);
         if (!doc) {
-            UI.showAlert('Projeto não encontrado.', 'error');
+            window.UI?.showAlert('Projeto não encontrado.', 'error');
             return;
         }
 
@@ -312,15 +474,17 @@
         document.getElementById('proj-nome').value = projeto.nome || '';
         document.getElementById('proj-versao').value = projeto.versao || '';
         document.getElementById('proj-status').value = projeto.status || 'Ativo';
-        document.getElementById('proj-tech').value = (projeto.tecnologias || []).join(', ');
         document.getElementById('proj-desc').value = projeto.descricao || '';
         document.getElementById('proj-imagem').value = projeto.imagem || '';
         document.getElementById('proj-link').value = projeto.link || '';
-        UI.openModal('modal-projeto');
+
+        await carregarTags();
+        prepararSeletorTags(projeto.tags || []);
+        window.UI?.openModal('modal-projeto');
     }
 
     function fecharModal() {
-        UI.closeModal('modal-projeto');
+        window.UI?.closeModal('modal-projeto');
         editingId = null;
     }
 
@@ -331,14 +495,13 @@
             nome: document.getElementById('proj-nome').value.trim(),
             versao: document.getElementById('proj-versao').value.trim(),
             status: document.getElementById('proj-status').value,
-            tech: document.getElementById('proj-tech').value.trim(),
             descricao: document.getElementById('proj-desc').value.trim(),
             imagem: document.getElementById('proj-imagem').value.trim(),
             link: document.getElementById('proj-link').value.trim() || '#'
         };
 
         if (!formValues.nome || !formValues.descricao) {
-            UI.showAlert('Preencha o nome e a descrição do projeto.', 'error');
+            window.UI?.showAlert('Preencha o nome e a descrição do projeto.', 'error');
             return;
         }
 
@@ -348,18 +511,18 @@
 
         try {
             if (editingId) {
-                await FirebaseStore.updateProjeto(editingId, dados);
-                UI.showAlert('Projeto atualizado com sucesso!');
+                await ProjetoService.updateProjeto(editingId, dados);
+                window.UI?.showAlert('Projeto atualizado com sucesso!');
             } else {
-                await FirebaseStore.addProjeto(dados);
-                UI.showAlert('Projeto criado com sucesso!');
+                await ProjetoService.createProjeto(dados);
+                window.UI?.showAlert('Projeto criado com sucesso!');
             }
 
             fecharModal();
             await renderTabela();
         } catch (erro) {
             console.error('Erro ao salvar projeto no Firestore:', erro);
-            UI.showAlert('Erro ao salvar o projeto no Firestore. Veja o console.', 'error');
+            window.UI?.showAlert('Erro ao salvar o projeto no Firestore.', 'error');
         } finally {
             if (submitButton) submitButton.disabled = false;
         }
@@ -370,11 +533,11 @@
     /* ------------------------------------------------------------------ */
     function abrirModalExclusao(id) {
         deleteTargetId = id;
-        UI.openModal('modal-confirmar-exclusao');
+        window.UI?.openModal('modal-confirmar-exclusao');
     }
 
     function fecharModalExclusao() {
-        UI.closeModal('modal-confirmar-exclusao');
+        window.UI?.closeModal('modal-confirmar-exclusao');
         deleteTargetId = null;
     }
 
@@ -382,13 +545,13 @@
         if (!deleteTargetId) return;
 
         try {
-            await FirebaseStore.deleteProjeto(deleteTargetId);
-            UI.showAlert('Projeto excluído com sucesso!');
+            await ProjetoService.deleteProjeto(deleteTargetId);
+            window.UI?.showAlert('Projeto excluído com sucesso!');
             fecharModalExclusao();
             await renderTabela();
         } catch (erro) {
             console.error('Erro ao excluir projeto no Firestore:', erro);
-            UI.showAlert('Erro ao excluir o projeto no Firestore. Veja o console.', 'error');
+            window.UI?.showAlert('Erro ao excluir o projeto no Firestore.', 'error');
         }
     }
 
@@ -430,6 +593,5 @@
         init();
     }
 
-    // Expõe função para o Assistente IA usar
     window.abrirModalNovo = abrirModalNovo;
 })();

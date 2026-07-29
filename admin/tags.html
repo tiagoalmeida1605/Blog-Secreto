@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tags - Admin Secreto</title>
+    <script>
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('secreto_theme') || 'dark');
+    </script>
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/tags.css">
+    <link rel="stylesheet" href="../components/ai-assistant/css/assistant.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="js/auth.js"></script>
+    <script>Auth.checkGuard();</script>
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <i class="ph-fill ph-hexagon"></i> Admin Secreto
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="index.html"><i class="ph ph-squares-four"></i> Visão Geral</a></li>
+            <li><a href="projetos.html"><i class="ph ph-folder-notch"></i> Projetos</a></li>
+            <li><a href="tags.html" class="active"><i class="ph ph-tag"></i> Tags</a></li>
+            <li><a href="configuracoes.html"><i class="ph ph-gear"></i> Configurações</a></li>
+            <li style="margin-top: auto;"><a href="login.html" onclick="Auth.logout(event)"><i class="ph ph-sign-out"></i> Desconectar</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <button id="mobile-menu-btn" class="btn-icon" type="button"><i class="ph ph-list"></i></button>
+                <h2>Gerenciar Tags</h2>
+            </div>
+            <div class="topbar-actions">
+                <button class="btn-icon" id="theme-toggle-btn" type="button" title="Alternar Tema"><i class="ph ph-sun"></i></button>
+                <button class="btn btn-primary" id="btn-nova-tag" type="button">+ Nova Tag</button>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="card-panel" style="margin-bottom: 24px; padding: 16px;">
+                <div class="tags-filter-bar">
+                    <input type="text" id="input-busca-tag" class="form-control" placeholder="Buscar por nome, slug ou descrição..." style="flex: 2; min-width: 200px;">
+                    <select id="filtro-categoria-tag" class="form-control" style="flex: 1; min-width: 160px;">
+                        <option value="todas">Todas as Categorias</option>
+                        <option value="Linguagem">Linguagem</option>
+                        <option value="Framework">Framework</option>
+                        <option value="Ferramenta">Ferramenta</option>
+                        <option value="Banco de Dados">Banco de Dados</option>
+                        <option value="Cloud">Cloud</option>
+                        <option value="IA">IA</option>
+                        <option value="Frontend">Frontend</option>
+                        <option value="Backend">Backend</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                    <select id="filtro-ordem-tag" class="form-control" style="flex: 1; min-width: 160px;">
+                        <option value="ordem">Ordenar por Ordem</option>
+                        <option value="nome">Ordenar por Nome (A-Z)</option>
+                        <option value="categoria">Ordenar por Categoria</option>
+                        <option value="status">Ordenar por Status</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="width: 50px;">Ícone</th>
+                        <th>Nome</th>
+                        <th>Slug</th>
+                        <th>Categoria</th>
+                        <th>Descrição</th>
+                        <th>Cor</th>
+                        <th>Status</th>
+                        <th>Ordem</th>
+                        <th style="width: 100px;">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tabela-tags"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal Nova / Editar Tag -->
+<div class="modal-overlay" id="modal-tag">
+    <div class="modal-content" style="max-width: 600px;">
+        <h3 id="modal-tag-titulo" style="margin-bottom: 20px;">Nova Tag</h3>
+        <form id="form-tag">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label for="tag-nome">Nome da Tag *</label>
+                    <input type="text" class="form-control" id="tag-nome" placeholder="Ex: Python" required>
+                </div>
+                <div class="form-group">
+                    <label for="tag-slug">Slug (Document ID) *</label>
+                    <input type="text" class="form-control" id="tag-slug" placeholder="ex: python" required>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label for="tag-categoria">Categoria</label>
+                    <select id="tag-categoria" class="form-control">
+                        <option value="Linguagem">Linguagem</option>
+                        <option value="Framework">Framework</option>
+                        <option value="Ferramenta">Ferramenta</option>
+                        <option value="Banco de Dados">Banco de Dados</option>
+                        <option value="Cloud">Cloud</option>
+                        <option value="IA">IA</option>
+                        <option value="Frontend">Frontend</option>
+                        <option value="Backend">Backend</option>
+                        <option value="Licença">Licença</option>
+                        <option value="Status">Status</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="tag-ordem">Ordem de Exibição</label>
+                    <input type="number" class="form-control" id="tag-ordem" value="1" min="1">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 16px;">
+                <div class="form-group">
+                    <label for="tag-cor">Cor da Tag</label>
+                    <div class="color-picker-wrapper">
+                        <input type="color" class="color-input-custom" id="tag-cor" value="#3776AB">
+                        <input type="text" class="form-control" id="tag-cor-hex" value="#3776AB" maxlength="7" style="text-transform: uppercase; font-family: monospace;">
+                    </div>
+                    <div class="preset-colors" id="preset-colors-container"></div>
+                </div>
+                <div class="form-group">
+                    <label for="tag-icone">Ícone (Emoji ou Símbolo)</label>
+                    <input type="text" class="form-control" id="tag-icone" value="🐍" placeholder="Emoji">
+                    <div style="display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap;">
+                        <button type="button" class="btn btn-outline emoji-btn" style="padding: 2px 8px; font-size: 0.9rem;">🐍</button>
+                        <button type="button" class="btn btn-outline emoji-btn" style="padding: 2px 8px; font-size: 0.9rem;">⚡</button>
+                        <button type="button" class="btn btn-outline emoji-btn" style="padding: 2px 8px; font-size: 0.9rem;">🔥</button>
+                        <button type="button" class="btn btn-outline emoji-btn" style="padding: 2px 8px; font-size: 0.9rem;">🐧</button>
+                        <button type="button" class="btn btn-outline emoji-btn" style="padding: 2px 8px; font-size: 0.9rem;">⚛️</button>
+                        <button type="button" class="btn btn-outline emoji-btn" style="padding: 2px 8px; font-size: 0.9rem;">🎨</button>
+                        <button type="button" class="btn btn-outline emoji-btn" style="padding: 2px 8px; font-size: 0.9rem;">🚀</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="tag-desc">Descrição</label>
+                <textarea id="tag-desc" class="form-control" placeholder="Breve descrição da tag..." rows="2"></textarea>
+            </div>
+
+            <div class="form-group" style="margin-top: 8px;">
+                <label class="form-switch">
+                    <input type="checkbox" id="tag-ativa" checked>
+                    <span>Tag Ativa</span>
+                </label>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end;">
+                <button type="button" class="btn btn-outline" id="btn-cancelar-tag">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Salvar Tag</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Confirmar Exclusão -->
+<div class="modal-overlay" id="modal-confirmar-exclusao-tag">
+    <div class="modal-content" style="max-width: 400px; text-align: center;">
+        <h3 style="color: var(--danger); margin-bottom: 12px;">Confirmar Exclusão</h3>
+        <p class="text-muted" style="margin-bottom: 24px;">Tem certeza que deseja apagar esta tag do banco de dados?</p>
+        <div style="display: flex; gap: 12px; justify-content: center;">
+            <button class="btn btn-outline" id="btn-cancelar-exclusao-tag" type="button">Cancelar</button>
+            <button class="btn btn-danger" id="btn-confirmar-exclusao-tag" type="button">Sim, Excluir</button>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="../firebase/firebase.js"></script>
+<script type="module" src="js/services/tagService.js"></script>
+<script src="js/components.js"></script>
+<script type="module" src="js/views/tags.js"></script>
+<script type="module" src="../components/ai-assistant/js/core/ChatManager.js"></script>
+</body>
+</html>
