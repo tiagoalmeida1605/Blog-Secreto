@@ -131,4 +131,18 @@ const Auth = {
 
 window.Auth = Auth;
 
+// Executa verificação de autenticação automaticamente ao carregar a página
+// (apenas para páginas administrativas, não para login.html)
+if (!window.location.pathname.includes('login.html')) {
+    // Aguarda o DOM estar pronto antes de verificar autenticação
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            Auth.checkGuard();
+        });
+    } else {
+        // DOM já está pronto
+        Auth.checkGuard();
+    }
+}
+
 export { Auth };
