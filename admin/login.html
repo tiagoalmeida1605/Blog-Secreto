@@ -11,16 +11,226 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         .login-wrapper {
-            display: flex; align-items: center; justify-content: center;
-            min-height: 100vh; width: 100%; background: var(--bg-base);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            width: 100%;
+            background: var(--bg-base);
+            padding: 16px;
         }
+
         .login-box {
-            background: var(--bg-surface); border: 1px solid var(--border);
-            padding: 40px; border-radius: var(--radius-md); width: 100%; max-width: 400px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            padding: 40px;
+            border-radius: var(--radius-md);
+            width: 100%;
+            max-width: 400px;
             box-shadow: var(--shadow-lg);
+            animation: slideUp 0.4s ease-out;
         }
-        .login-header { text-align: center; margin-bottom: 28px; }
-        .login-header i { font-size: 2.8rem; color: var(--primary); margin-bottom: 8px; }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .login-header i {
+            font-size: 2.8rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .login-header h2 {
+            margin: 12px 0 4px;
+            font-size: 1.8rem;
+        }
+
+        .login-header p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        #error-message {
+            display: none;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            background: rgba(255, 77, 77, 0.1);
+            border: 1px solid var(--danger);
+            border-left: 4px solid var(--danger);
+            color: var(--danger);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.25s ease-in-out;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .form-control:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 18px;
+            border-radius: var(--radius-sm);
+            border: 1px solid transparent;
+            font-family: inherit;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.25s ease-in-out;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            width: 100%;
+            padding: 12px;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-hover);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon i {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            pointer-events: none;
+        }
+
+        .input-icon .form-control {
+            padding-right: 40px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 480px) {
+            .login-box {
+                padding: 24px;
+            }
+
+            .login-header i {
+                font-size: 2.4rem;
+            }
+
+            .login-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .btn {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .login-box {
+                padding: 16px;
+            }
+
+            .login-header i {
+                font-size: 2rem;
+            }
+
+            .login-header h2 {
+                font-size: 1.3rem;
+            }
+
+            .form-control,
+            .btn {
+                padding: 10px 12px;
+                font-size: 0.85rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -31,32 +241,110 @@
             <h2>Blog Secreto</h2>
             <p class="text-muted">Acesso Restrito ao Painel</p>
         </div>
+
+        <div id="error-message"></div>
+
         <form id="form-login">
             <div class="form-group">
-                <label>Usuário</label>
-                <input type="text" id="login-user" class="form-control" placeholder="admin" required>
+                <label for="login-email">E-mail</label>
+                <div class="input-icon">
+                    <input
+                        type="email"
+                        id="login-email"
+                        class="form-control"
+                        placeholder="seu@email.com"
+                        required
+                        autocomplete="email"
+                    >
+                    <i class="ph ph-envelope"></i>
+                </div>
             </div>
+
             <div class="form-group" style="margin-bottom: 24px;">
-                <label>Chave de Segurança</label>
-                <input type="password" id="login-pass" class="form-control" placeholder="••••••••" required>
+                <label for="login-password">Senha</label>
+                <div class="input-icon">
+                    <input
+                        type="password"
+                        id="login-password"
+                        class="form-control"
+                        placeholder="••••••••"
+                        required
+                        autocomplete="current-password"
+                    >
+                    <i class="ph ph-lock"></i>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">Autenticar</button>
+
+            <button type="submit" id="btn-login" class="btn btn-primary">
+                <span id="btn-text">Entrar</span>
+            </button>
         </form>
     </div>
 </div>
 
-<script src="js/auth.js"></script>
+<script type="module" src="js/auth.js"></script>
 <script>
-    document.getElementById('form-login').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const u = document.getElementById('login-user').value;
-        const p = document.getElementById('login-pass').value;
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('form-login');
+        const emailInput = document.getElementById('login-email');
+        const passwordInput = document.getElementById('login-password');
+        const btnLogin = document.getElementById('btn-login');
+        const btnText = document.getElementById('btn-text');
+        const errorMessage = document.getElementById('error-message');
 
-        if (Auth.login(u, p)) {
-            window.location.href = 'index.html';
-        } else {
-            alert('Credenciais Inválidas! Acesso negado.');
+        // Limpa mensagem de erro ao digitar
+        [emailInput, passwordInput].forEach(input => {
+            input.addEventListener('input', () => {
+                errorMessage.style.display = 'none';
+            });
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            // Validação básica
+            if (!email || !password) {
+                mostrarErro('Preencha e-mail e senha.');
+                return;
+            }
+
+            // Desabilita o formulário durante o login
+            btnLogin.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span> Entrando...';
+
+            try {
+                const resultado = await Auth.login(email, password);
+
+                if (resultado.success) {
+                    // Login bem-sucedido - aguarda um pouco e redireciona
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    window.location.href = 'index.html';
+                } else {
+                    // Erro no login
+                    mostrarErro(resultado.message);
+                    btnLogin.disabled = false;
+                    btnText.textContent = 'Entrar';
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                }
+            } catch (erro) {
+                console.error('Erro inesperado:', erro);
+                mostrarErro('Ocorreu um erro. Tente novamente mais tarde.');
+                btnLogin.disabled = false;
+                btnText.textContent = 'Entrar';
+            }
+        });
+
+        function mostrarErro(mensagem) {
+            errorMessage.textContent = mensagem;
+            errorMessage.style.display = 'block';
         }
+
+        // Focus no primeiro input ao carregar
+        emailInput.focus();
     });
 </script>
 </body>
