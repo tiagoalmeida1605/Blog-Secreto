@@ -4,15 +4,18 @@
  * ==========================================================================
  * Busca projetos no Firebase Firestore e tags
  * e renderiza dinamicamente os cards públicos com dados de tags.
+ * Registra visualizações com proteção localStorage 24h.
  * ==========================================================================
  */
 
 import { db } from "../firebase/firebase.js";
-
 import {
     collection,
     getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// Importa funções de visualização do admin service
+import { ProjetoService } from "../admin/js/services/projetoService.js";
 
 
 (function initProjetosPublicos() {
@@ -31,6 +34,8 @@ import {
         await carregarTags();
         const projetos = await getProjetosPublicos();
         renderProjetos(grid, projetos);
+        // Registrar visualizações após renderizar (non-blocking)
+        registrarViews(projetos);
     }
 
     async function carregarTags() {
@@ -63,7 +68,8 @@ import {
                     imagem: dados.imagem || "",
                     link: dados.site || dados.github || "#",
                     status: dados.status || "Ativo",
-                    versao: dados.versao || ""
+                    versao: dados.versao || "",
+                    views: typeof dados.views === 'number' ? dados.views : 0
                 };
             });
 
@@ -73,6 +79,20 @@ import {
                 erro
             );
             return [];
+        }
+    }
+
+    /**
+     * Registra visualização para cada projeto (protegido por localStorage 24h).
+     * Não bloqueia a renderização.
+     */
+    async function registrarViews(projetos) {
+        for (const projeto of projetos) {
+            try {
+                await ProjetoService.registrarVisualizacao(projeto.id);
+            } catch (erro) {
+                console.error(`Erro ao registrar view do projeto ${projeto.id}:`, erro);
+            }
         }
     }
 
@@ -183,6 +203,7 @@ import {
 
 
 
+
         meta.className =
             "project-meta";
 
@@ -204,17 +225,23 @@ import {
             "project-version";
 
 
+        const views =
+            document.createElement("span");
+        views.className = "project-views";
+        views.innerHTML = `👁️ ${ProjetoService.formatarViews(projeto.views)}`;
+
 
         if (projeto.versao) {
 
             meta.append(
                 status,
-                version
+                version,
+                views
             );
 
         } else {
 
-            meta.appendChild(status);
+            meta.append(status, version, views);
 
         }
 

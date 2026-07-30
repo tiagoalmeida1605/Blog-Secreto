@@ -7,10 +7,13 @@ import {
     updateDoc,
     deleteDoc,
     doc,
-    addDoc
+    addDoc,
+    increment
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const projetosRef = collection(db, "projetos");
+const VIEW_STORAGE_PREFIX = "view_";
+const VIEW_EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24 horas
 
 export const ProjetoService = {
     /**
@@ -119,6 +122,76 @@ export const ProjetoService = {
             console.error(`Erro ao excluir projeto '${id}':`, erro);
             throw new Error(`Não foi possível excluir o projeto '${id}'.`);
         }
+    },
+
+    /**
+     * Incrementa o contador de visualizações de forma atômica.
+     * Usa FieldValue.increment do Firestore para evitar race conditions.
+     */
+    async incrementarViews(id) {
+        if (!id) return false;
+        try {
+            const docRef = doc(db, "projetos", id);
+            await updateDoc(docRef, { views: increment(1) });
+            return true;
+        } catch (erro) {
+            console.error(`Erro ao incrementar visualizações do projeto '${id}':`, erro);
+            return false;
+        }
+    },
+
+    /**
+     * Registra uma visualização com proteção contra F5 (localStorage 24h).
+     * Retorna true se incrementou, false se já visualizou recentemente.
+     */
+    async registrarVisualizacao(id) {
+        if (!id) return false;
+        const storageKey = `${VIEW_STORAGE_PREFIX}${id}`;
+        const agora = Date.now();
+        const ultimaVisualizacao = localStorage.getItem(storageKey);
+
+        if (ultimaVisualizacao && (agora - parseInt(ultimaVisualizacao, 10)) < VIEW_EXPIRATION_MS) {
+            return false; // Já visualizou nas últimas 24h
+        }
+
+        const incrementou = await this.incrementarViews(id);
+        if (incrementou) {
+            localStorage.setItem(storageKey, agora.toString());
+        }
+        return incrementou;
+    },
+
+    /**
+     * Obtém apenas o contador de visualizações de um projeto.
+     */
+    async getViews(id) {
+        if (!id) return 0;
+        try {
+            const docRef = doc(db, "projetos", id);
+            const snapshot = await getDoc(docRef);
+            if (!snapshot.exists()) return 0;
+            const data = snapshot.data();
+            return typeof data.views === 'number' ? data.views : 0;
+        } catch (erro) {
+            console.error(`Erro ao buscar visualizações do projeto '${id}':`, erro);
+            return 0;
+        }
+    },
+
+    /**
+     * Formata número de visualizações para exibição amigável.
+     * Exemplos: 980 → "980", 1200 → "1,2 mil", 15400 → "15,4 mil", 1300000 → "1,3 milhão"
+     */
+    formatarViews(views) {
+        const n = Number(views) || 0;
+        if (n < 1000) return n.toString();
+        if (n < 1000000) {
+            return (n / 1000).toFixed(1).replace('.', ',') + ' mil';
+        }
+        if (n < 1000000000) {
+            return (n / 1000000).toFixed(1).replace('.', ',') + ' milhão';
+        }
+        return (n / 1000000000).toFixed(1).replace('.', ',') + ' bilhão';
     }
 };
 
