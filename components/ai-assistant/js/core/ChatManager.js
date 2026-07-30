@@ -8,6 +8,7 @@ import { SearchEngine } from './SearchEngine.js';
 import { ConversationMemory } from './ConversationMemory.js';
 import { UIController } from '../ui/UIController.js';
 import { MessageRenderer } from '../ui/MessageRenderer.js';
+import { TypingIndicator } from '../ui/TypingIndicator.js';
 import { ThemeManager } from './ThemeManager.js';
 import { ResponsiveManager } from './ResponsiveManager.js';
 import { DeveloperMode } from './DeveloperMode.js';
@@ -50,6 +51,9 @@ export class ChatManager {
             label: this.permissions.getModeLabel(),
             isAdmin: this.permissions.isAdmin
         });
+
+        // Inicializa o indicador de digitação com animação em etapas
+        this.typingIndicator = new TypingIndicator(this.ui.elements.typing);
 
         this.renderer = new MessageRenderer({
             messagesEl: this.ui.elements.messages,
@@ -98,11 +102,14 @@ export class ChatManager {
         this.renderer.appendMessage(userMessage);
         this.ui.clearInput();
         this.ui.setBusy(true);
-        this.renderer.showTyping(true);
+
+        // Inicia animação de processamento em etapas
+        this.typingIndicator.start();
         this.abortController = new AbortController();
 
         try {
-            await this.wait(220, this.abortController.signal);
+            // Aguarda um pouco para a animação começar
+            await this.wait(150, this.abortController.signal);
 
             const response = await this.provider.generate(text, {
                 isAdmin: this.permissions.isAdmin,
@@ -117,9 +124,11 @@ export class ChatManager {
             await this.handleResponse(response, text);
         } catch (error) {
             if (error.name === 'AbortError') {
+                this.typingIndicator.stop();
                 this.renderer.appendSystem('Geração interrompida.');
             } else {
                 console.error('[Assistente IA]', error);
+                this.typingIndicator.stop();
                 this.renderer.appendSystem('Erro ao processar a mensagem. Tente novamente.');
                 this.storage.addLog({
                     category: 'ERROR',
@@ -129,7 +138,7 @@ export class ChatManager {
                 });
             }
         } finally {
-            this.renderer.showTyping(false);
+            this.typingIndicator.stop();
             this.ui.setBusy(false);
             this.abortController = null;
         }

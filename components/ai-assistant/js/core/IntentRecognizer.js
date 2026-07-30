@@ -48,6 +48,20 @@ export class IntentRecognizer {
             return { name: 'list_posts', confidence: 0.85, entities: {} };
         }
 
+        // Detecta solicitação de tecnologias de projeto específico
+        if (this.matchesAny(text, ['tecnologias do', 'tecnologia do', 'stack do', 'usa o que', 'que tecnologias'])) {
+            return {
+                name: 'search',
+                confidence: 0.9,
+                entities: {
+                    query: original,
+                    technology: this.extractTechnology(text),
+                    intentType: 'project_technologies'
+                },
+                contextual: this.isContextual(text, context)
+            };
+        }
+
         if (this.matchesAny(text, ['categoria', 'categorias'])) {
             return { name: 'list_categories', confidence: 0.85, entities: {} };
         }

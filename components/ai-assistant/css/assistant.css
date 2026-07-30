@@ -333,6 +333,52 @@
     outline: none;
 }
 
+/* Variantes de botões de ação contextuais */
+.ai-action-button--primary {
+    color: #ffffff;
+    background: var(--ai-red);
+    border-color: var(--ai-red);
+}
+
+.ai-action-button--primary:hover,
+.ai-action-button--primary:focus-visible {
+    background: var(--ai-red-strong);
+    border-color: var(--ai-red-strong);
+    color: #ffffff;
+}
+
+.ai-action-button--secondary {
+    color: var(--ai-text);
+    background: var(--ai-panel-2);
+    border-color: var(--ai-border);
+}
+
+.ai-action-button--secondary:hover,
+.ai-action-button--secondary:focus-visible {
+    background: var(--ai-panel-3);
+    border-color: var(--ai-gold);
+    color: var(--ai-text);
+}
+
+.ai-action-button--ghost {
+    color: var(--ai-text);
+    background: transparent;
+    border-color: transparent;
+}
+
+.ai-action-button--ghost:hover,
+.ai-action-button--ghost:focus-visible {
+    background: var(--ai-panel-3);
+    border-color: var(--ai-border);
+    color: var(--ai-text);
+}
+
+.ai-action-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .ai-theme-select select {
     height: 34px;
     min-width: 92px;

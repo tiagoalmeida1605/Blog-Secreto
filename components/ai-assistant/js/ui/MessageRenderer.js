@@ -1,5 +1,9 @@
 import { SecurityManager } from '../core/SecurityManager.js';
 
+/**
+ * MessageRenderer - Renderiza mensagens, resultados e ações do chat
+ * Suporta: texto formatado, cards de resultados, botões de ação contextuais, animação matrix
+ */
 export class MessageRenderer {
     constructor({ messagesEl, typingEl, onAction, onCopy }) {
         this.messagesEl = messagesEl;
@@ -44,7 +48,7 @@ export class MessageRenderer {
             copyButton.className = 'ai-icon-button ai-message__copy';
             copyButton.type = 'button';
             copyButton.textContent = 'Copiar';
-            copyButton.title = 'Copiar resposta';
+            copyButton.title = 'Copiar resposta do assistente';
             copyButton.setAttribute('aria-label', 'Copiar resposta do assistente');
             copyButton.addEventListener('click', () => this.onCopy(message.text));
             meta.append(copyButton);
@@ -56,14 +60,18 @@ export class MessageRenderer {
 
         bubble.append(meta, content);
 
+        // Renderiza resultados (cards)
         if (Array.isArray(message.results) && message.results.length) {
             bubble.append(this.renderResults(message.results));
         }
 
+        // Renderiza ações rápidas (botões contextuais)
         if (Array.isArray(message.actions) && message.actions.length) {
-            bubble.append(this.renderActions(message.actions));
+            const actionsEl = this.renderActions(message.actions);
+            if (actionsEl) bubble.append(actionsEl);
         }
 
+        // Animação matrix (easter egg)
         if (message.meta && message.meta.matrix) {
             bubble.append(this.renderMatrix());
         }
@@ -85,6 +93,9 @@ export class MessageRenderer {
         });
     }
 
+    /**
+     * Renderiza texto com formatação básica (parágrafos, listas, negrito)
+     */
     renderText(container, text) {
         const lines = String(text || '').split('\n');
         let currentList = null;
@@ -97,25 +108,42 @@ export class MessageRenderer {
                 return;
             }
 
-            if (trimmed.startsWith('- ')) {
+            // Lista com bullet
+            if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
                 if (!currentList) {
                     currentList = document.createElement('ul');
                     container.appendChild(currentList);
                 }
-
                 const item = document.createElement('li');
-                item.textContent = trimmed.slice(2);
+                item.textContent = trimmed.replace(/^[-•]\s*/, '');
+                currentList.appendChild(item);
+                return;
+            }
+
+            // Lista numerada
+            if (/^\d+\.\s/.test(trimmed)) {
+                if (!currentList) {
+                    currentList = document.createElement('ol');
+                    container.appendChild(currentList);
+                }
+                const item = document.createElement('li');
+                item.textContent = trimmed.replace(/^\d+\.\s*/, '');
                 currentList.appendChild(item);
                 return;
             }
 
             currentList = null;
             const paragraph = document.createElement('p');
-            paragraph.textContent = trimmed;
+            // Suporta negrito simples com markdown **texto**
+            const formatted = trimmed.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            paragraph.innerHTML = formatted;
             container.appendChild(paragraph);
         });
     }
 
+    /**
+     * Renderiza cards de resultados de busca
+     */
     renderResults(results) {
         const wrapper = document.createElement('div');
         wrapper.className = 'ai-results';
@@ -124,16 +152,20 @@ export class MessageRenderer {
             const card = document.createElement('article');
             card.className = 'ai-result-card';
 
+            // Badge de tipo
             const label = document.createElement('span');
             label.className = 'ai-result-card__type';
             label.textContent = result.typeLabel || result.type || 'Conteúdo';
 
+            // Título
             const title = document.createElement('h4');
             title.textContent = result.title || 'Sem título';
 
+            // Descrição
             const description = document.createElement('p');
             description.textContent = result.description || 'Sem descrição cadastrada.';
 
+            // Tags
             const tags = document.createElement('div');
             tags.className = 'ai-result-card__tags';
             (result.tags || []).slice(0, 5).forEach((tag) => {
@@ -142,6 +174,7 @@ export class MessageRenderer {
                 tags.appendChild(chip);
             });
 
+            // Footer com botão de ação
             const footer = document.createElement('div');
             footer.className = 'ai-result-card__footer';
 
@@ -158,6 +191,20 @@ export class MessageRenderer {
                 footer.appendChild(button);
             }
 
+            // Botão "Ver tecnologias" para projetos
+            if (result.type === 'project' && result.tags?.length) {
+                const techButton = document.createElement('button');
+                techButton.type = 'button';
+                techButton.className = 'ai-action-button ai-action-button--secondary';
+                techButton.textContent = '🛠️ Tecnologias';
+                techButton.addEventListener('click', () => this.onAction({
+                    type: 'search',
+                    payload: { query: `tecnologias do ${result.title}` },
+                    label: `Ver tecnologias do ${result.title}`
+                }));
+                footer.appendChild(techButton);
+            }
+
             card.append(label, title, description);
             if (tags.childElementCount) card.appendChild(tags);
             if (footer.childElementCount) card.appendChild(footer);
@@ -167,20 +214,89 @@ export class MessageRenderer {
         return wrapper;
     }
 
+    /**
+     * Renderiza botões de ação rápidos contextuais
+     * Botões: Abrir Projeto, Ver Tecnologias, Compartilhar, Abrir Código, Voltar, Pesquisar Novamente
+     */
     renderActions(actions) {
         const wrapper = document.createElement('div');
         wrapper.className = 'ai-actions';
 
         actions.forEach((action) => {
+            // Oculta botões com ações inválidas
+            if (!this.isValidAction(action)) return;
+
             const button = document.createElement('button');
             button.type = 'button';
-            button.className = 'ai-action-button';
+            button.className = this.getActionButtonClass(action);
             button.textContent = action.label || 'Abrir';
+
+            // Ícones baseados no tipo de ação
+            const icon = this.getActionIcon(action);
+            if (icon) {
+                button.innerHTML = `${icon} ${action.label || 'Abrir'}`;
+            }
+
             button.addEventListener('click', () => this.onAction(action));
             wrapper.appendChild(button);
         });
 
+        // Se não há ações válidas, não renderiza nada
+        if (wrapper.childElementCount === 0) {
+            return null;
+        }
+
         return wrapper;
+    }
+
+    /**
+     * Valida se a ação deve ser exibida
+     */
+    isValidAction(action) {
+        if (!action || !action.type) return false;
+
+        // Ações de navegação precisam de href válido
+        if (action.type === 'navigate') {
+            return action.href && action.href !== '#';
+        }
+
+        // Ações de busca/admin sempre válidas se têm label
+        if (['search', 'admin_new_project', 'open_dev_dashboard'].includes(action.type)) {
+            return !!action.label;
+        }
+
+        return !!action.label;
+    }
+
+    /**
+     * Retorna classe CSS baseada no tipo de ação
+     */
+    getActionButtonClass(action) {
+        const base = 'ai-action-button';
+        const variants = {
+            navigate: 'ai-action-button--primary',
+            search: 'ai-action-button--secondary',
+            admin_new_project: 'ai-action-button--primary',
+            open_dev_dashboard: 'ai-action-button--secondary',
+            share: 'ai-action-button--ghost',
+            copy: 'ai-action-button--ghost'
+        };
+        return `${base} ${variants[action.type] || 'ai-action-button--secondary'}`;
+    }
+
+    /**
+     * Retorna ícone SVG/emoji para o tipo de ação
+     */
+    getActionIcon(action) {
+        const icons = {
+            navigate: '🔗',
+            search: '🔍',
+            admin_new_project: '➕',
+            open_dev_dashboard: '⚙️',
+            share: '📤',
+            copy: '📋'
+        };
+        return icons[action.type] || '';
     }
 
     renderMatrix() {

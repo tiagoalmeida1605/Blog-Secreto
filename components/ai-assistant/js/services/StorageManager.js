@@ -16,11 +16,52 @@ export class StorageManager {
             settings: `${namespace}_settings`,
             rateLimit: `${namespace}_rate_limit`,
             logs: `${namespace}_logs`,
-            session: `${namespace}_session`
+            session: `${namespace}_session`,
+            visitor: `${namespace}_visitor`,
+            context: `${namespace}_context`
         };
 
         this.ensureSession();
+        this.ensureVisitorProfile();
+        this.ensureConversationContext();
         this.seedLogs();
+    }
+
+    ensureVisitorProfile() {
+        if (!this.read(this.keys.visitor, null)) {
+            this.write(this.keys.visitor, {
+                id: SecurityManager.createId('visitor'),
+                name: null,
+                themePreference: 'system',
+                firstVisit: new Date().toISOString(),
+                lastVisit: new Date().toISOString(),
+                visitCount: 1,
+                knownProjects: [],
+                knownPosts: [],
+                preferences: {}
+            });
+        } else {
+            // Atualiza contador de visitas e última visita
+            const profile = this.read(this.keys.visitor);
+            profile.visitCount = (profile.visitCount || 0) + 1;
+            profile.lastVisit = new Date().toISOString();
+            this.write(this.keys.visitor, profile);
+        }
+    }
+
+    ensureConversationContext() {
+        if (!this.read(this.keys.context, null)) {
+            this.write(this.keys.context, {
+                currentPage: window.location.pathname,
+                lastProject: null,
+                lastPost: null,
+                lastSearch: null,
+                lastIntent: null,
+                lastResults: [],
+                lastTopics: [],
+                navigationHistory: [window.location.pathname]
+            });
+        }
     }
 
     ensureSession() {
@@ -117,6 +158,31 @@ export class StorageManager {
         this.write(this.keys.memory, { lastIntent: null, lastResults: [] });
     }
 
+    clearAll() {
+        this.clearConversation();
+        this.write(this.keys.visitor, {
+            id: SecurityManager.createId('visitor'),
+            name: null,
+            themePreference: 'system',
+            firstVisit: new Date().toISOString(),
+            lastVisit: new Date().toISOString(),
+            visitCount: 1,
+            knownProjects: [],
+            knownPosts: [],
+            preferences: {}
+        });
+        this.write(this.keys.context, {
+            currentPage: window.location.pathname,
+            lastProject: null,
+            lastPost: null,
+            lastSearch: null,
+            lastIntent: null,
+            lastResults: [],
+            lastTopics: [],
+            navigationHistory: [window.location.pathname]
+        });
+    }
+
     exportConversation() {
         return JSON.stringify({
             exportedAt: new Date().toISOString(),
@@ -152,12 +218,71 @@ export class StorageManager {
         });
     }
 
+    // ==================== VISITOR PROFILE ====================
+
+    getVisitorProfile() {
+        return this.read(this.keys.visitor, {
+            id: SecurityManager.createId('visitor'),
+            name: null,
+            themePreference: 'system',
+            firstVisit: new Date().toISOString(),
+            lastVisit: new Date().toISOString(),
+            visitCount: 1,
+            knownProjects: [],
+            knownPosts: [],
+            preferences: {}
+        });
+    }
+
+    updateVisitorProfile(updates) {
+        const profile = this.getVisitorProfile();
+        const updated = { ...profile, ...updates };
+        this.write(this.keys.visitor, updated);
+        return updated;
+    }
+
+    // ==================== CONVERSATION CONTEXT ====================
+
+    getConversationContext() {
+        return this.read(this.keys.context, {
+            currentPage: window.location.pathname,
+            lastProject: null,
+            lastPost: null,
+            lastSearch: null,
+            lastIntent: null,
+            lastResults: [],
+            lastTopics: [],
+            navigationHistory: [window.location.pathname]
+        });
+    }
+
+    updateConversationContext(updates) {
+        const context = this.getConversationContext();
+        const updated = { ...context, ...updates };
+
+        // Manter histórico de navegação (máx 10 páginas)
+        if (updates.currentPage && updates.currentPage !== context.currentPage) {
+            const history = updated.navigationHistory || [];
+            if (!history.includes(updates.currentPage)) {
+                history.push(updates.currentPage);
+                updated.navigationHistory = history.slice(-10);
+            }
+        }
+
+        this.write(this.keys.context, updated);
+        return updated;
+    }
+
+    // ==================== MEMORY STATE (legado - compatibilidade) ====================
+
     getLastResults() {
-        return this.read(this.keys.memory, { lastResults: [] }).lastResults || [];
+        const context = this.getConversationContext();
+        return context.lastResults || [];
     }
 
     getLastIntent() {
-        return this.read(this.keys.memory, { lastIntent: null }).lastIntent || null;
+        const context = this.getConversationContext();
+        return context.lastIntent || null;
     }
 
     getRecentTimestamps(limit = 6, windowMs = 10000) {
