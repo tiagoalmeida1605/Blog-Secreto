@@ -65,7 +65,8 @@ import { ProjetoService } from "../admin/js/services/projetoService.js";
                     nome: dados.titulo || "Projeto sem nome",
                     descricao: dados.descricao || "",
                     tags: Array.isArray(dados.tags) ? dados.tags : [],
-                    imagem: dados.imagem || "",
+                    imagem: dados.imagem || dados.imageUrl || "",
+                    imageUrl: dados.imageUrl || dados.imagem || null,
                     link: dados.site || dados.github || "#",
                     status: dados.status || "Ativo",
                     versao: dados.versao || "",
@@ -132,6 +133,9 @@ import { ProjetoService } from "../admin/js/services/projetoService.js";
         const article =
             document.createElement("article");
 
+        const imageWrapper =
+            document.createElement("div");
+
         const image =
             document.createElement("img");
 
@@ -167,39 +171,41 @@ import { ProjetoService } from "../admin/js/services/projetoService.js";
             "project-card";
 
 
+        const hasImage = projeto.imagem && projeto.imagem !== 'null' && projeto.imagem !== 'undefined';
 
-        image.src =
-            safeUrl(
-                projeto.imagem,
-                FALLBACK_IMAGE
-            );
+        if (hasImage) {
+            imageWrapper.className = "project-image-wrapper";
 
+            const skeleton = document.createElement("div");
+            skeleton.className = "skeleton-image";
 
-        image.alt =
-            projeto.nome;
+            image.className = "project-image loading";
+            image.src = safeUrl(projeto.imagem, FALLBACK_IMAGE);
+            image.alt = projeto.nome;
+            image.loading = "lazy";
 
+            image.addEventListener("load", () => {
+                image.classList.remove("loading");
+                image.classList.add("loaded");
+                skeleton.remove();
+            }, { once: true });
 
-        image.className =
-            "project-image";
+            image.addEventListener("error", () => {
+                image.src = FALLBACK_IMAGE;
+                image.classList.remove("loading");
+                image.classList.add("loaded");
+                skeleton.remove();
+            }, { once: true });
 
-
-        image.loading =
-            "lazy";
-
-
-
-        image.addEventListener(
-            "error",
-            () => {
-
-                image.src =
-                    FALLBACK_IMAGE;
-
-            },
-            {
-                once: true
-            }
-        );
+            imageWrapper.append(skeleton, image);
+        } else {
+            imageWrapper.className = "project-image-placeholder";
+            const icon = document.createElement("i");
+            icon.className = "ph ph-image";
+            const label = document.createElement("span");
+            label.textContent = "Sem imagem";
+            imageWrapper.append(icon, label);
+        }
 
 
 
@@ -314,7 +320,7 @@ import { ProjetoService } from "../admin/js/services/projetoService.js";
             `;
 
         article.append(
-            image,
+            imageWrapper,
             meta,
             title,
             description,

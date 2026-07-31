@@ -63,8 +63,13 @@ export const ProjetoService = {
             status: String(projetoData.status || 'Ativo').trim(),
             versao: String(projetoData.versao || '').trim(),
             tags: Array.isArray(projetoData.tags) ? projetoData.tags : [],
-            imagem: String(projetoData.imagem || '').trim(),
-            site: String(projetoData.site || projetoData.link || '').trim()
+            imagem: String(projetoData.imagem || projetoData.imageUrl || '').trim(),
+            site: String(projetoData.site || projetoData.link || '').trim(),
+            imageUrl: projetoData.imageUrl || null,
+            imagePath: projetoData.imagePath || null,
+            imageType: projetoData.imageType || null,
+            imageSize: projetoData.imageSize || null,
+            imageUploadedAt: projetoData.imageUploadedAt || null
         };
 
         try {
@@ -92,8 +97,13 @@ export const ProjetoService = {
             status: String(projetoData.status || 'Ativo').trim(),
             versao: String(projetoData.versao || '').trim(),
             tags: Array.isArray(projetoData.tags) ? projetoData.tags : [],
-            imagem: String(projetoData.imagem || '').trim(),
-            site: String(projetoData.site || projetoData.link || '').trim()
+            imagem: String(projetoData.imagem || projetoData.imageUrl || '').trim(),
+            site: String(projetoData.site || projetoData.link || '').trim(),
+            imageUrl: projetoData.imageUrl || null,
+            imagePath: projetoData.imagePath || null,
+            imageType: projetoData.imageType || null,
+            imageSize: projetoData.imageSize || null,
+            imageUploadedAt: projetoData.imageUploadedAt || null
         };
 
         try {

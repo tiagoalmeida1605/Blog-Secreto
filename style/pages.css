@@ -91,6 +91,88 @@
     flex-shrink: 0;
 }
 
+/* Skeleton enquanto a imagem carrega */
+.project-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 260px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.project-image-wrapper .skeleton-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--surface);
+}
+
+.project-image-wrapper .skeleton-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+    animation: skeleton-shimmer 1.5s infinite;
+}
+
+.project-image-wrapper .project-image {
+    position: relative;
+    z-index: 1;
+}
+
+.project-image-wrapper .project-image.loading {
+    opacity: 0;
+}
+
+.project-image-wrapper .project-image.loaded {
+    opacity: 1;
+    transition: opacity 0.4s ease;
+}
+
+/* Placeholder quando não há imagem */
+.project-image-placeholder {
+    width: 100%;
+    height: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border-hairline);
+    color: var(--text-secondary);
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.project-image-placeholder i {
+    font-size: 3rem;
+    opacity: 0.4;
+}
+
+.project-image-placeholder span {
+    font-size: 0.85rem;
+    opacity: 0.5;
+    font-weight: 500;
+}
+
+@keyframes skeleton-shimmer {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(200%); }
+}
+
+@media (max-width: 768px) {
+    .project-image,
+    .project-image-wrapper,
+    .project-image-placeholder {
+        height: 220px;
+    }
+}
+
 /* Conteúdo interno do card com respiro aumentado (32px) */
 .project-meta {
     display: flex;

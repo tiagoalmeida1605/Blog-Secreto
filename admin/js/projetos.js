@@ -9,6 +9,7 @@
 
 import { TagService } from "./services/tagService.js";
 import { ProjetoService } from "./services/projetoService.js";
+import { ImageService } from "./services/imageService.js";
 
 (function initAdminProjetos() {
     if (window.__AdminProjetosLoaded) return;
@@ -23,11 +24,22 @@ import { ProjetoService } from "./services/projetoService.js";
     let cacheTagsMap = new Map();
     let selectedTagSlugs = new Set();
 
+    // Estado da imagem
+    let currentImageState = {
+        file: null,          // Arquivo selecionado para upload
+        existingImageUrl: null, // URL da imagem existente (edição)
+        existingImagePath: null, // Path da imagem existente (edição)
+        hasExistingImage: false, // Se já existe imagem no projeto
+        uploadInProgress: false, // Se há upload em andamento
+        needsUpload: false       // Se precisa fazer upload ao salvar
+    };
+
     /* ------------------------------------------------------------------ */
     /*  Inicialização                                                     */
     /* ------------------------------------------------------------------ */
     async function init() {
         setupEventListeners();
+        setupImageUploadUI();
         await carregarTags();
         await renderTabela();
     }
@@ -50,7 +62,232 @@ import { ProjetoService } from "./services/projetoService.js";
     }
 
     /* ------------------------------------------------------------------ */
-    /*  Event Listeners                                                   */
+    /*  Image Upload UI                                                   */
+    /* ------------------------------------------------------------------ */
+    function setupImageUploadUI() {
+        const dropzone = document.getElementById('image-dropzone');
+        const fileInput = document.getElementById('proj-imagem-input');
+        const trocarBtn = document.getElementById('btn-trocar-imagem');
+        const removerBtn = document.getElementById('btn-remover-imagem');
+        const errorMsg = document.getElementById('image-error-msg');
+
+        if (!dropzone || !fileInput) return;
+
+        // Clique no dropzone abre o seletor de arquivos
+        dropzone.addEventListener('click', (e) => {
+            if (currentImageState.hasExistingImage || currentImageState.file) return;
+            fileInput.click();
+        });
+
+        // Botão "Trocar" reabre o seletor
+        trocarBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fileInput.click();
+        });
+
+        // Botão "Remover" remove a imagem
+        removerBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            confirmarRemocaoImagem();
+        });
+
+        // Input file change
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+                processarArquivoSelecionado(file);
+            }
+            fileInput.value = '';
+        });
+
+        // Drag and Drop
+        setupDragDrop(dropzone);
+
+        // Fechar erro ao clicar
+        errorMsg?.addEventListener('click', () => {
+            errorMsg.style.display = 'none';
+            errorMsg.textContent = '';
+        });
+    }
+
+    function setupDragDrop(dropzone) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, () => {
+                if (!currentImageState.hasExistingImage && !currentImageState.file) {
+                    dropzone.classList.add('drag-over');
+                }
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, () => {
+                dropzone.classList.remove('drag-over');
+            });
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            if (currentImageState.hasExistingImage || currentImageState.file) return;
+            const files = e.dataTransfer?.files;
+            if (files?.length) {
+                processarArquivoSelecionado(files[0]);
+            }
+        });
+    }
+
+    function processarArquivoSelecionado(file) {
+        const errorMsg = document.getElementById('image-error-msg');
+        errorMsg.style.display = 'none';
+        errorMsg.textContent = '';
+
+        const validacao = ImageService.validarArquivo(file);
+        if (!validacao.valido) {
+            mostrarErroImagem(validacao.erro);
+            return;
+        }
+
+        mostrarPreviewImediato(file);
+    }
+
+    function mostrarErroImagem(mensagem) {
+        const errorMsg = document.getElementById('image-error-msg');
+        if (errorMsg) {
+            errorMsg.textContent = mensagem;
+            errorMsg.style.display = 'flex';
+            setTimeout(() => {
+                errorMsg.style.opacity = '0';
+                setTimeout(() => {
+                    errorMsg.style.display = 'none';
+                    errorMsg.style.opacity = '1';
+                }, 300);
+            }, 5000);
+        }
+    }
+
+    function mostrarPreviewImediato(file) {
+        const dropzone = document.getElementById('image-dropzone');
+        const placeholder = document.getElementById('image-upload-placeholder');
+        const previewWrapper = document.getElementById('image-preview-wrapper');
+        const previewImg = document.getElementById('image-preview');
+        const uploadInfo = document.getElementById('image-upload-info');
+        const fileName = document.getElementById('image-file-name');
+        const fileSize = document.getElementById('image-file-size');
+
+        currentImageState.file = file;
+        currentImageState.needsUpload = true;
+
+        // Mostrar informações do arquivo
+        if (uploadInfo) {
+            fileName.textContent = file.name;
+            fileSize.textContent = ImageService.formatarTamanho(file.size);
+            uploadInfo.style.display = 'flex';
+        }
+
+        // Preview
+        if (previewImg) {
+            ImageService.removerPreview(previewImg);
+            ImageService.criarPreview(file, previewImg).catch(() => {
+                mostrarErroImagem('Não foi possível gerar o preview da imagem.');
+            });
+        }
+
+        placeholder.style.display = 'none';
+        previewWrapper.style.display = 'flex';
+        dropzone.classList.add('has-image');
+    }
+
+    function mostrarPreviewExistente(imageUrl) {
+        const dropzone = document.getElementById('image-dropzone');
+        const placeholder = document.getElementById('image-upload-placeholder');
+        const previewWrapper = document.getElementById('image-preview-wrapper');
+        const previewImg = document.getElementById('image-preview');
+        const uploadInfo = document.getElementById('image-upload-info');
+        const progressContainer = document.getElementById('image-upload-progress');
+
+        if (previewImg) {
+            previewImg.src = imageUrl;
+            previewImg.style.display = 'block';
+        }
+
+        placeholder.style.display = 'none';
+        previewWrapper.style.display = 'flex';
+        dropzone.classList.add('has-image');
+        uploadInfo.style.display = 'none';
+        if (progressContainer) progressContainer.style.display = 'none';
+    }
+
+    function limparPreviewImagem() {
+        const dropzone = document.getElementById('image-dropzone');
+        const placeholder = document.getElementById('image-upload-placeholder');
+        const previewWrapper = document.getElementById('image-preview-wrapper');
+        const previewImg = document.getElementById('image-preview');
+        const uploadInfo = document.getElementById('image-upload-info');
+        const progressContainer = document.getElementById('image-upload-progress');
+        const progressFill = document.getElementById('progress-bar-fill');
+        const progressText = document.getElementById('progress-text');
+        const errorMsg = document.getElementById('image-error-msg');
+
+        ImageService.removerPreview(previewImg);
+        placeholder.style.display = 'flex';
+        previewWrapper.style.display = 'none';
+        dropzone.classList.remove('has-image');
+        uploadInfo.style.display = 'none';
+        if (progressContainer) progressContainer.style.display = 'none';
+        if (progressFill) progressFill.style.width = '0%';
+        if (progressText) progressText.textContent = '0%';
+        if (errorMsg) {
+            errorMsg.style.display = 'none';
+            errorMsg.textContent = '';
+        }
+    }
+
+    function mostrarProgressoUpload(percentual) {
+        const progressContainer = document.getElementById('image-upload-progress');
+        const progressFill = document.getElementById('progress-bar-fill');
+        const progressText = document.getElementById('progress-text');
+
+        if (progressContainer) progressContainer.style.display = 'flex';
+        if (progressFill) progressFill.style.width = `${percentual}%`;
+        if (progressText) progressText.textContent = `${percentual}%`;
+    }
+
+    function confirmarRemocaoImagem() {
+        if (currentImageState.uploadInProgress) return;
+
+        if (window.confirm('Tem certeza que deseja remover esta imagem?')) {
+            if (currentImageState.hasExistingImage) {
+                currentImageState.removeExistingOnSave = true;
+                currentImageState.hasExistingImage = false;
+                currentImageState.file = null;
+                currentImageState.needsUpload = false;
+            } else {
+                currentImageState.file = null;
+                currentImageState.needsUpload = false;
+            }
+            limparPreviewImagem();
+        }
+    }
+
+    function resetarEstadoImagem() {
+        currentImageState = {
+            file: null,
+            existingImageUrl: null,
+            existingImagePath: null,
+            hasExistingImage: false,
+            uploadInProgress: false,
+            needsUpload: false,
+            removeExistingOnSave: false
+        };
+        limparPreviewImagem();
+    }
+
+    /* ------------------------------------------------------------------ */
     /* ------------------------------------------------------------------ */
     function setupEventListeners() {
         const btnNovo = document.getElementById('btn-novo-projeto');
@@ -314,7 +551,7 @@ import { ProjetoService } from "./services/projetoService.js";
             nome: doc.titulo || doc.nome || 'Projeto sem nome',
             descricao: doc.descricao || '',
             tags: tagSlugs,
-            imagem: doc.imagem || '',
+            imagem: doc.imagem || doc.imageUrl || '',
             link: doc.site || doc.github || doc.link || '#',
             status: doc.status || 'Ativo',
             versao: doc.versao || ''
@@ -328,7 +565,7 @@ import { ProjetoService } from "./services/projetoService.js";
             status: form.status,
             versao: form.versao,
             tags: Array.from(selectedTagSlugs),
-            imagem: form.imagem,
+            imagem: currentImageState.existingImageUrl || form.imagem || '',
             site: form.link
         };
     }
@@ -455,6 +692,7 @@ import { ProjetoService } from "./services/projetoService.js";
         editingId = null;
         document.getElementById('modal-titulo').textContent = 'Novo Projeto';
         document.getElementById('form-projeto').reset();
+        resetarEstadoImagem();
         await carregarTags();
         prepararSeletorTags([]);
         window.UI?.openModal('modal-projeto');
@@ -468,6 +706,7 @@ import { ProjetoService } from "./services/projetoService.js";
         }
 
         const projeto = normalizeProjetoParaExibicao(doc);
+        const dadosCompletos = doc;
 
         editingId = id;
         document.getElementById('modal-titulo').textContent = 'Editar Projeto';
@@ -475,8 +714,17 @@ import { ProjetoService } from "./services/projetoService.js";
         document.getElementById('proj-versao').value = projeto.versao || '';
         document.getElementById('proj-status').value = projeto.status || 'Ativo';
         document.getElementById('proj-desc').value = projeto.descricao || '';
-        document.getElementById('proj-imagem').value = projeto.imagem || '';
         document.getElementById('proj-link').value = projeto.link || '';
+
+        // Configurar estado da imagem existente
+        resetarEstadoImagem();
+        const imgUrl = projeto.imagem || dadosCompletos.imageUrl || '';
+        if (imgUrl) {
+            currentImageState.existingImageUrl = imgUrl;
+            currentImageState.existingImagePath = dadosCompletos.imagePath || null;
+            currentImageState.hasExistingImage = true;
+            mostrarPreviewExistente(imgUrl);
+        }
 
         await carregarTags();
         prepararSeletorTags(projeto.tags || []);
@@ -486,6 +734,7 @@ import { ProjetoService } from "./services/projetoService.js";
     function fecharModal() {
         window.UI?.closeModal('modal-projeto');
         editingId = null;
+        resetarEstadoImagem();
     }
 
     async function handleSubmit(e) {
@@ -496,7 +745,6 @@ import { ProjetoService } from "./services/projetoService.js";
             versao: document.getElementById('proj-versao').value.trim(),
             status: document.getElementById('proj-status').value,
             descricao: document.getElementById('proj-desc').value.trim(),
-            imagem: document.getElementById('proj-imagem').value.trim(),
             link: document.getElementById('proj-link').value.trim() || '#'
         };
 
@@ -505,26 +753,101 @@ import { ProjetoService } from "./services/projetoService.js";
             return;
         }
 
-        const dados = montarDadosParaFirestore(formValues);
         const submitButton = e.target.querySelector('button[type="submit"]');
         if (submitButton) submitButton.disabled = true;
+        currentImageState.uploadInProgress = true;
 
         try {
+            // ---- ETAPA 1: Excluir imagem antiga (se necessário na edição) ----
+            if (editingId && currentImageState.removeExistingOnSave && currentImageState.existingImagePath) {
+                await ImageService.excluirImagem(currentImageState.existingImagePath);
+            }
+
+            // ---- ETAPA 2: Criar ou preparar o documento no Firestore ----
+            const dadosBase = montarDadosParaFirestore(formValues);
+            let projectId = editingId;
+
+            if (editingId) {
+                // Edição: preservar dados existentes se não houve alteração na imagem
+                if (!currentImageState.needsUpload && !currentImageState.removeExistingOnSave
+                    && currentImageState.hasExistingImage) {
+                    const doc = cacheProjetos.find((p) => p.id === editingId);
+                    dadosBase.imagem = doc?.imagem || doc?.imageUrl || '';
+                }
+            } else {
+                // Criação: salvar primeiro no Firestore para obter o ID
+                const novoProjeto = await ProjetoService.createProjeto(dadosBase);
+                projectId = novoProjeto.id;
+            }
+
+            // ---- ETAPA 3: Upload da nova imagem (se houver) ----
+            let imageData = {};
+            if (currentImageState.file && currentImageState.needsUpload) {
+                // Comprimir a imagem
+                const blobComprimido = await ImageService.comprimirImagem(currentImageState.file);
+                const compressedFile = new File(
+                    [blobComprimido],
+                    currentImageState.file.name.replace(/\.[^.]+$/, '.webp'),
+                    { type: 'image/webp' }
+                );
+
+                // Se editando e tinha imagem (e não foi já removida acima), excluir antiga
+                if (editingId && currentImageState.existingImagePath && !currentImageState.removeExistingOnSave) {
+                    try {
+                        await ImageService.excluirImagem(currentImageState.existingImagePath);
+                    } catch (erro) {
+                        console.warn('Aviso ao excluir imagem antiga:', erro);
+                    }
+                }
+
+                // Upload com progresso
+                const resultado = await ImageService.uploadImagem(
+                    projectId,
+                    compressedFile,
+                    (progresso) => mostrarProgressoUpload(progresso)
+                );
+
+                imageData = {
+                    imageUrl: resultado.downloadURL,
+                    imagePath: resultado.path,
+                    imageType: resultado.type,
+                    imageSize: resultado.size,
+                    imageUploadedAt: new Date().toISOString()
+                };
+            } else if (currentImageState.removeExistingOnSave) {
+                // Removeu a imagem existente e não tem nova
+                imageData = {
+                    imageUrl: null,
+                    imagePath: null,
+                    imageType: null,
+                    imageSize: null,
+                    imageUploadedAt: null,
+                    imagem: ''
+                };
+            }
+
+            // ---- ETAPA 4: Finalizar salvamento ----
+            const dados = { ...dadosBase, ...imageData };
+
             if (editingId) {
                 await ProjetoService.updateProjeto(editingId, dados);
                 window.UI?.showAlert('Projeto atualizado com sucesso!');
             } else {
-                await ProjetoService.createProjeto(dados);
+                // Para novo projeto, atualizar com dados da imagem
+                if (imageData.imageUrl) {
+                    await ProjetoService.updateProjeto(projectId, dados);
+                }
                 window.UI?.showAlert('Projeto criado com sucesso!');
             }
 
             fecharModal();
             await renderTabela();
         } catch (erro) {
-            console.error('Erro ao salvar projeto no Firestore:', erro);
-            window.UI?.showAlert('Erro ao salvar o projeto no Firestore.', 'error');
+            console.error('Erro ao salvar projeto:', erro);
+            window.UI?.showAlert(erro.message || 'Erro ao salvar o projeto.', 'error');
         } finally {
             if (submitButton) submitButton.disabled = false;
+            currentImageState.uploadInProgress = false;
         }
     }
 
@@ -544,14 +867,33 @@ import { ProjetoService } from "./services/projetoService.js";
     async function confirmarExclusao() {
         if (!deleteTargetId) return;
 
+        const confirmBtn = document.getElementById('btn-confirmar-exclusao');
+        if (confirmBtn) confirmBtn.disabled = true;
+
         try {
+            // Buscar dados completos do projeto para obter imagePath
+            const projeto = cacheProjetos.find(p => p.id === deleteTargetId);
+
+            // Excluir imagem do Storage se existir
+            const imagePath = projeto?.imagePath || null;
+            if (imagePath) {
+                try {
+                    await ImageService.excluirImagem(imagePath);
+                } catch (erro) {
+                    console.warn('Aviso ao excluir imagem do Storage:', erro);
+                }
+            }
+
+            // Excluir documento do Firestore
             await ProjetoService.deleteProjeto(deleteTargetId);
             window.UI?.showAlert('Projeto excluído com sucesso!');
             fecharModalExclusao();
             await renderTabela();
         } catch (erro) {
-            console.error('Erro ao excluir projeto no Firestore:', erro);
-            window.UI?.showAlert('Erro ao excluir o projeto no Firestore.', 'error');
+            console.error('Erro ao excluir projeto:', erro);
+            window.UI?.showAlert('Erro ao excluir o projeto.', 'error');
+        } finally {
+            if (confirmBtn) confirmBtn.disabled = false;
         }
     }
 

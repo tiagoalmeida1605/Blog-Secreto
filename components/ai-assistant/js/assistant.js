@@ -549,7 +549,6 @@ export class Assistant {
         const routes = {
             home: '/',
             projetos: '/projetos.html',
-            projetos: '/projetos.html',
             galeria: '/galeria.html',
             contato: '/contato.html',
             dashboard: '/admin/dashboard.html',

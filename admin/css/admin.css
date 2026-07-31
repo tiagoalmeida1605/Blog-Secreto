@@ -397,3 +397,216 @@ textarea.form-control { resize: vertical; min-height: 100px; }
     
     .card-panel { padding: 12px; }
 }
+
+/* ==========================================================================
+   10. IMAGE UPLOAD - Seção de Upload de Imagens
+   ========================================================================== */
+.image-upload-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.image-upload-dropzone {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-md);
+    padding: 32px 24px;
+    background: var(--bg-base);
+    cursor: pointer;
+    transition: var(--transition);
+    min-height: 180px;
+}
+
+.image-upload-dropzone:hover,
+.image-upload-dropzone.drag-over {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.image-upload-dropzone.has-image {
+    padding: 8px;
+    border-style: solid;
+    border-color: var(--border);
+    cursor: default;
+    min-height: auto;
+}
+
+.image-upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    text-align: center;
+    pointer-events: none;
+}
+
+.image-upload-placeholder i {
+    font-size: 3rem;
+    color: var(--text-muted);
+    opacity: 0.5;
+}
+
+.image-upload-dropzone:hover .image-upload-placeholder i,
+.image-upload-dropzone.drag-over .image-upload-placeholder i {
+    color: var(--primary);
+    opacity: 0.8;
+}
+
+.image-upload-placeholder span {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.image-upload-placeholder small {
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+.image-preview-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.image-preview {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: var(--radius-sm);
+    object-fit: contain;
+    background: var(--bg-base);
+    box-shadow: var(--shadow-sm);
+}
+
+.image-preview-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+}
+
+.btn-remove-image {
+    color: var(--danger);
+    border-color: var(--danger);
+}
+
+.btn-remove-image:hover {
+    background: var(--danger);
+    color: #fff;
+}
+
+.image-upload-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 8px;
+}
+
+.image-upload-info i {
+    font-size: 1.1rem;
+}
+
+#image-file-name {
+    font-weight: 500;
+    color: var(--text-main);
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.image-upload-progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.progress-bar-track {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--primary);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    min-width: 40px;
+    text-align: right;
+}
+
+.image-error-msg {
+    padding: 10px 14px;
+    background: rgba(255, 77, 77, 0.1);
+    border: 1px solid rgba(255, 77, 77, 0.3);
+    border-radius: var(--radius-sm);
+    color: var(--danger);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsividade da seção de upload */
+@media (max-width: 480px) {
+    .image-upload-dropzone {
+        padding: 20px 16px;
+        min-height: 140px;
+    }
+
+    .image-upload-placeholder i {
+        font-size: 2rem;
+    }
+
+    .image-upload-placeholder span {
+        font-size: 0.8rem;
+    }
+
+    .image-preview {
+        max-height: 200px;
+    }
+
+    .image-preview-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .image-preview-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

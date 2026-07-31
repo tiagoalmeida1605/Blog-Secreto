@@ -72,7 +72,7 @@
 </div>
 
 <div class="modal-overlay" id="modal-projeto">
-    <div class="modal-content" style="max-width: 620px;">
+    <div class="modal-content" style="max-width: 700px;">
         <h3 id="modal-titulo" style="margin-bottom: 20px;">Novo Projeto</h3>
         <form id="form-projeto">
             <div class="form-group">
@@ -110,15 +110,48 @@
                 <label for="proj-desc">Descrição</label>
                 <textarea id="proj-desc" class="form-control" required></textarea>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                <div class="form-group">
-                    <label for="proj-imagem">URL Imagem</label>
-                    <input type="url" class="form-control" id="proj-imagem" placeholder="https://...">
+            <!-- Seção de Upload de Imagem -->
+            <div class="form-group">
+                <label>Imagem do Projeto</label>
+                <div class="image-upload-container" id="image-upload-container">
+                    <div class="image-upload-dropzone" id="image-dropzone">
+                        <input type="file" id="proj-imagem-input" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" hidden>
+                        <div class="image-upload-placeholder" id="image-upload-placeholder">
+                            <i class="ph ph-cloud-arrow-up"></i>
+                            <span>Clique para selecionar ou arraste uma imagem aqui</span>
+                            <small>PNG, JPG ou WEBP — Máx. 10 MB</small>
+                        </div>
+                        <div class="image-preview-wrapper" id="image-preview-wrapper" style="display:none;">
+                            <img id="image-preview" class="image-preview" alt="Preview">
+                            <div class="image-preview-actions">
+                                <button type="button" class="btn btn-outline btn-sm" id="btn-trocar-imagem" title="Trocar imagem">
+                                    <i class="ph ph-arrows-clockwise"></i> Trocar
+                                </button>
+                                <button type="button" class="btn btn-outline btn-sm btn-remove-image" id="btn-remover-imagem" title="Remover imagem">
+                                    <i class="ph ph-trash"></i> Remover
+                                </button>
+                            </div>
+                        </div>
+                        <div class="image-upload-info" id="image-upload-info" style="display:none;">
+                            <i class="ph ph-file-image"></i>
+                            <span id="image-file-name"></span>
+                            <span id="image-file-size"></span>
+                        </div>
+                    </div>
+                    <div class="image-upload-progress" id="image-upload-progress" style="display:none;">
+                        <div class="progress-bar-track">
+                            <div class="progress-bar-fill" id="progress-bar-fill"></div>
+                        </div>
+                        <span class="progress-text" id="progress-text">0%</span>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="proj-link">Link do Projeto</label>
-                    <input type="text" class="form-control" id="proj-link" placeholder="#">
-                </div>
+                <div id="image-error-msg" class="image-error-msg" role="alert" style="display:none;"></div>
+            </div>
+            <!-- Fim Seção Upload -->
+
+            <div class="form-group">
+                <label for="proj-link">Link do Projeto</label>
+                <input type="text" class="form-control" id="proj-link" placeholder="#">
             </div>
             <div style="display: flex; gap: 12px; margin-top: 20px; justify-content: flex-end;">
                 <button type="button" class="btn btn-outline" id="btn-cancelar-projeto">Cancelar</button>
