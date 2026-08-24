@@ -84,24 +84,6 @@ Blog-Secreto/
 
 ---
 
-## 💻 Como executar
-
-Clone o repositório:
-
-```bash
-git clone https://github.com/tiagoalmeida1605/Blog-Secreto.git
-```
-
-Entre na pasta:
-
-```bash
-cd Blog-Secreto
-```
-
-Depois basta abrir o arquivo `index.html` no navegador ou utilizar uma extensão como **Live Server** no VS Code.
-
----
-
 ## 🤝 Contribuições
 
 Este projeto está sendo desenvolvido principalmente para estudos, mas sugestões, ideias e melhorias são sempre bem-vindas.
