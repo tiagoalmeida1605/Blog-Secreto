@@ -62,6 +62,11 @@
         <button class="nav-item" data-filter="other" type="button"><span class="nav-symbol">···</span><span>Outros</span></button>
       </nav>
 
+      <p class="nav-label nav-label-spaced">PROJETO</p>
+      <nav class="main-nav project-navigation" aria-label="Projetos em desenvolvimento">
+        <button id="nexus-nav" class="nav-item" data-view="nexus" type="button" aria-pressed="false"><span class="nav-symbol">⌁</span><span>NEXUS</span><span class="nav-count nexus-nav-state">DEV</span></button>
+      </nav>
+
       <p class="nav-label nav-label-spaced">ORGANIZAÇÃO</p>
       <nav class="main-nav" aria-label="Organização">
         <button class="nav-item" data-filter="favorites" type="button"><span class="nav-symbol">☆</span><span>Favoritos</span></button>
@@ -75,6 +80,7 @@
     </aside>
 
     <main class="main-area">
+      <div id="library-view">
       <header class="topbar">
         <div class="topbar-copy">
           <p class="eyebrow">SEU ARQUIVO PESSOAL</p>
@@ -100,6 +106,113 @@
         <div id="entry-list" class="entry-grid" aria-live="polite" aria-busy="false"></div>
       </section>
       <footer class="app-footer"><span>Blog Secreto 2.0</span><span>Privado por padrão · Seus dados continuam seus</span></footer>
+      </div>
+
+      <section id="project-hub" class="project-hub nexus-space" aria-labelledby="nexus-title" hidden>
+        <header class="nexus-workspace-header">
+          <div class="nexus-breadcrumbs">
+            <p class="eyebrow">NEXUS <span aria-hidden="true">/</span> DEV SPACE</p>
+            <p class="nexus-workspace-caption">Seu ambiente pessoal de desenvolvimento.</p>
+          </div>
+          <div class="nexus-header-actions">
+            <span class="nexus-private-chip"><span aria-hidden="true"></span> AMBIENTE PRIVADO</span>
+            <button id="back-to-library" class="button button-quiet nexus-back-button" type="button">← Blog Secreto</button>
+          </div>
+        </header>
+
+        <nav class="nexus-tabs" aria-label="Seções do NEXUS" role="tablist">
+          <button class="nexus-tab is-active" id="nexus-tab-overview" type="button" role="tab" aria-selected="true" aria-controls="nexus-panel-overview" data-nexus-tab="overview">Visão geral</button>
+          <button class="nexus-tab" id="nexus-tab-projects" type="button" role="tab" aria-selected="false" aria-controls="nexus-panel-projects" data-nexus-tab="projects">Project Deck</button>
+          <button class="nexus-tab" id="nexus-tab-log" type="button" role="tab" aria-selected="false" aria-controls="nexus-panel-log" data-nexus-tab="log">Development Log</button>
+          <button class="nexus-tab" id="nexus-tab-ideas" type="button" role="tab" aria-selected="false" aria-controls="nexus-panel-ideas" data-nexus-tab="ideas">Idea Lab</button>
+        </nav>
+
+        <section id="nexus-panel-overview" class="nexus-panel-view" role="tabpanel" tabindex="0" aria-labelledby="nexus-tab-overview" data-nexus-panel="overview">
+          <article class="nexus-hero">
+            <div class="nexus-hero-main">
+              <div class="nexus-status-row">
+                <span class="nexus-status-dot" aria-hidden="true"></span>
+                <span class="nexus-status-pill">Em desenvolvimento</span>
+                <span class="nexus-preview-label">Prévia interna</span>
+              </div>
+              <p class="eyebrow nexus-kicker">NETWORKED EXECUTIVE INTELLIGENCE SYSTEM</p>
+              <h1 id="nexus-title">NEXUS<span class="nexus-title-mark"> / </span><span class="nexus-title-sub">Personal Development Environment</span></h1>
+              <p class="nexus-summary">Seu espaço para acompanhar projetos, registrar avanços, organizar ideias técnicas e construir o ecossistema NEXUS. Esta área tem identidade própria, mas continua dentro da sessão privada do Blog Secreto.</p>
+              <div class="nexus-hero-actions">
+                <a class="button button-primary nexus-repo-link" href="https://github.com/tiagoalmeida1605/NEXUS-WEB" target="_blank" rel="noopener noreferrer">Abrir repositório NEXUS-WEB <span aria-hidden="true">↗</span></a>
+                <span class="nexus-private-note">NEXUS BLUE DARK <span aria-hidden="true">·</span> BUILD DE PRÉVIA</span>
+              </div>
+            </div>
+            <aside class="nexus-status-panel" aria-label="Estado do projeto">
+              <div class="nexus-panel-topline"><span class="nexus-panel-label">ESTADO DO SISTEMA</span><span class="nexus-panel-index">NX / 01</span></div>
+              <strong>Em desenvolvimento</strong>
+              <p>Sem lançamento anunciado</p>
+              <div class="nexus-state-line"><span>CLI</span><span class="nexus-state-value state-existing">BASE EXISTENTE</span></div>
+              <div class="nexus-state-line"><span>WEB</span><span class="nexus-state-value state-active">EM CONSTRUÇÃO</span></div>
+              <div class="nexus-state-line"><span>PRÓXIMO CICLO</span><span class="nexus-state-value state-planned">A PLANEJAR</span></div>
+              <small>Os estados descrevem o que está registrado nesta prévia, não métricas automáticas de progresso.</small>
+            </aside>
+          </article>
+
+          <section class="nexus-overview-section" aria-labelledby="nexus-overview-title">
+            <div class="nexus-section-heading"><div><p class="eyebrow">COMMAND CENTER</p><h2 id="nexus-overview-title">Visão do ecossistema</h2></div><span class="nexus-section-meta">3 frentes registradas</span></div>
+            <div class="nexus-overview-grid">
+              <article class="nexus-overview-card">
+                <div class="nexus-card-topline"><span class="nexus-card-index">01</span><span class="nexus-mini-status status-baseline">Base existente</span></div>
+                <p class="nexus-card-label">TERMINAL / CORE</p><h3>NEXUS CLI</h3>
+                <p>A base do assistente no terminal. A versão 0.4 é o marco de referência registrado para o núcleo CLI.</p>
+                <button class="nexus-inline-action" type="button" data-nexus-tab="projects">Ver Project Deck <span aria-hidden="true">→</span></button>
+              </article>
+              <article class="nexus-overview-card">
+                <div class="nexus-card-topline"><span class="nexus-card-index">02</span><span class="nexus-mini-status status-active">Em desenvolvimento</span></div>
+                <p class="nexus-card-label">WEB / INTERFACE</p><h3>NEXUS-WEB</h3>
+                <p>A frente web do projeto está em desenvolvimento. Esta prévia organiza o acompanhamento sem se passar pelo produto final.</p>
+                <a class="nexus-inline-action" href="https://github.com/tiagoalmeida1605/NEXUS-WEB" target="_blank" rel="noopener noreferrer">Abrir repositório <span aria-hidden="true">↗</span></a>
+              </article>
+              <article class="nexus-overview-card">
+                <div class="nexus-card-topline"><span class="nexus-card-index">03</span><span class="nexus-mini-status status-planned">A planejar</span></div>
+                <p class="nexus-card-label">ROADMAP / NEXT</p><h3>Próximo ciclo</h3>
+                <p>Definir prioridades e validar cada mudança antes de marcar funcionalidades como concluídas.</p>
+                <button class="nexus-inline-action" type="button" data-nexus-tab="ideas">Abrir Idea Lab <span aria-hidden="true">→</span></button>
+              </article>
+            </div>
+          </section>
+
+          <aside class="nexus-disclaimer"><span class="nexus-disclaimer-mark" aria-hidden="true">i</span><p><strong>Prévia, não lançamento.</strong> Este espaço é informativo nesta versão. Ele não executa o NEXUS nem sincroniza tarefas com o repositório. Nenhuma porcentagem de progresso é inventada.</p></aside>
+        </section>
+
+        <section id="nexus-panel-projects" class="nexus-panel-view" role="tabpanel" tabindex="0" aria-labelledby="nexus-tab-projects" data-nexus-panel="projects" hidden>
+          <div class="nexus-page-heading"><div><p class="eyebrow">02 / PROJECT DECK</p><h2>Projetos e frentes</h2><p>Uma lista própria do teu espaço Dev, separada dos registros pessoais.</p></div><span class="nexus-count-chip">03 ENTRADAS</span></div>
+          <div class="nexus-project-grid">
+            <article class="nexus-project-card"><div class="nexus-project-card-heading"><span class="nexus-project-glyph" aria-hidden="true">CLI</span><span class="nexus-mini-status status-baseline">Base existente</span></div><p class="nexus-card-label">TERMINAL</p><h3>NEXUS CLI</h3><p>Assistente pessoal em terminal. A versão 0.4 é o marco de referência conhecido.</p><div class="nexus-project-meta"><span>Versão de referência</span><strong>0.4</strong></div></article>
+            <article class="nexus-project-card"><div class="nexus-project-card-heading"><span class="nexus-project-glyph" aria-hidden="true">WEB</span><span class="nexus-mini-status status-active">Em desenvolvimento</span></div><p class="nexus-card-label">INTERFACE WEB</p><h3>NEXUS-WEB</h3><p>Espaço web do ecossistema. A experiência segue em construção e não é apresentada como versão final.</p><div class="nexus-project-meta"><a href="https://github.com/tiagoalmeida1605/NEXUS-WEB" target="_blank" rel="noopener noreferrer">Repositório no GitHub ↗</a><strong>DEV</strong></div></article>
+            <article class="nexus-project-card"><div class="nexus-project-card-heading"><span class="nexus-project-glyph" aria-hidden="true">NEXT</span><span class="nexus-mini-status status-planned">A planejar</span></div><p class="nexus-card-label">ROADMAP</p><h3>Próximo ciclo</h3><p>Frente reservada para registrar o próximo objetivo assim que o escopo for definido.</p><div class="nexus-project-meta"><span>Sem prazo definido</span><strong>PLAN</strong></div></article>
+          </div>
+          <aside class="nexus-disclaimer"><span class="nexus-disclaimer-mark" aria-hidden="true">i</span><p>Os cartões são entradas informativas da prévia e ainda não possuem edição nem sincronização com GitHub.</p></aside>
+        </section>
+
+        <section id="nexus-panel-log" class="nexus-panel-view" role="tabpanel" tabindex="0" aria-labelledby="nexus-tab-log" data-nexus-panel="log" hidden>
+          <div class="nexus-page-heading"><div><p class="eyebrow">03 / DEVELOPMENT LOG</p><h2>Diário de desenvolvimento</h2><p>Marcos conhecidos e estado geral do projeto. Sem datas ou entregas inventadas.</p></div></div>
+          <div class="nexus-log-list">
+            <article class="nexus-log-entry"><span class="nexus-log-marker marker-existing" aria-hidden="true"></span><div class="nexus-log-content"><div class="nexus-log-meta"><span>MARCO REGISTRADO</span><span class="nexus-mini-status status-baseline">Existente</span></div><h3>NEXUS CLI v0.4</h3><p>Versão de referência existente para o núcleo de terminal.</p></div><span class="nexus-log-code">LOG / 001</span></article>
+            <article class="nexus-log-entry"><span class="nexus-log-marker marker-active" aria-hidden="true"></span><div class="nexus-log-content"><div class="nexus-log-meta"><span>FRENTE ATUAL</span><span class="nexus-mini-status status-active">Em desenvolvimento</span></div><h3>NEXUS-WEB</h3><p>A frente web permanece em construção. Este painel não verifica commits nem calcula atividade automaticamente.</p></div><span class="nexus-log-code">LOG / 002</span></article>
+            <article class="nexus-log-entry"><span class="nexus-log-marker marker-planned" aria-hidden="true"></span><div class="nexus-log-content"><div class="nexus-log-meta"><span>PRÓXIMO PASSO</span><span class="nexus-mini-status status-planned">A planejar</span></div><h3>Definir o próximo ciclo</h3><p>Registrar objetivos e critérios de validação antes de começar novas frentes.</p></div><span class="nexus-log-code">LOG / 003</span></article>
+          </div>
+        </section>
+
+        <section id="nexus-panel-ideas" class="nexus-panel-view" role="tabpanel" tabindex="0" aria-labelledby="nexus-tab-ideas" data-nexus-panel="ideas" hidden>
+          <div class="nexus-page-heading"><div><p class="eyebrow">04 / IDEA LAB</p><h2>Laboratório de ideias</h2><p>Um espaço para separar possibilidades futuras de trabalho já confirmado.</p></div></div>
+          <div class="nexus-idea-intro"><span class="nexus-idea-symbol" aria-hidden="true">//</span><div><h3>Ideias antes de virarem tarefas</h3><p>Use esta área como estrutura inicial para pensar no ecossistema NEXUS. Nesta prévia, as ideias abaixo são exemplos de categorias, não tarefas criadas nem promessas de implementação.</p></div></div>
+          <div class="nexus-idea-grid">
+            <article class="nexus-idea-card"><span class="nexus-idea-number">IDEA / 01</span><h3>Experimentos</h3><p>Conceitos e testes que ainda precisam ser avaliados antes de entrar no escopo.</p><span class="nexus-idea-state">ESPAÇO RESERVADO</span></article>
+            <article class="nexus-idea-card"><span class="nexus-idea-number">IDEA / 02</span><h3>Melhorias</h3><p>Ajustes possíveis para experiências e ferramentas que já existem.</p><span class="nexus-idea-state">ESPAÇO RESERVADO</span></article>
+            <article class="nexus-idea-card"><span class="nexus-idea-number">IDEA / 03</span><h3>Próximas frentes</h3><p>Possíveis direções que precisam de prioridade, escopo e critérios de validação.</p><span class="nexus-idea-state">ESPAÇO RESERVADO</span></article>
+          </div>
+          <aside class="nexus-disclaimer"><span class="nexus-disclaimer-mark" aria-hidden="true">i</span><p><strong>Transparência:</strong> o Idea Lab ainda não salva conteúdo. A funcionalidade de registrar e persistir ideias poderá entrar numa próxima etapa sem misturar ideias do NEXUS com os teus registros pessoais.</p></aside>
+        </section>
+
+        <footer class="nexus-footer"><span><strong>NEXUS BLUE DARK</strong><span aria-hidden="true"> / </span> DEV SPACE</span><span>PRÉVIA PRIVADA <span aria-hidden="true">·</span> EM DESENVOLVIMENTO</span></footer>
+      </section>
     </main>
   </div>
 

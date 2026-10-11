@@ -2,16 +2,16 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Crie um projeto Firebase SEPARADO para a v2 e cole aqui a configuração dele.
-// Não reutilize o projeto da versão antiga se quiser manter o sistema anterior intacto.
 const firebaseConfig = {
-  apiKey: "COLE_API_KEY_AQUI",
-  authDomain: "SEU_PROJETO.firebaseapp.com",
-  projectId: "SEU_PROJECT_ID",
-  storageBucket: "SEU_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "COLE_SENDER_ID_AQUI",
-  appId: "COLE_APP_ID_AQUI"
+  apiKey: "AIzaSyB5G8H6cwln1vVelt2qiz1Ja_bwzvoEUDs",
+  authDomain: "blog-secretov2.firebaseapp.com",
+  projectId: "blog-secretov2",
+  storageBucket: "blog-secretov2.firebasestorage.app",
+  messagingSenderId: "567801430872",
+  appId: "1:567801430872:web:49c9bb0b98d51e15f6db2d",
+  measurementId: "G-SSVPPY89SL"
 };
+
 
 export const isFirebaseConfigured = !Object.values(firebaseConfig).some(
   (value) => value.startsWith("COLE_") || value.startsWith("SEU_")

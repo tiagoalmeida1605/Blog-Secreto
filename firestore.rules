@@ -7,7 +7,7 @@ service cloud.firestore {
     // nenhuma conta consegue acessar os registros.
     function isOwner() {
       return request.auth != null
-        && request.auth.uid == 'COLE_UID_DO_PROPRIETARIO';
+        && request.auth.uid == 'z2oLd0jzSmfHiwYocDE2pJOmVOn2OPRIETARIO';
     }
 
     function validEntry(data) {

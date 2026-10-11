@@ -21,6 +21,9 @@ const $ = (selector) => document.querySelector(selector);
 const ui = {
   loginScreen: $("#login-screen"),
   workspace: $("#workspace"),
+  libraryView: $("#library-view"),
+  projectHub: $("#project-hub"),
+  nexusNav: $("#nexus-nav"),
   setupNotice: $("#setup-notice"),
   authFeedback: $("#auth-feedback"),
   loginForm: $("#login-form"),
@@ -79,7 +82,7 @@ const viewSubtitles = {
   favorites: "Os registros que você decidiu manter por perto.",
   archived: "Registros guardados, fora da biblioteca principal."
 };
-const state = { entries: [], filter: "all", query: "", editingId: null, loading: false };
+const state = { entries: [], filter: "all", section: "library", query: "", editingId: null, loading: false };
 
 function setNotice(element, message, type = "error") {
   element.textContent = message;
@@ -96,6 +99,21 @@ function showSetupRequirements() {
 }
 
 function showLogin() {
+  document.title = "Blog Secreto 2.0";
+  document.body.classList.remove("nexus-mode");
+  state.section = "library";
+  state.entries = [];
+  state.query = "";
+  ui.libraryView.hidden = false;
+  ui.projectHub.hidden = true;
+  ui.nexusNav.classList.remove("active");
+  ui.nexusNav.setAttribute("aria-pressed", "false");
+  ui.search.value = "";
+  ui.entryList.replaceChildren();
+  ui.visibleCount.textContent = "0 registros";
+  ui.statTotal.textContent = "0";
+  ui.statFavorites.textContent = "0";
+  ui.statRecent.textContent = "0";
   ui.workspace.hidden = true;
   ui.loginScreen.hidden = false;
 }
@@ -131,7 +149,8 @@ function normalizedText(value) {
 
 function updateStats() {
   const active = state.entries.filter((entry) => !entry.archived);
-  const favorites = active.filter((entry) => entry.favorite);
+  // Favorites are a separate collection view: archived favorites still count.
+  const favorites = state.entries.filter((entry) => entry.favorite);
   const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const recent = state.entries.filter((entry) => {
     const date = dateFromTimestamp(entry.updatedAt);
@@ -147,7 +166,9 @@ function getVisibleEntries() {
   return state.entries.filter((entry) => {
     const archived = Boolean(entry.archived);
     if (state.filter === "archived" && !archived) return false;
-    if (state.filter !== "archived" && archived) return false;
+    // Archived records stay out of the main/category lists, but a favorite
+    // should remain discoverable in Favorites even if it was also archived.
+    if (state.filter !== "archived" && state.filter !== "favorites" && archived) return false;
     if (Object.hasOwn(categories, state.filter) && entry.category !== state.filter) return false;
     if (state.filter === "favorites" && !entry.favorite) return false;
     if (state.query) {
@@ -213,6 +234,22 @@ function createEntryCard(entry) {
   return card;
 }
 
+function switchSection(section) {
+  state.section = section === "nexus" ? "nexus" : "library";
+  ui.libraryView.hidden = state.section !== "library";
+  ui.projectHub.hidden = state.section !== "nexus";
+  ui.nexusNav.classList.toggle("active", state.section === "nexus");
+  ui.nexusNav.setAttribute("aria-pressed", String(state.section === "nexus"));
+  document.body.classList.toggle("nexus-mode", state.section === "nexus");
+  document.title = state.section === "nexus" ? "NEXUS · Dev Space | Blog Secreto 2.0" : "Blog Secreto 2.0";
+  document.querySelectorAll("[data-filter]").forEach((button) => {
+    const selected = state.section === "library" && button.dataset.filter === state.filter;
+    button.classList.toggle("active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+  if (state.section === "library") renderEntries();
+}
+
 function renderEntries() {
   const visible = getVisibleEntries();
   ui.entryList.replaceChildren();
@@ -221,7 +258,7 @@ function renderEntries() {
   ui.pageTitle.textContent = viewNames[state.filter] || viewNames.all;
   ui.pageSubtitle.textContent = viewSubtitles[state.filter] || viewSubtitles.all;
   document.querySelectorAll("[data-filter]").forEach((button) => {
-    const selected = button.dataset.filter === state.filter;
+    const selected = state.section === "library" && button.dataset.filter === state.filter;
     button.classList.toggle("active", selected);
     button.setAttribute("aria-pressed", String(selected));
   });
@@ -436,11 +473,44 @@ function attachEvents() {
     const button = event.target.closest("[data-filter]");
     if (!button) return;
     state.filter = button.dataset.filter;
-    renderEntries();
+    switchSection("library");
   });
   document.querySelectorAll("[data-filter]").forEach((button) => {
     if (button.closest("#main-nav")) return;
-    button.addEventListener("click", () => { state.filter = button.dataset.filter; renderEntries(); });
+    button.addEventListener("click", () => { state.filter = button.dataset.filter; switchSection("library"); });
+  });
+  ui.nexusNav.addEventListener("click", () => switchSection("nexus"));
+  $("#back-to-library").addEventListener("click", () => switchSection("library"));
+  ui.projectHub.addEventListener("keydown", (event) => {
+    const focusedTab = event.target.closest(".nexus-tabs [role=tab][data-nexus-tab]");
+    if (!focusedTab) return;
+    const tabs = [...document.querySelectorAll(".nexus-tabs [role=tab][data-nexus-tab]")];
+    const index = tabs.indexOf(focusedTab);
+    let nextIndex = index;
+    if (event.key === "ArrowRight") nextIndex = (index + 1) % tabs.length;
+    else if (event.key === "ArrowLeft") nextIndex = (index - 1 + tabs.length) % tabs.length;
+    else if (event.key === "Home") nextIndex = 0;
+    else if (event.key === "End") nextIndex = tabs.length - 1;
+    else return;
+    event.preventDefault();
+    tabs[nextIndex].focus();
+    tabs[nextIndex].click();
+  });
+  ui.projectHub.addEventListener("click", (event) => {
+    const tab = event.target.closest("[data-nexus-tab]");
+    if (!tab) return;
+    const target = tab.dataset.nexusTab;
+    document.querySelectorAll(".nexus-tabs [role=tab][data-nexus-tab]").forEach((button) => {
+      const selected = button.dataset.nexusTab === target;
+      button.classList.toggle("is-active", selected);
+      button.setAttribute("aria-selected", String(selected));
+      button.tabIndex = selected ? 0 : -1;
+    });
+    document.querySelectorAll("[data-nexus-panel]").forEach((panel) => {
+      panel.hidden = panel.dataset.nexusPanel !== target;
+    });
+    const activePanel = document.querySelector(`[data-nexus-panel="${target}"]`);
+    activePanel?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   });
   document.addEventListener("keydown", (event) => {
     if (event.key === "/" && !ui.workspace.hidden && !["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) {
