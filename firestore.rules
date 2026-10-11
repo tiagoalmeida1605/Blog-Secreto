@@ -1,0 +1,51 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // IMPORTANTE: substitua este texto pelo UID exato da conta proprietária.
+    // Faça isso antes de publicar as regras. Enquanto estiver como placeholder,
+    // nenhuma conta consegue acessar os registros.
+    function isOwner() {
+      return request.auth != null
+        && request.auth.uid == 'COLE_UID_DO_PROPRIETARIO';
+    }
+
+    function validEntry(data) {
+      return data.keys().hasAll([
+          'title', 'content', 'category', 'favorite', 'archived', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'title', 'content', 'category', 'favorite', 'archived', 'createdAt', 'updatedAt'
+        ])
+        && data.title is string
+        && data.title.size() > 0
+        && data.title.size() <= 120
+        && data.content is string
+        && data.content.size() > 0
+        && data.content.size() <= 200000
+        && data.category in ['diary', 'study', 'project', 'idea', 'other']
+        && data.favorite is bool
+        && data.archived is bool
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /entries/{entryId} {
+      allow read: if isOwner();
+      allow create: if isOwner()
+        && validEntry(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if isOwner()
+        && validEntry(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if isOwner();
+    }
+
+    // Nenhuma outra coleção é aberta por padrão.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "blog-secreto-v2",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check js/app.js && node --check js/firebase.js && node --check js/config.js"
+  }
+}

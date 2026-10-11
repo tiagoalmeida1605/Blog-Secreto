@@ -1,43 +1,122 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./style/style.css">
-    <link rel="stylesheet" href="./style/theme.css">
-    <script src="./js/theme.js"></script>
-    <link rel="stylesheet" href="./components/ai-assistant/css/assistant.css">
-    <link rel="icon" type="image/png" href="./assets/favicon.png">
-    <title>Blog Secreto • Área de Testes</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0b0e14">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <title>Blog Secreto 2.0</title>
+  <link rel="stylesheet" href="./css/app.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%237b8cff'/%3E%3Cpath d='M20 17h24v6H26v8h16v6H26v10h-6z' fill='%230b0e14'/%3E%3C/svg%3E">
+  <script type="module" src="./js/app.js"></script>
 </head>
 <body>
-<header>
-    <nav>
-        <h1>Blog Secreto</h1>
-        <ul>
-            <li><a href="./index.html" class="active">Home</a></li>
-            <li><a href="./pages/projetos.html">Projetos</a></li>
-            <li><a href="./pages/contato.html">Contato</a></li>
-        </ul>
-    </nav>
-</header>
-<main>
-    <section class="hero">
-        <span class="hero-kicker">Acesso Restrito // Área de Testes</span>
-        <h2>Bem-vindo ao Blog Secreto</h2>
-        <p>Plataforma de testes, desenvolvimentos experimentais, registros de código e protótipos de sistemas.</p>
-        <div class="hero-actions">
-            <a href="./pages/projetos.html" class="btn btn-primary">Ver Projetos</a>
-            <a href="./pages/contato.html" class="btn btn-secondary">Entrar em Contato</a>
-        </div>
+  <main id="login-screen" class="auth-screen">
+    <section class="auth-intro" aria-labelledby="brand-title">
+      <div class="brand-mark" aria-hidden="true">BS</div>
+      <p class="eyebrow">ESPAÇO PESSOAL · ACESSO RESTRITO</p>
+      <h1 id="brand-title">Blog <span>Secreto</span></h1>
+      <p class="intro-copy">Um lugar só seu para guardar ideias, organizar estudos, registrar projetos e escrever sem plateia.</p>
+      <div class="intro-tiles" aria-label="Tipos de registro">
+        <span>Diário</span><span>Estudos</span><span>Projetos</span><span>Ideias</span>
+      </div>
+      <p class="privacy-note"><span class="privacy-dot" aria-hidden="true"></span> Conteúdo protegido por autenticação e regras do banco de dados.</p>
     </section>
-</main>
-<footer>
-    <p>© 2026 Blog Secreto • Todos os direitos reservados</p>
-</footer>
-<script type="module" src="./components/ai-assistant/js/core/ChatManager.js"></script>
+
+    <section class="auth-panel" aria-labelledby="login-title">
+      <div class="panel-kicker">SESSÃO PRIVADA</div>
+      <h2 id="login-title">Entrar no seu espaço</h2>
+      <p class="muted">Use a conta proprietária configurada no Firebase.</p>
+
+      <div id="setup-notice" class="notice notice-warn" role="status" hidden></div>
+      <div id="auth-feedback" class="notice notice-error" role="alert" hidden></div>
+
+      <form id="login-form" class="auth-form">
+        <label for="login-email">E-mail</label>
+        <input id="login-email" name="email" type="email" autocomplete="username" placeholder="voce@exemplo.com" required>
+        <label for="login-password">Senha</label>
+        <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Sua senha" required>
+        <button id="login-submit" class="button button-primary button-wide" type="submit">Entrar <span aria-hidden="true">↗</span></button>
+      </form>
+      <p class="auth-footnote">Não existe cadastro público nem página pública de publicações.</p>
+    </section>
+  </main>
+
+  <div id="workspace" class="app-shell" hidden>
+    <aside class="sidebar">
+      <a class="sidebar-brand" href="#inicio" aria-label="Blog Secreto, início">
+        <span class="brand-mark brand-mark-small" aria-hidden="true">BS</span>
+        <span><strong>Blog Secreto</strong><small>WORKSPACE PESSOAL</small></span>
+      </a>
+
+      <button id="new-entry-sidebar" class="button button-primary new-entry-button" type="button"><span aria-hidden="true">＋</span> Novo registro</button>
+
+      <p class="nav-label">BIBLIOTECA</p>
+      <nav id="main-nav" class="main-nav" aria-label="Filtrar registros">
+        <button class="nav-item active" data-filter="all" type="button"><span class="nav-symbol">▦</span><span>Todos os registros</span><span id="count-all" class="nav-count">0</span></button>
+        <button class="nav-item" data-filter="diary" type="button"><span class="nav-symbol">▤</span><span>Diário</span></button>
+        <button class="nav-item" data-filter="study" type="button"><span class="nav-symbol">⌘</span><span>Estudos</span></button>
+        <button class="nav-item" data-filter="project" type="button"><span class="nav-symbol">▣</span><span>Projetos</span></button>
+        <button class="nav-item" data-filter="idea" type="button"><span class="nav-symbol">✳</span><span>Ideias</span></button>
+        <button class="nav-item" data-filter="other" type="button"><span class="nav-symbol">···</span><span>Outros</span></button>
+      </nav>
+
+      <p class="nav-label nav-label-spaced">ORGANIZAÇÃO</p>
+      <nav class="main-nav" aria-label="Organização">
+        <button class="nav-item" data-filter="favorites" type="button"><span class="nav-symbol">☆</span><span>Favoritos</span></button>
+        <button class="nav-item" data-filter="archived" type="button"><span class="nav-symbol">▱</span><span>Arquivados</span></button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="privacy-card"><span class="privacy-card-icon" aria-hidden="true">◈</span><div><strong>Seu espaço, suas regras</strong><p>Os registros não são públicos.</p></div></div>
+        <button id="logout-button" class="nav-item logout-button" type="button"><span class="nav-symbol">↪</span><span>Sair da sessão</span></button>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <div class="topbar-copy">
+          <p class="eyebrow">SEU ARQUIVO PESSOAL</p>
+          <h1 id="page-title">Todos os registros</h1>
+          <p id="page-subtitle" class="muted">Um espaço organizado para o que passa pela sua cabeça.</p>
+        </div>
+        <div class="topbar-actions">
+          <label class="search-box" for="search-input"><span aria-hidden="true">⌕</span><input id="search-input" type="search" placeholder="Buscar nos registros..." autocomplete="off"><kbd>/</kbd></label>
+          <button id="new-entry-top" class="button button-primary" type="button"><span aria-hidden="true">＋</span> Novo registro</button>
+        </div>
+      </header>
+
+      <div id="app-notice" class="notice app-notice" role="status" hidden></div>
+
+      <section class="stats-row" aria-label="Resumo dos registros">
+        <article class="stat-card"><span class="stat-icon stat-icon-blue" aria-hidden="true">▦</span><div><p>Total de registros</p><strong id="stat-total">0</strong></div></article>
+        <article class="stat-card"><span class="stat-icon stat-icon-violet" aria-hidden="true">☆</span><div><p>Favoritos</p><strong id="stat-favorites">0</strong></div></article>
+        <article class="stat-card"><span class="stat-icon stat-icon-green" aria-hidden="true">◷</span><div><p>Atualizados recentemente</p><strong id="stat-recent">0</strong></div></article>
+      </section>
+
+      <section class="entries-section" aria-labelledby="entries-heading">
+        <div class="section-heading"><div><p class="eyebrow">BIBLIOTECA</p><h2 id="entries-heading">Seus registros</h2></div><span id="visible-count" class="muted count-label">0 registros</span></div>
+        <div id="entry-list" class="entry-grid" aria-live="polite" aria-busy="false"></div>
+      </section>
+      <footer class="app-footer"><span>Blog Secreto 2.0</span><span>Privado por padrão · Seus dados continuam seus</span></footer>
+    </main>
+  </div>
+
+  <dialog id="entry-dialog" class="editor-dialog" aria-labelledby="editor-title">
+    <form id="entry-form" class="editor-form">
+      <div class="dialog-header"><div><p class="eyebrow">REGISTRO PESSOAL</p><h2 id="editor-title">Novo registro</h2></div><button id="close-dialog" class="icon-button close-button" type="button" aria-label="Fechar editor">×</button></div>
+      <div id="editor-feedback" class="notice notice-error" role="alert" hidden></div>
+      <label for="entry-title">Título</label>
+      <input id="entry-title" name="title" maxlength="120" placeholder="Dê um nome para esta ideia..." required>
+      <div class="form-two-columns">
+        <div><label for="entry-category">Categoria</label><select id="entry-category" name="category"><option value="diary">Diário</option><option value="study">Estudos</option><option value="project">Projetos</option><option value="idea">Ideias</option><option value="other">Outros</option></select></div>
+        <div class="check-stack"><label class="check-row" for="entry-favorite"><input id="entry-favorite" name="favorite" type="checkbox"><span>Marcar como favorito</span></label><label class="check-row" for="entry-archived"><input id="entry-archived" name="archived" type="checkbox"><span>Guardar no arquivo</span></label></div>
+      </div>
+      <label for="entry-content">Conteúdo</label>
+      <textarea id="entry-content" name="content" rows="12" maxlength="200000" placeholder="Escreva livremente. Seus registros ficam privados..." required></textarea>
+      <div class="editor-foot"><span id="content-count" class="muted">0 caracteres</span><div class="editor-actions"><button id="delete-entry" class="button button-danger" type="button" hidden>Excluir</button><button id="cancel-entry" class="button button-quiet" type="button">Cancelar</button><button id="save-entry" class="button button-primary" type="submit">Salvar registro</button></div></div>
+    </form>
+  </dialog>
 </body>
 </html>
