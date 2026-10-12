@@ -100,13 +100,16 @@ function showSetupRequirements() {
 
 function showLogin() {
   document.title = "Blog Secreto 2.0";
-  document.body.classList.remove("nexus-mode");
+  document.body.classList.remove("nexus-mode", "radio-mode");
   state.section = "library";
   state.entries = [];
   state.query = "";
   ui.libraryView.hidden = false;
   ui.projectHub.hidden = true;
   ui.nexusNav.classList.remove("active");
+  $("#radio-nav").classList.remove("active");
+  $("#radio-nav").setAttribute("aria-pressed", "false");
+  $("#radio-view").hidden = true;
   ui.nexusNav.setAttribute("aria-pressed", "false");
   ui.search.value = "";
   ui.entryList.replaceChildren();
@@ -235,19 +238,35 @@ function createEntryCard(entry) {
 }
 
 function switchSection(section) {
-  state.section = section === "nexus" ? "nexus" : "library";
-  ui.libraryView.hidden = state.section !== "library";
-  ui.projectHub.hidden = state.section !== "nexus";
-  ui.nexusNav.classList.toggle("active", state.section === "nexus");
-  ui.nexusNav.setAttribute("aria-pressed", String(state.section === "nexus"));
-  document.body.classList.toggle("nexus-mode", state.section === "nexus");
-  document.title = state.section === "nexus" ? "NEXUS · Dev Space | Blog Secreto 2.0" : "Blog Secreto 2.0";
+  const nextSection = ["nexus", "radio"].includes(section) ? section : "library";
+  const radioView = $("#radio-view");
+  const radioNav = $("#radio-nav");
+
+  state.section = nextSection;
+  ui.libraryView.hidden = nextSection !== "library";
+  ui.projectHub.hidden = nextSection !== "nexus";
+  radioView.hidden = nextSection !== "radio";
+
+  ui.nexusNav.classList.toggle("active", nextSection === "nexus");
+  ui.nexusNav.setAttribute("aria-pressed", String(nextSection === "nexus"));
+  radioNav.classList.toggle("active", nextSection === "radio");
+  radioNav.setAttribute("aria-pressed", String(nextSection === "radio"));
+
+  document.body.classList.toggle("nexus-mode", nextSection === "nexus");
+  document.body.classList.toggle("radio-mode", nextSection === "radio");
+  document.title = nextSection === "nexus"
+    ? "NEXUS · Dev Space | Blog Secreto 2.0"
+    : nextSection === "radio"
+      ? "Rádio Geração Ativa | Blog Secreto 2.0"
+      : "Blog Secreto 2.0";
+
   document.querySelectorAll("[data-filter]").forEach((button) => {
-    const selected = state.section === "library" && button.dataset.filter === state.filter;
+    const selected = nextSection === "library" && button.dataset.filter === state.filter;
     button.classList.toggle("active", selected);
     button.setAttribute("aria-pressed", String(selected));
   });
-  if (state.section === "library") renderEntries();
+
+  if (nextSection === "library") renderEntries();
 }
 
 function renderEntries() {
@@ -480,6 +499,7 @@ function attachEvents() {
     button.addEventListener("click", () => { state.filter = button.dataset.filter; switchSection("library"); });
   });
   ui.nexusNav.addEventListener("click", () => switchSection("nexus"));
+  $("#radio-nav").addEventListener("click", () => switchSection("radio"));
   $("#back-to-library").addEventListener("click", () => switchSection("library"));
   ui.projectHub.addEventListener("keydown", (event) => {
     const focusedTab = event.target.closest(".nexus-tabs [role=tab][data-nexus-tab]");

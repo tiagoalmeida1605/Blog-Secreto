@@ -1,0 +1,411 @@
+/* RGA WATCH — painel pessoal de acompanhamento editorial.
+   Todos os seletores visuais ficam limitados ao modo Rádio. */
+
+body.radio-mode {
+  --rga-bg: #09131d;
+  --rga-panel: #0e1d2a;
+  --rga-panel-raised: #122535;
+  --rga-border: #213b4b;
+  --rga-text: #f5f1e8;
+  --rga-muted: #a5b4ba;
+  --rga-subtle: #718991;
+  --rga-cream: #fdfaf4;
+  --rga-navy: #122232;
+  --rga-mustard: #efa634;
+  --rga-teal: #359497;
+  --rga-coral: #dc5c3e;
+  background: radial-gradient(ellipse at 76% -10%, rgba(53,148,151,.13), transparent 34%), #09131d;
+  color: var(--rga-text);
+}
+
+body.radio-mode .sidebar {
+  background: linear-gradient(180deg, #102331 0%, #0a1722 100%);
+  border-right-color: #203b4c;
+}
+body.radio-mode .sidebar-brand strong { color: #fdfaf4; }
+body.radio-mode .sidebar-brand small { color: #90a8ac; }
+body.radio-mode .sidebar .nav-label { color: #769399; }
+body.radio-mode .sidebar .nav-item { color: #b0c0c2; }
+body.radio-mode .sidebar .nav-item:hover { background: rgba(53,148,151,.12); color: #fff; }
+body.radio-mode .sidebar #radio-nav.active {
+  border-color: rgba(239,166,52,.28);
+  background: linear-gradient(100deg, rgba(220,92,62,.2), rgba(53,148,151,.13));
+  color: #fff7e9;
+  box-shadow: inset 2px 0 0 var(--rga-mustard);
+}
+body.radio-mode .sidebar #radio-nav.active .nav-symbol { color: var(--rga-mustard); }
+body.radio-mode .sidebar .privacy-card { border-color: #274452; background: rgba(7,22,32,.65); }
+body.radio-mode .sidebar .privacy-card strong { color: #d6e7e4; }
+body.radio-mode .sidebar .privacy-card p { color: #8da3a7; }
+body.radio-mode .sidebar .brand-mark {
+  border-color: rgba(239,166,52,.35);
+  background: linear-gradient(145deg, #23555a, #122b3b);
+  color: #f8d79a;
+  box-shadow: 0 8px 24px rgba(0,0,0,.2);
+}
+body.radio-mode .sidebar #new-entry-sidebar {
+  border-color: #315c60;
+  background: linear-gradient(135deg, #24585a, #173d4a);
+  color: #fdfaf4;
+}
+body.radio-mode .main-area {
+  width: auto;
+  max-width: 1800px;
+  padding: clamp(20px, 3.1vw, 48px) clamp(16px, 3.2vw, 52px) 28px;
+}
+
+#workspace #radio-view.rga-watch {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+  max-width: 1500px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--rga-text, #f5f1e8);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  text-align: left;
+  box-shadow: none;
+  color-scheme: dark;
+  animation: rgaWatchIn .22s ease-out both;
+}
+#workspace #radio-view.rga-watch[hidden] { display: none !important; }
+#workspace #radio-view.rga-watch *,
+#workspace #radio-view.rga-watch *::before,
+#workspace #radio-view.rga-watch *::after { box-sizing: border-box; }
+#workspace #radio-view.rga-watch h1,
+#workspace #radio-view.rga-watch h2,
+#workspace #radio-view.rga-watch h3,
+#workspace #radio-view.rga-watch p { margin-top: 0; }
+#workspace #radio-view.rga-watch h1,
+#workspace #radio-view.rga-watch h2,
+#workspace #radio-view.rga-watch h3 { color: var(--rga-text); }
+#workspace #radio-view.rga-watch p { color: var(--rga-muted); }
+#workspace #radio-view.rga-watch a { color: inherit; text-decoration: none; }
+#workspace #radio-view.rga-watch button { font: inherit; }
+#workspace #radio-view.rga-watch :is(a, button):focus-visible { outline: 2px solid var(--rga-mustard); outline-offset: 3px; }
+
+.rgaWatchMasthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 2px 0 22px;
+  border-bottom: 1px solid var(--rga-border);
+}
+.rgaWatchBrand { display: flex; align-items: center; gap: 15px; min-width: 0; }
+.rgaWatchBrandMark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 0 54px;
+  width: 54px;
+  height: 54px;
+  overflow: hidden;
+  border: 1px solid rgba(239,166,52,.4);
+  border-radius: 15px;
+  background: linear-gradient(145deg, #28585a, #142c3c);
+  color: #f8dcaa;
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.12rem;
+  font-weight: 900;
+  letter-spacing: -.06em;
+}
+.rgaWatchBrandMark::after {
+  position: absolute;
+  right: -12px;
+  bottom: -17px;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(253,250,244,.18);
+  border-radius: 50%;
+  box-shadow: 0 0 0 6px rgba(253,250,244,.035), 0 0 0 12px rgba(253,250,244,.025);
+  content: "";
+}
+.rgaWatchKicker {
+  margin: 0 0 5px !important;
+  color: #79c0bc !important;
+  font-size: .63rem;
+  font-weight: 850;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+}
+.rgaWatchBrand h1 { margin: 0; font: 800 clamp(1.4rem, 2.5vw, 2rem)/1.1 'Manrope', sans-serif; letter-spacing: -.055em; }
+.rgaWatchBrandSummary { margin: 7px 0 0 !important; font-size: .78rem; }
+.rgaWatchMastheadActions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+.rgaWatchPrivateLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 31px;
+  padding: 0 10px;
+  border: 1px solid #28505a;
+  border-radius: 7px;
+  background: rgba(53,148,151,.1);
+  color: #a0d8ce;
+  font-size: .57rem;
+  font-weight: 850;
+  letter-spacing: .1em;
+  white-space: nowrap;
+}
+.rgaWatchPrivateLabel::before { width: 6px; height: 6px; border-radius: 50%; background: var(--rga-teal); content: ""; }
+.rgaWatchAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid #34505c;
+  border-radius: 8px;
+  background: #122330;
+  color: #d8e4e1 !important;
+  font-size: .71rem;
+  font-weight: 750;
+  white-space: nowrap;
+  transition: border-color .16s ease, background .16s ease, transform .16s ease;
+}
+.rgaWatchAction:hover { border-color: #5d9b93; background: #18333c; transform: translateY(-1px); }
+.rgaWatchActionPrimary { border-color: #b57c29; background: var(--rga-mustard); color: #18232a !important; }
+.rgaWatchActionPrimary:hover { border-color: #f6c36d; background: #f6bb54; }
+
+.rgaWatchIntro {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
+  align-items: center;
+  gap: 28px;
+  overflow: hidden;
+  padding: clamp(23px, 3.5vw, 42px);
+  border: 1px solid #284653;
+  border-radius: 17px;
+  background: radial-gradient(ellipse at 96% 0%, rgba(53,148,151,.18), transparent 35%), linear-gradient(125deg, #132a38, #0f202d 65%, #122630);
+  box-shadow: 0 18px 50px rgba(0,0,0,.13);
+}
+.rgaWatchIntro::after { position: absolute; right: 185px; bottom: -155px; width: 300px; height: 300px; border: 1px solid rgba(239,166,52,.09); border-radius: 50%; box-shadow: 0 0 0 28px rgba(239,166,52,.025), 0 0 0 60px rgba(239,166,52,.018); content: ""; pointer-events: none; }
+.rgaWatchIntroCopy, .rgaWatchSourceBadge { position: relative; z-index: 1; }
+.rgaWatchOverline { margin: 0 0 12px !important; color: var(--rga-mustard) !important; font-size: .61rem; font-weight: 850; letter-spacing: .16em; text-transform: uppercase; }
+#workspace #radio-view.rga-watch .rgaWatchIntro h2 { max-width: 720px; margin: 0 0 13px; color: #fdfaf4; font: 800 clamp(1.8rem, 3.6vw, 3rem)/1.08 'Manrope', sans-serif; letter-spacing: -.065em; }
+#workspace #radio-view.rga-watch .rgaWatchIntro p:not(.rgaWatchOverline) { max-width: 670px; margin: 0; color: #c0d0d0; font-size: .86rem; line-height: 1.85; }
+.rgaWatchSourceBadge { padding: 19px; border: 1px solid rgba(181,215,208,.2); border-radius: 12px; background: rgba(5,17,25,.48); }
+.rgaWatchSourceBadgeLabel { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 13px; color: #91aaa9; font-size: .58rem; font-weight: 850; letter-spacing: .13em; }
+.rgaWatchSourceBadgeCode { color: var(--rga-mustard); }
+.rgaWatchSourceBadge strong { display: block; color: #f6f1e4; font: 750 1.1rem 'Manrope', sans-serif; letter-spacing: -.025em; }
+.rgaWatchSourceBadge p { margin: 7px 0 0 !important; color: #9bb2b3 !important; font-size: .72rem !important; line-height: 1.65 !important; }
+
+.rgaWatchNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 13px 15px;
+  border: 1px solid rgba(239,166,52,.24);
+  border-radius: 10px;
+  background: rgba(239,166,52,.055);
+}
+.rgaWatchNoticeIcon { display: grid; place-items: center; flex: 0 0 22px; height: 22px; border: 1px solid rgba(239,166,52,.45); border-radius: 50%; color: var(--rga-mustard); font-size: .72rem; font-weight: 900; }
+.rgaWatchNoticeText { min-width: 0; }
+.rgaWatchNoticeText strong { display: block; margin-bottom: 2px; color: #f1dfba; font-size: .75rem; }
+.rgaWatchNoticeText p { margin: 0 !important; color: #afaa98 !important; font-size: .72rem; line-height: 1.65 !important; }
+
+.rgaWatchMetrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.rgaWatchMetric {
+  min-width: 0;
+  padding: 17px 18px;
+  border: 1px solid var(--rga-border);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(17,36,49,.95), rgba(12,27,38,.95));
+}
+.rgaWatchMetricTop { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 16px; }
+.rgaWatchMetricIndex { color: #7e9a9f; font: 800 .65rem 'Manrope', sans-serif; letter-spacing: .12em; }
+.rgaWatchMetricState { display: inline-flex; align-items: center; min-height: 22px; padding: 0 7px; border: 1px solid #425050; border-radius: 5px; color: #b9c2b4; font-size: .55rem; font-weight: 800; letter-spacing: .045em; white-space: nowrap; }
+.rgaWatchMetric h3 { margin: 0 0 5px !important; font: 750 1rem 'Manrope', sans-serif; letter-spacing: -.025em; }
+.rgaWatchMetric p { margin: 0 !important; color: #8fa6aa !important; font-size: .72rem; line-height: 1.6 !important; }
+.rgaWatchMetricCode { display: block; margin-top: 13px; padding-top: 11px; border-top: 1px solid rgba(123,156,161,.13); color: #6f969b; font: 600 .62rem ui-monospace, SFMono-Regular, Consolas, monospace; overflow-wrap: anywhere; }
+.rgaWatchMetricNews { border-top: 2px solid var(--rga-coral); }
+.rgaWatchMetricVideo { border-top: 2px solid var(--rga-teal); }
+.rgaWatchMetricSync { border-top: 2px solid var(--rga-mustard); }
+
+.rgaWatchColumns { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(260px, .8fr); align-items: start; gap: 15px; }
+.rgaWatchPrimaryColumn, .rgaWatchAsideColumn { display: grid; gap: 15px; min-width: 0; }
+.rgaWatchPanel { min-width: 0; padding: 20px; border: 1px solid var(--rga-border); border-radius: 13px; background: linear-gradient(145deg, rgba(15,31,43,.96), rgba(11,24,35,.96)); }
+.rgaWatchPanelHead { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; margin-bottom: 17px; }
+.rgaWatchPanelKicker { margin: 0 0 6px !important; color: #78b6b0 !important; font-size: .58rem; font-weight: 850; letter-spacing: .15em; text-transform: uppercase; }
+#workspace #radio-view.rga-watch .rgaWatchPanel h2 { margin: 0 0 6px; font: 750 1.12rem 'Manrope', sans-serif; letter-spacing: -.04em; }
+.rgaWatchPanelDescription { margin: 0 !important; color: #92a7aa !important; font-size: .72rem; line-height: 1.65 !important; }
+.rgaWatchPanelBadge { flex: 0 0 auto; padding: 5px 8px; border: 1px solid #2c5058; border-radius: 6px; color: #9bc6c3; background: rgba(53,148,151,.07); font-size: .56rem; font-weight: 850; letter-spacing: .055em; }
+.rgaWatchEmpty {
+  display: grid;
+  justify-items: start;
+  padding: 24px;
+  border: 1px dashed #38505a;
+  border-radius: 10px;
+  background: rgba(3,14,22,.28);
+}
+.rgaWatchEmptyGlyph { display: grid; place-items: center; width: 39px; height: 39px; margin-bottom: 14px; border: 1px solid #355961; border-radius: 11px; background: rgba(53,148,151,.09); color: #92d0c5; font-size: 1rem; }
+#workspace #radio-view.rga-watch .rgaWatchEmpty h3 { margin: 0 0 7px; font: 750 .93rem 'Manrope', sans-serif; }
+#workspace #radio-view.rga-watch .rgaWatchEmpty p { max-width: 560px; margin: 0 0 13px; color: #91a5a8; font-size: .74rem; line-height: 1.75; }
+.rgaWatchInlineCode { padding: 2px 5px; border: 1px solid #2b454e; border-radius: 4px; background: #091922; color: #9dd2c8; font: .68rem ui-monospace, SFMono-Regular, Consolas, monospace; }
+.rgaWatchSourceRows { display: grid; gap: 0; }
+.rgaWatchSourceRow { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid rgba(116,151,158,.14); }
+.rgaWatchSourceRow:first-child { padding-top: 0; }
+.rgaWatchSourceRow:last-child { padding-bottom: 0; border-bottom: 0; }
+.rgaWatchSourceRow strong { display: block; color: #dfe9e4; font-size: .75rem; }
+.rgaWatchSourceRow small { display: block; margin-top: 4px; color: #7f999f; font-size: .65rem; line-height: 1.5; }
+.rgaWatchSourceStatus { color: var(--rga-mustard); font-size: .57rem; font-weight: 850; white-space: nowrap; }
+.rgaWatchChecklist { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.rgaWatchChecklist li { display: flex; align-items: flex-start; gap: 9px; color: #adbdbe; font-size: .73rem; line-height: 1.6; }
+.rgaWatchChecklist li::before { display: grid; place-items: center; flex: 0 0 17px; width: 17px; height: 17px; margin-top: 1px; border: 1px solid #48655f; border-radius: 5px; color: #8ac8b5; content: "•"; font-size: .8rem; }
+.rgaWatchQuickLinks { display: grid; gap: 8px; }
+.rgaWatchQuickLink { display: flex; align-items: center; gap: 11px; min-width: 0; padding: 11px; border: 1px solid #263f4a; border-radius: 9px; background: rgba(255,255,255,.018); transition: border-color .16s ease, background .16s ease; }
+.rgaWatchQuickLink:hover { border-color: #4b7d7c; background: rgba(53,148,151,.07); }
+.rgaWatchQuickIcon { display: grid; place-items: center; flex: 0 0 32px; width: 32px; height: 32px; border: 1px solid #34515a; border-radius: 8px; background: #132b37; color: #edc27b; font-size: .8rem; font-weight: 850; }
+.rgaWatchQuickCopy { min-width: 0; flex: 1; }
+.rgaWatchQuickCopy strong { display: block; color: #e2ece7; font-size: .72rem; }
+.rgaWatchQuickCopy small { display: block; margin-top: 3px; color: #80979c; font-size: .62rem; overflow-wrap: anywhere; }
+.rgaWatchQuickArrow { color: #78b9b0; font-size: .9rem; }
+.rgaWatchFooter { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 18px 0 2px; border-top: 1px solid var(--rga-border); color: #6e898e; font-size: .61rem; letter-spacing: .08em; }
+.rgaWatchFooter strong { color: #adc9c3; }
+.rgaWatchFooter span:last-child { text-align: right; }
+
+@keyframes rgaWatchIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 1120px) {
+  .rgaWatchMasthead { align-items: flex-start; }
+  .rgaWatchMastheadActions { max-width: 320px; }
+  .rgaWatchIntro { grid-template-columns: minmax(0,1fr) minmax(200px,.75fr); }
+  .rgaWatchColumns { grid-template-columns: minmax(0,1.2fr) minmax(245px,.8fr); }
+}
+@media (max-width: 900px) {
+  body.radio-mode .main-area { padding: 25px 19px; }
+  .rgaWatchMasthead { flex-direction: column; }
+  .rgaWatchMastheadActions { max-width: none; justify-content: flex-start; }
+  .rgaWatchIntro { grid-template-columns: 1fr; }
+  .rgaWatchSourceBadge { max-width: none; }
+  .rgaWatchColumns { grid-template-columns: 1fr; }
+}
+@media (max-width: 650px) {
+  body.radio-mode .sidebar { background: linear-gradient(180deg, #102331 0%, #0a1722 100%); }
+  body.radio-mode .main-area { padding: 22px 13px 25px; }
+  #workspace #radio-view.rga-watch { gap: 16px; }
+  .rgaWatchMasthead { gap: 14px; padding-bottom: 17px; }
+  .rgaWatchBrand { align-items: flex-start; gap: 11px; }
+  .rgaWatchBrandMark { flex-basis: 45px; width: 45px; height: 45px; border-radius: 12px; }
+  .rgaWatchBrandSummary { font-size: .71rem; }
+  .rgaWatchMastheadActions { width: 100%; gap: 7px; }
+  .rgaWatchPrivateLabel { margin-right: auto; }
+  .rgaWatchAction { min-height: 38px; padding-inline: 10px; font-size: .68rem; }
+  .rgaWatchIntro { gap: 18px; padding: 22px 18px; }
+  #workspace #radio-view.rga-watch .rgaWatchIntro h2 { font-size: clamp(1.75rem, 8vw, 2.4rem); }
+  .rgaWatchMetrics { grid-template-columns: 1fr; gap: 8px; }
+  .rgaWatchMetric { padding: 15px; }
+  .rgaWatchMetricTop { margin-bottom: 9px; }
+  .rgaWatchMetricCode { margin-top: 9px; padding-top: 8px; }
+  .rgaWatchPanel { padding: 15px; }
+  .rgaWatchPanelHead { flex-direction: column; gap: 9px; }
+  .rgaWatchEmpty { padding: 18px; }
+  .rgaWatchFooter { align-items: flex-start; flex-direction: column; gap: 8px; }
+  .rgaWatchFooter span:last-child { text-align: left; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #workspace #radio-view.rga-watch, #workspace #radio-view.rga-watch * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+/* RGA DARK · visual refresh: grafite, azul-frio e verde-água. */
+body.radio-mode {
+  --rga-bg: #080d13;
+  --rga-panel: #0e151e;
+  --rga-panel-raised: #121d28;
+  --rga-border: #243342;
+  --rga-text: #edf3f6;
+  --rga-muted: #a3b1bf;
+  --rga-subtle: #718294;
+  --rga-mustard: #79dfc5;
+  --rga-teal: #35b7a1;
+  --rga-coral: #f18b73;
+  background: radial-gradient(ellipse at 78% -12%, rgba(55, 125, 165, .13), transparent 35%), #080d13;
+  color: var(--rga-text);
+}
+body.radio-mode .sidebar { background: linear-gradient(180deg, #0d1721, #090f16); border-right-color: #1e2c39; }
+body.radio-mode .sidebar #radio-nav.active { border-color: rgba(121,223,197,.2); background: linear-gradient(100deg, rgba(121,223,197,.12), rgba(72,140,187,.08)); box-shadow: inset 2px 0 0 #79dfc5; }
+body.radio-mode .sidebar #radio-nav.active .nav-symbol { color: #79dfc5; }
+body.radio-mode .sidebar .brand-mark { border-color: #315264; background: linear-gradient(145deg, #173749, #12232e); color: #a2f0db; }
+body.radio-mode .sidebar #new-entry-sidebar { border-color: #315b61; background: linear-gradient(135deg, #1c655e, #16444b); }
+.rgaWatchBrandMark { border-color: #315c6a; background: linear-gradient(145deg, #174b5c, #112735); color: #a4f0dc; }
+.rgaWatchKicker { color: #79dfc5 !important; }
+.rgaWatchPrivateLabel { border-color: #28584f; background: rgba(53,183,161,.09); color: #a6efdd; }
+.rgaWatchPrivateLabel::before { background: #79dfc5; }
+.rgaWatchAction { border-color: #2a3e4d; background: #111d28; color: #d9e6ed !important; }
+.rgaWatchAction:hover { border-color: #4b9e96; background: #152a34; }
+.rgaWatchActionPrimary { border-color: #5bbba7; background: #79dfc5; color: #071b1a !important; }
+.rgaWatchActionPrimary:hover { border-color: #a4f0dc; background: #a4f0dc; }
+.rgaWatchIntro { border-color: #294452; background: radial-gradient(ellipse at 95% 0%, rgba(53,183,161,.12), transparent 35%), linear-gradient(125deg, #101f2c, #0d1722 70%, #10232b); }
+.rgaWatchOverline { color: #79dfc5 !important; }
+.rgaWatchSourceBadgeCode { color: #79dfc5; }
+.rgaWatchMetric, .rgaWatchPanel { border-color: #223241; background: linear-gradient(145deg, #111a24, #0d151e); box-shadow: 0 12px 35px rgba(0,0,0,.12); }
+.rgaWatchMetricState { color: #79dfc5; }
+.rgaWatchMetricCode { color: #8ca2b5; }
+.rgaWatchPanelBadge { border-color: #28564f; background: rgba(53,183,161,.08); color: #8ee8d2; }
+.rgaWatchPanelKicker { color: #79dfc5 !important; }
+.rgaWatchChecklist li::marker { color: #79dfc5; }
+.rgaWatchSourceStatus { color: #79dfc5; }
+.rgaWatchQuickIcon { border-color: #2b4a5a; background: #132633; color: #9edfd4; }
+.rgaWatchFooter { border-color: #223241; color: #778b9b; }
+.rgaWatchFooter strong { color: #8fe5d1; }
+
+.rgaWatchFeedToolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+.rgaWatchSearch { display: flex; align-items: center; gap: 9px; flex: 1 1 230px; min-height: 40px; padding: 0 12px; border: 1px solid #2a3b4b; border-radius: 9px; background: #0a1119; color: #8ea2b4; }
+.rgaWatchSearch input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: #eaf1f5; font: inherit; font-size: .77rem; }
+.rgaWatchSearch input::placeholder { color: #718294; }
+.rgaWatchFeedControls { display: flex; flex-wrap: wrap; gap: 5px; }
+.rgaWatchFilter, .rgaWatchRefresh { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 36px; padding: 0 11px; border: 1px solid #293a49; border-radius: 8px; background: #111b26; color: #a9bac8; font: inherit; font-size: .7rem; font-weight: 750; cursor: pointer; transition: .15s ease; }
+.rgaWatchFilter:hover, .rgaWatchRefresh:hover { border-color: #477f83; color: #e9f8f5; }
+.rgaWatchFilter.is-active { border-color: #347b71; background: rgba(53,183,161,.13); color: #a2f0dc; }
+.rgaWatchRefresh { border-color: #32675f; background: #15312f; color: #a4f0dc; }
+.rgaWatchRefresh:disabled { cursor: wait; opacity: .7; }
+.rgaWatchRefresh.is-loading span { display: inline-block; animation: rgaWatchSpin .9s linear infinite; }
+.rgaWatchFeedStatus { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; min-height: 34px; margin-bottom: 14px; padding: 0 2px; color: #a6b7c5; font-size: .68rem; }
+.rgaWatchConnectionDot { width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: #79dfc5; box-shadow: 0 0 0 4px rgba(121,223,197,.09); }
+.rgaWatchConnectionDot.is-loading { background: #82bfff; box-shadow: 0 0 0 4px rgba(130,191,255,.09); animation: rgaWatchPulse 1.3s ease-in-out infinite; }
+.rgaWatchConnectionDot.is-error { background: #f18b73; box-shadow: 0 0 0 4px rgba(241,139,115,.09); }
+#rga-watch-last-sync { margin-left: auto; color: #72879a; }
+.rgaWatchFeedGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.rgaWatchFeedCard { min-width: 0; overflow: hidden; border: 1px solid #263746; border-radius: 12px; background: linear-gradient(155deg, #111c27, #0d151e); transition: border-color .16s ease, transform .16s ease; }
+.rgaWatchFeedCard:hover { border-color: #3d7278; transform: translateY(-2px); }
+.rgaWatchFeedMedia { position: relative; display: grid; place-items: center; aspect-ratio: 16 / 7; overflow: hidden; background: #0a1119; }
+.rgaWatchFeedMedia img { width: 100%; height: 100%; object-fit: cover; }
+.rgaWatchFeedMedia.is-placeholder { background: radial-gradient(ellipse at 70% 15%, rgba(53,183,161,.12), transparent 45%), linear-gradient(135deg, #122330, #0b141e); }
+.rgaWatchFeedMedia.is-placeholder span { color: #6d9c9e; font-size: .64rem; font-weight: 850; letter-spacing: .18em; }
+.rgaWatchFeedCardBody { padding: 14px; }
+.rgaWatchFeedMeta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 9px; }
+.rgaWatchKind { display: inline-flex; align-items: center; min-height: 22px; padding: 0 7px; border: 1px solid #28554f; border-radius: 5px; background: rgba(53,183,161,.08); color: #9debd8; font-size: .56rem; font-weight: 850; letter-spacing: .08em; }
+.rgaWatchKind-video { border-color: #304f70; background: rgba(86,157,224,.1); color: #9dcaff; }
+.rgaWatchKind-playlist { border-color: #574a72; background: rgba(170,137,230,.1); color: #c9b4f7; }
+.rgaWatchFeedDate { color: #74889a; font-size: .64rem; }
+#workspace #radio-view.rga-watch .rgaWatchFeedTitle { margin: 0 0 8px; color: #eaf1f5; font: 750 .99rem/1.35 'Manrope', sans-serif; letter-spacing: -.025em; overflow-wrap: anywhere; }
+#workspace #radio-view.rga-watch .rgaWatchFeedSummary { display: -webkit-box; overflow: hidden; margin: 0; color: #9caebd; font-size: .75rem; line-height: 1.65; -webkit-box-orient: vertical; -webkit-line-clamp: 4; }
+.rgaWatchFeedTags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.rgaWatchFeedTags span { padding: 3px 6px; border: 1px solid #2a3a48; border-radius: 4px; color: #9fb2bf; font-size: .59rem; }
+.rgaWatchFeedActions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; padding-top: 11px; border-top: 1px solid #21303e; }
+.rgaWatchOpenLink { color: #8de3d0 !important; font-size: .68rem; font-weight: 800; }
+.rgaWatchOpenLink:hover { color: #c0fff0 !important; text-decoration: underline !important; }
+.rgaWatchRecordId { overflow: hidden; max-width: 95px; color: #627789; font-size: .58rem; text-overflow: ellipsis; white-space: nowrap; }
+.rgaWatchEmpty { grid-column: 1 / -1; padding: 35px 18px; border: 1px dashed #2a3c4b; border-radius: 11px; background: rgba(9,17,25,.5); text-align: center; }
+.rgaWatchEmpty.is-error { border-color: rgba(241,139,115,.4); }
+.rgaWatchEmptyGlyph { display: inline-grid; place-items: center; width: 40px; height: 40px; margin-bottom: 12px; border: 1px solid #2c625b; border-radius: 12px; background: rgba(53,183,161,.08); color: #8fe5d1; font-size: 1.3rem; }
+.rgaWatchEmpty.is-error .rgaWatchEmptyGlyph { border-color: #70433f; background: rgba(241,139,115,.08); color: #f4a08d; }
+#workspace #radio-view.rga-watch .rgaWatchEmpty h3 { margin: 0 0 7px; color: #e5edf3; font: 750 1rem 'Manrope', sans-serif; }
+#workspace #radio-view.rga-watch .rgaWatchEmpty p { max-width: 540px; margin: 0 auto; color: #91a4b4; font-size: .77rem; line-height: 1.7; }
+.rgaWatchSourceStatus.is-connected { color: #8de3d0; }
+.rgaWatchSourceStatus.is-error { color: #f4a08d; }
+@keyframes rgaWatchSpin { to { transform: rotate(360deg); } }
+@keyframes rgaWatchPulse { 50% { opacity: .4; } }
+@media (max-width: 850px) { .rgaWatchFeedGrid { grid-template-columns: 1fr; } .rgaWatchFeedMedia { aspect-ratio: 16 / 6; } }
+@media (max-width: 620px) { .rgaWatchFeedToolbar { align-items: stretch; } .rgaWatchFeedControls { order: 2; } .rgaWatchRefresh { order: 3; } #rga-watch-last-sync { width: 100%; margin-left: 15px; } .rgaWatchFeedCardBody { padding: 12px; } }
+@media (prefers-reduced-motion: reduce) { .rgaWatchFeedCard, .rgaWatchFilter, .rgaWatchRefresh { transition: none; } .rgaWatchConnectionDot.is-loading, .rgaWatchRefresh.is-loading span { animation: none; } }

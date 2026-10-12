@@ -8,7 +8,10 @@
   <meta name="robots" content="noindex, nofollow, noarchive">
   <title>Blog Secreto 2.0</title>
   <link rel="stylesheet" href="./css/app.css">
+  <link rel="stylesheet" href="./css/radio-dashboard.css">
+  <link rel="stylesheet" href="./css/nexus-assistant.css">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%237b8cff'/%3E%3Cpath d='M20 17h24v6H26v8h16v6H26v10h-6z' fill='%230b0e14'/%3E%3C/svg%3E">
+  <script src="https://js.puter.com/v2/"></script>
   <script type="module" src="./js/app.js"></script>
 </head>
 <body>
@@ -65,6 +68,7 @@
       <p class="nav-label nav-label-spaced">PROJETO</p>
       <nav class="main-nav project-navigation" aria-label="Projetos em desenvolvimento">
         <button id="nexus-nav" class="nav-item" data-view="nexus" type="button" aria-pressed="false"><span class="nav-symbol">⌁</span><span>NEXUS</span><span class="nav-count nexus-nav-state">DEV</span></button>
+        <button id="radio-nav" class="nav-item" data-view="radio" type="button" aria-pressed="false"><span class="nav-symbol" aria-hidden="true">◉</span><span>Rádio</span><span class="nav-count">RGA</span></button>
       </nav>
 
       <p class="nav-label nav-label-spaced">ORGANIZAÇÃO</p>
@@ -108,6 +112,137 @@
       <footer class="app-footer"><span>Blog Secreto 2.0</span><span>Privado por padrão · Seus dados continuam seus</span></footer>
       </div>
 
+            <section id="radio-view" class="radio-hub rga-watch" aria-labelledby="radio-title" hidden>
+      <header class="rgaWatchMasthead">
+        <div class="rgaWatchBrand">
+          <span class="rgaWatchBrandMark" aria-hidden="true">RGA</span>
+          <div>
+            <p class="rgaWatchKicker">RÁDIO GERAÇÃO ATIVA <span aria-hidden="true">/</span> DEV MONITOR</p>
+            <h1 id="radio-title">RGA Dark</h1>
+            <p class="rgaWatchBrandSummary">Seu painel pessoal para acompanhar o que a equipe publica.</p>
+          </div>
+        </div>
+        <div class="rgaWatchMastheadActions">
+          <span class="rgaWatchPrivateLabel">VISÃO INTERNA</span>
+          <a class="rgaWatchAction" href="https://radio-geracao-ativa.vercel.app/" target="_blank" rel="noopener noreferrer">Portal oficial <span aria-hidden="true">↗</span></a>
+          <a class="rgaWatchAction rgaWatchActionPrimary" href="https://radio-geracao-ativa.vercel.app/admin/admin.html" target="_blank" rel="noopener noreferrer">Painel de publicação <span aria-hidden="true">↗</span></a>
+        </div>
+      </header>
+
+      <section class="rgaWatchIntro" aria-labelledby="rga-watch-intro-title">
+        <div class="rgaWatchIntroCopy">
+          <p class="rgaWatchOverline">CONTENT OPS <span aria-hidden="true">/</span> RGA · UNASP SP</p>
+          <h2 id="rga-watch-intro-title">O que foi publicado?</h2>
+          <p>Uma central de acompanhamento feita para quem desenvolve e mantém o site: conferir as notícias, os vídeos e as playlists mais recentes, abrir a publicação original e revisar os detalhes sem navegar pelo portal inteiro.</p>
+        </div>
+        <aside class="rgaWatchSourceBadge" aria-label="Estado da integração">
+          <div class="rgaWatchSourceBadgeLabel"><span>FONTE DE CONTEÚDO</span><span class="rgaWatchSourceBadgeCode">RGA / 01</span></div>
+          <strong>Firebase Realtime Database</strong>
+          <p>Leitura automática do Firebase Realtime Database. Este painel não altera publicações.</p>
+        </aside>
+      </section>
+
+      <div class="rgaWatchNotice" role="status">
+        <span class="rgaWatchNoticeIcon" aria-hidden="true">i</span>
+        <div class="rgaWatchNoticeText">
+          <strong>Monitoramento editorial · somente leitura</strong>
+          <p>Feed conectado em modo somente leitura. Novas notícias e vídeos são buscados automaticamente, sem copiar ou modificar o banco oficial.</p>
+        </div>
+      </div>
+
+      <section class="rgaWatchMetrics" aria-label="Estado das fontes monitoradas">
+        <article class="rgaWatchMetric rgaWatchMetricNews">
+          <div class="rgaWatchMetricTop"><span class="rgaWatchMetricIndex">SOURCE / 01</span><span class="rgaWatchMetricState">CONECTANDO</span></div>
+          <h3>Notícias</h3>
+          <p>Publicações, resumos, datas, tags e imagens para conferir.</p>
+          <span class="rgaWatchMetricCode">RTDB / noticias</span>
+        </article>
+        <article class="rgaWatchMetric rgaWatchMetricVideo">
+          <div class="rgaWatchMetricTop"><span class="rgaWatchMetricIndex">SOURCE / 02</span><span class="rgaWatchMetricState">CONECTANDO</span></div>
+          <h3>Vídeos e playlists</h3>
+          <p>Conteúdo audiovisual cadastrado pela equipe da rádio.</p>
+          <span class="rgaWatchMetricCode">RTDB / playlists</span>
+        </article>
+        <article class="rgaWatchMetric rgaWatchMetricSync">
+          <div class="rgaWatchMetricTop"><span class="rgaWatchMetricIndex">SYSTEM / 03</span><span class="rgaWatchMetricState">AGUARDANDO</span></div>
+          <h3>Última sincronização</h3>
+          <p>Horário atualizado a cada sincronização automática.</p>
+          <span class="rgaWatchMetricCode">SYNC / PENDING</span>
+        </article>
+      </section>
+
+      <div class="rgaWatchColumns">
+        <div class="rgaWatchPrimaryColumn">
+          <section class="rgaWatchPanel" aria-labelledby="rga-watch-feed-title">
+            <div class="rgaWatchPanelHead">
+              <div>
+                <p class="rgaWatchPanelKicker">EDITORIAL STREAM / 01</p>
+                <h2 id="rga-watch-feed-title">Fluxo de publicações</h2>
+                <p class="rgaWatchPanelDescription">Publicações reais recebidas do Firebase. Pesquisa e filtros ajudam a encontrar conteúdo para revisar.</p>
+              </div>
+              <span class="rgaWatchPanelBadge">LIVE FEED · AUTO</span>
+            </div>
+            <div class="rgaWatchFeedToolbar">
+              <label class="rgaWatchSearch"><span class="sr-only">Pesquisar publicações</span><span aria-hidden="true">⌕</span><input id="rga-watch-search" type="search" placeholder="Pesquisar título, resumo ou tag…" autocomplete="off"></label>
+              <div class="rgaWatchFeedControls" role="group" aria-label="Filtrar publicações">
+                <button type="button" class="rgaWatchFilter is-active" data-rga-filter="all" aria-pressed="true">Tudo</button>
+                <button type="button" class="rgaWatchFilter" data-rga-filter="noticia" aria-pressed="false">Notícias</button>
+                <button type="button" class="rgaWatchFilter" data-rga-filter="video" aria-pressed="false">Vídeos e playlists</button>
+              </div>
+              <button type="button" id="rga-watch-refresh" class="rgaWatchRefresh"><span aria-hidden="true">↻</span> Atualizar agora</button>
+            </div>
+            <div class="rgaWatchFeedStatus" aria-live="polite"><span id="rga-watch-connection-dot" class="rgaWatchConnectionDot is-loading"></span><span id="rga-watch-feed-status">Conectando ao Firebase…</span><span id="rga-watch-last-sync">Aguardando primeira leitura</span></div>
+            <div id="radio-activity-feed" class="rgaWatchFeedGrid" aria-live="polite" aria-busy="true">
+              <div class="rgaWatchEmpty"><span class="rgaWatchEmptyGlyph" aria-hidden="true">↻</span><h3>Buscando publicações</h3><p>Consultando as notícias e os vídeos cadastrados pela equipe da RGA.</p></div>
+            </div>
+          </section>
+
+          <section class="rgaWatchPanel" aria-labelledby="rga-watch-review-title">
+            <div class="rgaWatchPanelHead">
+              <div>
+                <p class="rgaWatchPanelKicker">DEV QA / 02</p>
+                <h2 id="rga-watch-review-title">Checklist de revisão</h2>
+                <p class="rgaWatchPanelDescription">Pontos rápidos para verificar quando uma publicação nova aparecer.</p>
+              </div>
+            </div>
+            <ul class="rgaWatchChecklist">
+              <li>Título e resumo estão coerentes e sem erros de digitação.</li>
+              <li>Data, categoria e tags estão preenchidas quando necessárias.</li>
+              <li>A imagem ou miniatura carrega e combina com o conteúdo.</li>
+              <li>O link abre o vídeo ou a notícia correta no destino original.</li>
+            </ul>
+          </section>
+        </div>
+
+        <aside class="rgaWatchAsideColumn" aria-label="Ferramentas de desenvolvimento">
+          <section class="rgaWatchPanel" aria-labelledby="rga-watch-sources-title">
+            <div class="rgaWatchPanelHead">
+              <div><p class="rgaWatchPanelKicker">DATA SOURCES / 03</p><h2 id="rga-watch-sources-title">Fontes mapeadas</h2><p class="rgaWatchPanelDescription">Estrutura existente no site oficial; leitura ainda não ligada a esta tela.</p></div>
+            </div>
+            <div class="rgaWatchSourceRows">
+              <div class="rgaWatchSourceRow"><div><strong>Notícias</strong><small>Firebase / noticias</small></div><span id="rga-watch-news-source" class="rgaWatchSourceStatus">CONECTANDO</span></div>
+              <div class="rgaWatchSourceRow"><div><strong>Vídeos / playlists</strong><small>Firebase / playlists</small></div><span id="rga-watch-video-source" class="rgaWatchSourceStatus">CONECTANDO</span></div>
+              <div class="rgaWatchSourceRow"><div><strong>Site de produção</strong><small>radio-geracao-ativa.vercel.app</small></div><span class="rgaWatchSourceStatus">LINK</span></div>
+            </div>
+          </section>
+
+          <section class="rgaWatchPanel" aria-labelledby="rga-watch-tools-title">
+            <div class="rgaWatchPanelHead">
+              <div><p class="rgaWatchPanelKicker">QUICK ACCESS / 04</p><h2 id="rga-watch-tools-title">Atalhos do dev</h2><p class="rgaWatchPanelDescription">Ferramentas que tu usa para acompanhar e manter a RGA.</p></div>
+            </div>
+            <div class="rgaWatchQuickLinks">
+              <a class="rgaWatchQuickLink" href="https://radio-geracao-ativa.vercel.app/admin/admin.html" target="_blank" rel="noopener noreferrer"><span class="rgaWatchQuickIcon" aria-hidden="true">AD</span><span class="rgaWatchQuickCopy"><strong>Painel administrativo</strong><small>Conferir e gerenciar publicações</small></span><span class="rgaWatchQuickArrow" aria-hidden="true">↗</span></a>
+              <a class="rgaWatchQuickLink" href="https://github.com/tiagoalmeida1605/Radio-Geracao-Ativa" target="_blank" rel="noopener noreferrer"><span class="rgaWatchQuickIcon" aria-hidden="true">GH</span><span class="rgaWatchQuickCopy"><strong>Repositório GitHub</strong><small>Código-fonte e mudanças</small></span><span class="rgaWatchQuickArrow" aria-hidden="true">↗</span></a>
+              <a class="rgaWatchQuickLink" href="https://www.youtube.com/@radiogeracaoativa" target="_blank" rel="noopener noreferrer"><span class="rgaWatchQuickIcon" aria-hidden="true">YT</span><span class="rgaWatchQuickCopy"><strong>YouTube oficial</strong><small>Vídeos e playlists públicas</small></span><span class="rgaWatchQuickArrow" aria-hidden="true">↗</span></a>
+              <a class="rgaWatchQuickLink" href="https://www.instagram.com/radiogeracaoativa/" target="_blank" rel="noopener noreferrer"><span class="rgaWatchQuickIcon" aria-hidden="true">IG</span><span class="rgaWatchQuickCopy"><strong>Instagram oficial</strong><small>Publicações nas redes</small></span><span class="rgaWatchQuickArrow" aria-hidden="true">↗</span></a>
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <footer class="rgaWatchFooter"><span><strong>RGA DARK</strong> / CONTENT OPS</span><span>MONITORAMENTO SOMENTE LEITURA · ATUALIZAÇÃO AUTOMÁTICA</span></footer>
+    </section>
+
       <section id="project-hub" class="project-hub nexus-space" aria-labelledby="nexus-title" hidden>
         <header class="nexus-workspace-header">
           <div class="nexus-breadcrumbs">
@@ -125,6 +260,7 @@
           <button class="nexus-tab" id="nexus-tab-projects" type="button" role="tab" aria-selected="false" aria-controls="nexus-panel-projects" data-nexus-tab="projects">Project Deck</button>
           <button class="nexus-tab" id="nexus-tab-log" type="button" role="tab" aria-selected="false" aria-controls="nexus-panel-log" data-nexus-tab="log">Development Log</button>
           <button class="nexus-tab" id="nexus-tab-ideas" type="button" role="tab" aria-selected="false" aria-controls="nexus-panel-ideas" data-nexus-tab="ideas">Idea Lab</button>
+          <button class="nexus-tab" id="nexus-tab-assistant" type="button" role="tab" aria-selected="false" aria-controls="nexus-panel-assistant" data-nexus-tab="assistant"><span class="nxai-tab-mark" aria-hidden="true">✦</span> Assistente</button>
         </nav>
 
         <section id="nexus-panel-overview" class="nexus-panel-view" role="tabpanel" tabindex="0" aria-labelledby="nexus-tab-overview" data-nexus-panel="overview">
@@ -211,6 +347,71 @@
           <aside class="nexus-disclaimer"><span class="nexus-disclaimer-mark" aria-hidden="true">i</span><p><strong>Transparência:</strong> o Idea Lab ainda não salva conteúdo. A funcionalidade de registrar e persistir ideias poderá entrar numa próxima etapa sem misturar ideias do NEXUS com os teus registros pessoais.</p></aside>
         </section>
 
+        
+        <section id="nexus-panel-assistant" class="nexus-panel-view nexus-assistant-panel" role="tabpanel" tabindex="0" aria-labelledby="nexus-tab-assistant" data-nexus-panel="assistant" hidden>
+          <div class="nxai-shell">
+            <header class="nxai-header">
+              <div class="nxai-header-copy">
+                <p class="nxai-eyebrow">NEXUS / INTELLIGENCE INTERFACE</p>
+                <h2>Assistente <span>IA</span></h2>
+                <p>Conversa, organização e contexto do seu workspace, sob seu controle.</p>
+              </div>
+              <div class="nxai-header-actions">
+                <div class="nxai-model-chip"><span class="nxai-model-dot"></span><span><small>MODELO DE TESTE</small><strong>Qwen 3.8 Flash</strong></span></div>
+                <button id="nxai-connect" class="nxai-button nxai-button-secondary" type="button">Conectar IA</button>
+                <button id="nxai-clear" class="nxai-icon-button" type="button" title="Limpar conversa" aria-label="Limpar conversa">⌫</button>
+              </div>
+            </header>
+
+            <div class="nxai-privacy-notice" role="note">
+              <span class="nxai-notice-icon" aria-hidden="true">i</span>
+              <p><strong>IA externa · contexto desligado por padrão.</strong> Suas mensagens são enviadas ao Puter para gerar respostas. Não envie senhas, tokens ou dados que não queira compartilhar. A franquia gratuita pode acabar; não faça upgrade nem cadastre pagamento.</p>
+            </div>
+
+            <div class="nxai-layout">
+              <section class="nxai-chat-panel" aria-label="Conversa com o NEXUS Assistente">
+                <div id="nxai-messages" class="nxai-messages" aria-live="polite" aria-relevant="additions text">
+                  <div id="nxai-welcome" class="nxai-welcome">
+                    <div class="nxai-orb" aria-hidden="true"><span>NX</span><i></i><b></b></div>
+                    <p class="nxai-eyebrow">ASSISTENTE DO WORKSPACE</p>
+                    <h3>Por onde começamos?</h3>
+                    <p>Posso ajudar a pensar nos seus projetos, organizar ideias ou analisar o conteúdo do Blog Secreto que você decidir compartilhar com a conversa.</p>
+                    <div class="nxai-prompts" aria-label="Sugestões de conversa">
+                      <button type="button" class="nxai-prompt" data-nxai-prompt="Me ajude a organizar minhas prioridades de desenvolvimento."><span>01</span><span><strong>Organizar prioridades</strong><small>Planejar o próximo passo</small></span><b aria-hidden="true">↗</b></button>
+                      <button type="button" class="nxai-prompt" data-nxai-prompt="Explique como você poderia me ajudar a usar melhor esta área NEXUS."><span>02</span><span><strong>Conhecer o NEXUS</strong><small>Explorar este workspace</small></span><b aria-hidden="true">↗</b></button>
+                      <button type="button" class="nxai-prompt" data-nxai-prompt="Me ajude a resumir e organizar os registros do meu Blog Secreto."><span>03</span><span><strong>Revisar meus registros</strong><small>Usa contexto somente se eu permitir</small></span><b aria-hidden="true">↗</b></button>
+                    </div>
+                  </div>
+                </div>
+
+                <form id="nxai-form" class="nxai-composer">
+                  <label class="nxai-context-toggle" for="nxai-include-context">
+                    <input id="nxai-include-context" type="checkbox">
+                    <span class="nxai-toggle-track" aria-hidden="true"></span>
+                    <span><strong>Incluir contexto do site</strong><small>Envia um resumo dos dados que já aparecem nesta página.</small></span>
+                  </label>
+                  <div class="nxai-composer-box">
+                    <textarea id="nxai-input" rows="2" maxlength="6000" placeholder="Converse com o NEXUS... (Enter envia · Shift+Enter quebra linha)" aria-label="Mensagem para o NEXUS Assistente" required></textarea>
+                    <div class="nxai-composer-bottom"><span id="nxai-char-count">0 / 6000</span><button id="nxai-send" class="nxai-send-button" type="submit"><span>Enviar</span><b aria-hidden="true">↑</b></button></div>
+                  </div>
+                  <div id="nxai-status" class="nxai-status" role="status">Pronto para conectar. Nenhuma ferramenta do site pode ser alterada por este chat.</div>
+                </form>
+              </section>
+
+              <aside class="nxai-context-panel" aria-label="Contexto e fontes do site">
+                <div class="nxai-side-heading"><div><p class="nxai-eyebrow">SITE CONTEXT / 01</p><h3>Contexto do workspace</h3></div><span class="nxai-readonly-pill">SOMENTE LEITURA</span></div>
+                <p class="nxai-side-description">O assistente pode resumir partes do conteúdo que o próprio Blog Secreto já carregou. Esta versão não faz consultas novas nem escreve no Firebase.</p>
+                <div class="nxai-source-card"><div class="nxai-source-icon">▤</div><div><strong>Biblioteca pessoal</strong><small>Firestore carregado pela aplicação</small></div><span id="nxai-entry-count" class="nxai-source-count">0</span></div>
+                <div class="nxai-source-card"><div class="nxai-source-icon nxai-source-icon-blue">⌁</div><div><strong>Dev Space NEXUS</strong><small>Projetos, log e Idea Lab</small></div><span id="nxai-project-count" class="nxai-source-count">0</span></div>
+                <div class="nxai-source-card"><div class="nxai-source-icon nxai-source-icon-teal">◉</div><div><strong>Feed RGA</strong><small>Conteúdo já renderizado, se disponível</small></div><span id="nxai-rga-count" class="nxai-source-count">0</span></div>
+                <div id="nxai-context-preview" class="nxai-context-preview"><span class="nxai-context-preview-dot"></span><p>Contexto desligado. Marque a opção abaixo da conversa para incluir os dados na próxima mensagem.</p></div>
+                <button id="nxai-refresh-context" class="nxai-refresh-context" type="button"><span aria-hidden="true">↻</span> Atualizar resumo do contexto</button>
+                <div class="nxai-side-foot"><span class="nxai-lock-symbol" aria-hidden="true">◈</span><p><strong>Você decide o que compartilhar.</strong> A leitura é limitada ao conteúdo já carregado na página. O envio à IA só acontece quando você marca a opção de contexto.</p></div>
+              </aside>
+            </div>
+          </div>
+        </section>
+
         <footer class="nexus-footer"><span><strong>NEXUS BLUE DARK</strong><span aria-hidden="true"> / </span> DEV SPACE</span><span>PRÉVIA PRIVADA <span aria-hidden="true">·</span> EM DESENVOLVIMENTO</span></footer>
       </section>
     </main>
@@ -231,5 +432,7 @@
       <div class="editor-foot"><span id="content-count" class="muted">0 caracteres</span><div class="editor-actions"><button id="delete-entry" class="button button-danger" type="button" hidden>Excluir</button><button id="cancel-entry" class="button button-quiet" type="button">Cancelar</button><button id="save-entry" class="button button-primary" type="submit">Salvar registro</button></div></div>
     </form>
   </dialog>
+  <script type="module" src="./js/rga-watch-feed.js"></script>
+  <script type="module" src="./js/nexus-assistant.js"></script>
 </body>
 </html>
