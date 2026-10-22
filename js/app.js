@@ -1,5 +1,6 @@
 import { auth, db, isFirebaseConfigured } from "./firebase.js";
 import { OWNER_UID, isOwnerUidConfigured } from "./config.js";
+import { initSettings } from "./settings.js";
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -24,6 +25,9 @@ const ui = {
   libraryView: $("#library-view"),
   projectHub: $("#project-hub"),
   nexusNav: $("#nexus-nav"),
+  radioNav: $("#radio-nav"),
+  settingsView: $("#settings-view"),
+  settingsNav: $("#settings-nav"),
   setupNotice: $("#setup-notice"),
   authFeedback: $("#auth-feedback"),
   loginForm: $("#login-form"),
@@ -100,15 +104,18 @@ function showSetupRequirements() {
 
 function showLogin() {
   document.title = "Blog Secreto 2.0";
-  document.body.classList.remove("nexus-mode", "radio-mode");
+  document.body.classList.remove("nexus-mode", "radio-mode", "settings-mode");
   state.section = "library";
   state.entries = [];
   state.query = "";
   ui.libraryView.hidden = false;
   ui.projectHub.hidden = true;
+  ui.settingsView.hidden = true;
   ui.nexusNav.classList.remove("active");
-  $("#radio-nav").classList.remove("active");
-  $("#radio-nav").setAttribute("aria-pressed", "false");
+  ui.radioNav.classList.remove("active");
+  ui.radioNav.setAttribute("aria-pressed", "false");
+  ui.settingsNav.classList.remove("active");
+  ui.settingsNav.setAttribute("aria-pressed", "false");
   $("#radio-view").hidden = true;
   ui.nexusNav.setAttribute("aria-pressed", "false");
   ui.search.value = "";
@@ -238,26 +245,31 @@ function createEntryCard(entry) {
 }
 
 function switchSection(section) {
-  const nextSection = ["nexus", "radio"].includes(section) ? section : "library";
+  const nextSection = ["nexus", "radio", "settings"].includes(section) ? section : "library";
   const radioView = $("#radio-view");
-  const radioNav = $("#radio-nav");
 
   state.section = nextSection;
   ui.libraryView.hidden = nextSection !== "library";
   ui.projectHub.hidden = nextSection !== "nexus";
   radioView.hidden = nextSection !== "radio";
+  ui.settingsView.hidden = nextSection !== "settings";
 
   ui.nexusNav.classList.toggle("active", nextSection === "nexus");
   ui.nexusNav.setAttribute("aria-pressed", String(nextSection === "nexus"));
-  radioNav.classList.toggle("active", nextSection === "radio");
-  radioNav.setAttribute("aria-pressed", String(nextSection === "radio"));
+  ui.radioNav.classList.toggle("active", nextSection === "radio");
+  ui.radioNav.setAttribute("aria-pressed", String(nextSection === "radio"));
+  ui.settingsNav.classList.toggle("active", nextSection === "settings");
+  ui.settingsNav.setAttribute("aria-pressed", String(nextSection === "settings"));
 
   document.body.classList.toggle("nexus-mode", nextSection === "nexus");
   document.body.classList.toggle("radio-mode", nextSection === "radio");
+  document.body.classList.toggle("settings-mode", nextSection === "settings");
   document.title = nextSection === "nexus"
     ? "NEXUS · Dev Space | Blog Secreto 2.0"
     : nextSection === "radio"
       ? "Rádio Geração Ativa | Blog Secreto 2.0"
+      : nextSection === "settings"
+        ? "Configurações | Blog Secreto 2.0"
       : "Blog Secreto 2.0";
 
   document.querySelectorAll("[data-filter]").forEach((button) => {
@@ -499,7 +511,8 @@ function attachEvents() {
     button.addEventListener("click", () => { state.filter = button.dataset.filter; switchSection("library"); });
   });
   ui.nexusNav.addEventListener("click", () => switchSection("nexus"));
-  $("#radio-nav").addEventListener("click", () => switchSection("radio"));
+  ui.radioNav.addEventListener("click", () => switchSection("radio"));
+  ui.settingsNav.addEventListener("click", () => switchSection("settings"));
   $("#back-to-library").addEventListener("click", () => switchSection("library"));
   ui.projectHub.addEventListener("keydown", (event) => {
     const focusedTab = event.target.closest(".nexus-tabs [role=tab][data-nexus-tab]");
@@ -542,6 +555,7 @@ function attachEvents() {
 }
 
 async function boot() {
+  initSettings();
   attachEvents();
   if (!ownerConfigurationReady()) {
     showSetupRequirements();

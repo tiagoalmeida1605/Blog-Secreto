@@ -101,9 +101,11 @@ Há classes e pontos de extensão para provedores remotos, mas elas não impleme
 
 Nas páginas públicas, o tema claro/escuro é alternado pelo controlador em `js/theme.js` e a escolha fica salva no `localStorage` do navegador. A interface administrativa também possui controles de tema próprios.
 
+O workspace privado em `index.html` tem uma central de configurações própria: tema escuro, claro ou automático; escala de texto; e redução de movimento. Essas preferências são guardadas localmente sob a chave `bs-settings-v1`, não são enviadas ao Firebase e não são sincronizadas na nuvem. O modo automático acompanha mudanças no tema do sistema, e a preferência de movimento reduzido do sistema é sempre respeitada.
+
 ## Desenvolvimento
 
-Sirva o projeto a partir da raiz do repositório com o comando acima e recarregue a página após alterar os arquivos. O repositório não contém comandos definidos para build, lint ou testes automatizados.
+Sirva o projeto a partir da raiz do repositório com o comando acima e recarregue a página após alterar os arquivos. `npm run check` verifica a sintaxe dos módulos do workspace e executa os testes das preferências; `npm test` executa a suíte automatizada.
 
 ## Contribuição
 

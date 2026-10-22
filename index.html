@@ -10,10 +10,11 @@
   <link rel="stylesheet" href="./css/app.css">
   <link rel="stylesheet" href="./css/radio-dashboard.css">
   <link rel="stylesheet" href="./css/nexus-assistant.css">
+  <link rel="stylesheet" href="./css/unified-dark-theme.css">
+  <link rel="stylesheet" href="./css/settings.css">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%237b8cff'/%3E%3Cpath d='M20 17h24v6H26v8h16v6H26v10h-6z' fill='%230b0e14'/%3E%3C/svg%3E">
   <script src="https://js.puter.com/v2/"></script>
   <script type="module" src="./js/app.js"></script>
-  <link rel="stylesheet" href="./css/unified-dark-theme.css">
 </head>
 <body>
   <main id="login-screen" class="auth-screen">
@@ -76,6 +77,7 @@
       <nav class="main-nav" aria-label="Organização">
         <button class="nav-item" data-filter="favorites" type="button"><span class="nav-symbol">☆</span><span>Favoritos</span></button>
         <button class="nav-item" data-filter="archived" type="button"><span class="nav-symbol">▱</span><span>Arquivados</span></button>
+        <button id="settings-nav" class="nav-item" data-view="settings" type="button" aria-pressed="false"><span class="nav-symbol" aria-hidden="true">⚙</span><span>Configurações</span></button>
       </nav>
 
       <div class="sidebar-bottom">
@@ -414,6 +416,66 @@
         </section>
 
         <footer class="nexus-footer"><span><strong>NEXUS BLUE DARK</strong><span aria-hidden="true"> / </span> DEV SPACE</span><span>PRÉVIA PRIVADA <span aria-hidden="true">·</span> EM DESENVOLVIMENTO</span></footer>
+      </section>
+
+      <section id="settings-view" class="settings-view" aria-labelledby="settings-title" hidden>
+        <header class="settings-header">
+          <p class="eyebrow">PREFERÊNCIAS DO WORKSPACE</p>
+          <h1 id="settings-title">Configurações</h1>
+          <p>Personalize a aparência e o comportamento desta experiência.</p>
+        </header>
+
+        <section class="settings-panel" aria-labelledby="settings-appearance-title">
+          <div class="settings-panel-heading">
+            <span class="settings-panel-icon" aria-hidden="true">◐</span>
+            <div><h2 id="settings-appearance-title">Aparência</h2><p>As alterações são aplicadas imediatamente.</p></div>
+          </div>
+          <div class="settings-controls">
+            <div class="settings-control">
+              <label for="setting-theme">Tema</label>
+              <p id="setting-theme-help">Escolha um tema ou acompanhe a preferência do sistema.</p>
+              <select id="setting-theme" aria-describedby="setting-theme-help">
+                <option value="dark">Escuro</option>
+                <option value="light">Claro</option>
+                <option value="auto">Automático (sistema)</option>
+              </select>
+            </div>
+            <div class="settings-control">
+              <label for="setting-text-size">Tamanho do texto</label>
+              <p id="setting-text-size-help">Ajusta a escala tipográfica global, sem alterar o conteúdo.</p>
+              <select id="setting-text-size" aria-describedby="setting-text-size-help">
+                <option value="small">Pequeno</option>
+                <option value="normal">Normal</option>
+                <option value="large">Grande</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-panel" aria-labelledby="settings-accessibility-title">
+          <div class="settings-panel-heading">
+            <span class="settings-panel-icon" aria-hidden="true">◎</span>
+            <div><h2 id="settings-accessibility-title">Acessibilidade</h2><p>Preferências para uma navegação mais confortável.</p></div>
+          </div>
+          <label class="settings-check-row" for="setting-reduced-motion">
+            <input id="setting-reduced-motion" type="checkbox">
+            <span class="settings-check-indicator" aria-hidden="true"></span>
+            <span><strong>Reduzir animações e transições</strong><small>A preferência do sistema para movimento reduzido será respeitada mesmo quando esta opção estiver desativada.</small></span>
+          </label>
+          <p class="settings-accessibility-note">Os controles mantêm foco visível para navegação por teclado e usam cores de texto com contraste legível.</p>
+        </section>
+
+        <section class="settings-panel settings-general" aria-labelledby="settings-general-title">
+          <div class="settings-panel-heading">
+            <span class="settings-panel-icon" aria-hidden="true">⌘</span>
+            <div><h2 id="settings-general-title">Preferências gerais</h2><p>Suas escolhas pertencem a este navegador.</p></div>
+          </div>
+          <p class="settings-storage-note">As preferências são salvas somente no armazenamento local deste dispositivo (localStorage). Elas não são enviadas ao Firebase nem sincronizadas com a nuvem.</p>
+          <div class="settings-general-actions">
+            <button id="settings-reset" class="button button-quiet" type="button">Restaurar padrões</button>
+            <p id="settings-status" class="settings-status" role="status" aria-live="polite">Preferências carregadas.</p>
+          </div>
+        </section>
       </section>
     </main>
   </div>

@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --check js/app.js && node --check js/firebase.js && node --check js/config.js"
+    "check": "node --check js/app.js && node --check js/settings.js && node --check js/firebase.js && node --check js/config.js && node --test tests/settings.test.js",
+    "test": "node --test"
   }
 }
