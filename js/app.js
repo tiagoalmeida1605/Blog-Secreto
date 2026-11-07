@@ -1,6 +1,7 @@
 import { auth, db, isFirebaseConfigured } from "./firebase.js";
 import { OWNER_UID, isOwnerUidConfigured } from "./config.js";
 import { initSettings } from "./settings.js";
+import { editorToMarkdown, markdownToPlainText, renderMarkdown } from "./markdown.js";
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -52,6 +53,9 @@ const ui = {
   entryTitle: $("#entry-title"),
   entryCategory: $("#entry-category"),
   entryContent: $("#entry-content"),
+  entryEditor: $("#entry-editor"),
+  entryPreview: $("#entry-preview"),
+  editorDirty: $("#editor-dirty"),
   entryFavorite: $("#entry-favorite"),
   entryArchived: $("#entry-archived"),
   contentCount: $("#content-count"),
@@ -86,7 +90,31 @@ const viewSubtitles = {
   favorites: "Os registros que você decidiu manter por perto.",
   archived: "Registros guardados, fora da biblioteca principal."
 };
-const state = { entries: [], filter: "all", section: "library", query: "", editingId: null, loading: false };
+const state = { entries: [], filter: "all", section: "library", query: "", editingId: null, loading: false, savedContent: "" };
+
+Object.defineProperty(window, "blogSecretoContext", {
+  configurable: false,
+  writable: false,
+  value: Object.freeze({
+    getLibraryEntries() {
+      return state.entries.map(({ id, title, content, category, updatedAt }) => Object.freeze({
+        id,
+        title: String(title || ""),
+        content: String(content || ""),
+        category: String(category || "other"),
+        updatedAt: dateFromTimestamp(updatedAt)?.toISOString() || null
+      }));
+    },
+    getNexusSummary() {
+      return [
+        "NEXUS Dev Space: espaço pessoal de desenvolvimento.",
+        "NEXUS CLI: versão de referência 0.4.",
+        "NEXUS-WEB: em desenvolvimento, sem lançamento anunciado.",
+        "Project Deck, Development Log e Idea Lab são painéis informativos da prévia."
+      ].join("\n");
+    }
+  })
+});
 
 function setNotice(element, message, type = "error") {
   element.textContent = message;
@@ -229,7 +257,7 @@ function createEntryCard(entry) {
   top.append(pill, date);
 
   const title = makeElement("h3", "", entry.title || "Sem título");
-  const excerptText = String(entry.content || "").trim().replace(/\s+/g, " ");
+  const excerptText = markdownToPlainText(entry.content).slice(0, 360);
   const excerpt = makeElement("p", "entry-excerpt", excerptText || "Este registro ainda não tem conteúdo.");
 
   const footer = makeElement("div", "entry-card-footer");
@@ -352,6 +380,7 @@ async function loadEntries() {
   } finally {
     state.loading = false;
     renderEntries();
+    window.dispatchEvent(new CustomEvent("bs:entries-updated"));
   }
 }
 
@@ -363,6 +392,12 @@ function openEditor(entry = null) {
   ui.entryTitle.value = entry?.title || "";
   ui.entryCategory.value = entry?.category in categories ? entry.category : "diary";
   ui.entryContent.value = entry?.content || "";
+  ui.savedContent = ui.entryContent.value;
+  renderMarkdown(ui.entryEditor, ui.savedContent);
+  ui.entryEditor.hidden = false;
+  ui.entryPreview.hidden = true;
+  $("#editor-preview-toggle").textContent = "Pré-visualizar";
+  $("#editor-preview-toggle").setAttribute("aria-pressed", "false");
   ui.entryFavorite.checked = Boolean(entry?.favorite);
   ui.entryArchived.checked = Boolean(entry?.archived);
   ui.deleteEntry.hidden = !entry;
@@ -378,17 +413,100 @@ function closeEditor() {
 }
 
 function updateContentCount() {
-  const count = ui.entryContent.value.length;
+  const markdown = editorToMarkdown(ui.entryEditor);
+  ui.entryContent.value = markdown;
+  const count = markdown.length;
   ui.contentCount.textContent = `${count.toLocaleString("pt-BR")} ${count === 1 ? "caractere" : "caracteres"}`;
+  const dirty = markdown !== ui.savedContent;
+  ui.editorDirty.textContent = dirty ? "Alterações não salvas" : "Sem alterações pendentes";
+  ui.editorDirty.dataset.dirty = String(dirty);
+  ui.saveEntry.disabled = count > 200000;
+  if (count > 200000) setNotice(ui.editorFeedback, "O conteúdo ultrapassa o limite permitido de 200.000 caracteres.");
+}
+
+function insertPlainText(text) {
+  const selection = window.getSelection();
+  if (!selection?.rangeCount) return;
+  const range = selection.getRangeAt(0);
+  range.deleteContents();
+  const textNode = document.createTextNode(text);
+  range.insertNode(textNode);
+  range.setStartAfter(textNode);
+  range.collapse(true);
+  selection.removeAllRanges();
+  selection.addRange(range);
+  updateContentCount();
+}
+
+function runEditorCommand(command) {
+  ui.entryEditor.focus();
+  if (command === "h2" || command === "h3" || command === "blockquote" || command === "pre") {
+    document.execCommand("formatBlock", false, command === "h2" ? "h2" : command === "h3" ? "h3" : command);
+  } else if (command === "inline-code") {
+    const selection = window.getSelection();
+    if (!selection?.rangeCount || selection.isCollapsed) return;
+    const range = selection.getRangeAt(0);
+    const code = document.createElement("code");
+    code.append(range.extractContents());
+    range.insertNode(code);
+    selection.removeAllRanges();
+    const next = document.createRange();
+    next.selectNodeContents(code);
+    selection.addRange(next);
+  } else if (command === "createLink") {
+    const value = window.prompt("Endereço do link (HTTP ou HTTPS):");
+    if (!value) return;
+    let link;
+    try {
+      link = new URL(value);
+    } catch {
+      setNotice(ui.editorFeedback, "Informe um endereço completo iniciado por http:// ou https://.");
+      return;
+    }
+    if (!["http:", "https:"].includes(link.protocol)) {
+      setNotice(ui.editorFeedback, "Use um endereço HTTP ou HTTPS válido.");
+      return;
+    }
+    document.execCommand("createLink", false, link.href);
+    ui.entryEditor.querySelectorAll("a").forEach((anchor) => {
+      anchor.rel = "noopener noreferrer";
+      anchor.target = "_blank";
+    });
+  } else {
+    document.execCommand(command, false);
+  }
+  updateContentCount();
+}
+
+function toggleEditorPreview() {
+  const previewing = !ui.entryPreview.hidden;
+  if (previewing) {
+    ui.entryPreview.hidden = true;
+    ui.entryEditor.hidden = false;
+    $("#editor-preview-toggle").textContent = "Pré-visualizar";
+    $("#editor-preview-toggle").setAttribute("aria-pressed", "false");
+    ui.entryEditor.focus();
+    return;
+  }
+  ui.entryContent.value = editorToMarkdown(ui.entryEditor);
+  renderMarkdown(ui.entryPreview, ui.entryContent.value);
+  ui.entryEditor.hidden = true;
+  ui.entryPreview.hidden = false;
+  $("#editor-preview-toggle").textContent = "Voltar à edição";
+  $("#editor-preview-toggle").setAttribute("aria-pressed", "true");
 }
 
 async function saveEntry(event) {
   event.preventDefault();
   const title = ui.entryTitle.value.trim();
-  const content = ui.entryContent.value.trim();
+  const content = editorToMarkdown(ui.entryEditor).trim();
   const category = ui.entryCategory.value;
   if (!title || !content) {
     setNotice(ui.editorFeedback, "Preencha o título e o conteúdo antes de salvar.");
+    return;
+  }
+  if (content.length > 200000) {
+    setNotice(ui.editorFeedback, "O conteúdo ultrapassa o limite de 200.000 caracteres.");
     return;
   }
   if (!Object.hasOwn(categories, category)) {
@@ -415,6 +533,7 @@ async function saveEntry(event) {
       await addDoc(collection(db, "entries"), { ...payload, createdAt: serverTimestamp() });
       setNotice(ui.appNotice, "Registro salvo com privacidade por padrão.", "success");
     }
+    state.savedContent = content;
     closeEditor();
     await loadEntries();
   } catch (error) {
@@ -498,7 +617,25 @@ function attachEvents() {
   $("#close-dialog").addEventListener("click", closeEditor);
   ui.entryForm.addEventListener("submit", saveEntry);
   ui.deleteEntry.addEventListener("click", deleteCurrentEntry);
-  ui.entryContent.addEventListener("input", updateContentCount);
+  ui.entryEditor.addEventListener("input", updateContentCount);
+  ui.entryEditor.addEventListener("paste", (event) => {
+    event.preventDefault();
+    insertPlainText(event.clipboardData?.getData("text/plain") || "");
+  });
+  ui.entryEditor.addEventListener("keydown", (event) => {
+    if (!(event.ctrlKey || event.metaKey)) return;
+    const key = event.key.toLowerCase();
+    const command = key === "b" ? "bold" : key === "i" ? "italic" : "";
+    if (command) {
+      event.preventDefault();
+      runEditorCommand(command);
+    }
+  });
+  document.querySelectorAll("[data-editor-command]").forEach((button) => {
+    button.addEventListener("mousedown", (event) => event.preventDefault());
+    button.addEventListener("click", () => runEditorCommand(button.dataset.editorCommand));
+  });
+  $("#editor-preview-toggle").addEventListener("click", toggleEditorPreview);
   ui.search.addEventListener("input", () => { state.query = ui.search.value.trim(); renderEntries(); });
   $("#main-nav").addEventListener("click", (event) => {
     const button = event.target.closest("[data-filter]");

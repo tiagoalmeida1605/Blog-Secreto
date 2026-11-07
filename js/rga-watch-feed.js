@@ -1,3 +1,34 @@
+export function parseRgaDate(value) {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (!value) return 0;
+  const raw = String(value).trim();
+  let match = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (match) return new Date(+match[1], +match[2] - 1, +match[3]).getTime();
+  match = raw.match(/^(\d{2})[/-](\d{2})[/-](\d{4})$/);
+  if (match) return new Date(+match[3], +match[2] - 1, +match[1]).getTime();
+  const timestamp = Date.parse(raw);
+  return Number.isNaN(timestamp) ? 0 : timestamp;
+}
+
+export function filterRgaItems(items, { kind = "all", period = "all", query = "", now = Date.now() } = {}) {
+  const normalizedQuery = String(query).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR");
+  let startAt = 0;
+  if (period === "today") {
+    const today = new Date(now);
+    today.setHours(0, 0, 0, 0);
+    startAt = today.getTime();
+  } else if (period === "7" || period === "30") {
+    startAt = now - Number(period) * 24 * 60 * 60 * 1000;
+  }
+  return items.filter((item) => {
+    if (kind !== "all" && item.kind !== kind) return false;
+    if (startAt && (!item.order || item.order < startAt || item.order > now)) return false;
+    const text = `${item.title} ${item.summary} ${(item.tags || []).join(" ")}`
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR");
+    return !normalizedQuery || text.includes(normalizedQuery);
+  });
+}
+
 /**
  * RGA Dark · feed de acompanhamento editorial.
  * Somente leitura: consulta o Firebase Realtime Database via REST.
@@ -6,7 +37,7 @@
 (() => {
   const DB_URL = "https://radiogeracaoativa-playlist-default-rtdb.firebaseio.com";
   const INTERVAL_MS = 30_000;
-  const $ = (id) => document.getElementById(id);
+  const $ = (id) => globalThis.document?.getElementById(id);
   const feed = $("radio-activity-feed");
   if (!feed) return;
 
@@ -23,11 +54,15 @@
     syncMetric: document.querySelector(".rgaWatchMetricSync .rgaWatchMetricState"),
     syncDescription: document.querySelector(".rgaWatchMetricSync p"),
     syncCode: document.querySelector(".rgaWatchMetricSync .rgaWatchMetricCode"),
+    playlistMetric: document.querySelector(".rgaWatchMetricPlaylist .rgaWatchMetricState"),
+    resultsCount: $("rga-watch-results-count"),
+    clearFilters: $("rga-watch-clear-filters"),
     panelBadge: document.querySelector(".rgaWatchPanelBadge"),
   };
 
   let allItems = [];
   let activeFilter = "all";
+  let activePeriod = "all";
   let lastSyncAt = null;
   let inFlight = false;
   let timer = null;
@@ -45,20 +80,8 @@
     return Object.entries(data).map(([id, item]) => ({ id, item }));
   }
 
-  function parseDate(value) {
-    if (typeof value === "number" && Number.isFinite(value)) return value;
-    if (!value) return 0;
-    const raw = String(value).trim();
-    let m = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    if (m) return Date.UTC(+m[1], +m[2] - 1, +m[3]);
-    m = raw.match(/^(\d{2})[/-](\d{2})[/-](\d{4})$/);
-    if (m) return Date.UTC(+m[3], +m[2] - 1, +m[1]);
-    const n = Date.parse(raw);
-    return Number.isNaN(n) ? 0 : n;
-  }
-
   function formatDate(value) {
-    const timestamp = parseDate(value);
+    const timestamp = parseRgaDate(value);
     if (!timestamp) return "Data não informada";
     return new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium" }).format(new Date(timestamp));
   }
@@ -85,7 +108,7 @@
         date: item.data ?? item.createdAt ?? item.timestamp ?? null,
         tags: Array.isArray(item.tags) ? item.tags.map(String) : [],
         url: "https://radio-geracao-ativa.vercel.app/pages/publi.html",
-        order: parseDate(item.data ?? item.createdAt ?? item.timestamp),
+        order: parseRgaDate(item.data ?? item.createdAt ?? item.timestamp),
       }));
   }
 
@@ -112,7 +135,7 @@
           date: item.data ?? item.createdAt ?? item.timestamp ?? null,
           tags: [],
           url,
-          order: parseDate(item.data ?? item.createdAt ?? item.timestamp),
+          order: parseRgaDate(item.data ?? item.createdAt ?? item.timestamp),
         };
       })
       .filter((item) => item.url);
@@ -197,16 +220,12 @@
   }
 
   function renderFeed() {
-    const query = (ui.search?.value || "").trim().toLocaleLowerCase("pt-BR");
-    const filtered = allItems.filter((item) => {
-      const isNews = item.kind === "noticia";
-      if (activeFilter === "noticia" && !isNews) return false;
-      if (activeFilter === "video" && isNews) return false;
-      const haystack = `${item.title} ${item.summary} ${item.tags.join(" ")}`.toLocaleLowerCase("pt-BR");
-      return !query || haystack.includes(query);
-    });
+    const query = (ui.search?.value || "").trim();
+    const filtered = filterRgaItems(allItems, { kind: activeFilter, period: activePeriod, query });
+    if (ui.resultsCount) ui.resultsCount.textContent = `${filtered.length} de ${allItems.length} publicações`;
     if (!filtered.length) {
-      renderEmpty(allItems.length ? "Nenhum resultado encontrado" : "Nenhuma publicação encontrada", allItems.length ? "Tenta outro termo ou muda o filtro." : "As fontes responderam, mas ainda não há registros válidos para exibir.");
+      const hasFilters = activeFilter !== "all" || activePeriod !== "all" || query;
+      renderEmpty(allItems.length ? "Nenhum resultado encontrado" : "Nenhuma publicação encontrada", hasFilters ? "Altere a pesquisa ou os filtros para ampliar os resultados." : "As fontes responderam, mas ainda não há registros válidos para exibir.");
       return;
     }
     feed.replaceChildren();
@@ -243,12 +262,17 @@
       const news = newsOk ? normaliseNews(newsResult.value) : [];
       const videos = videosOk ? normaliseVideos(videoResult.value) : [];
       allItems = [...news, ...videos].sort((a, b) => b.order - a.order || (a.kind === "noticia" ? -1 : 1));
+      window.rgaWatchFeed = Object.freeze({
+        getItems() { return allItems.map((item) => Object.freeze({ ...item, tags: [...item.tags] })); }
+      });
+      window.dispatchEvent(new CustomEvent("bs:rga-updated"));
       lastSyncAt = new Date();
       const partial = !newsOk || !videosOk;
       setStatus(partial ? "error" : "connected", partial ? "Conectado parcialmente: uma fonte falhou." : `Conectado · ${allItems.length} registros recebidos`);
       if (ui.lastSync) ui.lastSync.textContent = `Última sincronização: ${lastSyncAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`;
       if (ui.newsMetric) ui.newsMetric.textContent = newsOk ? `${news.length} REGISTROS` : "ERRO DE LEITURA";
-      if (ui.videoMetric) ui.videoMetric.textContent = videosOk ? `${videos.length} REGISTROS` : "ERRO DE LEITURA";
+      if (ui.videoMetric) ui.videoMetric.textContent = videosOk ? `${videos.filter((item) => item.kind === "video").length} REGISTROS` : "ERRO DE LEITURA";
+      if (ui.playlistMetric) ui.playlistMetric.textContent = videosOk ? `${videos.filter((item) => item.kind === "playlist").length} REGISTROS` : "ERRO DE LEITURA";
       if (ui.syncMetric) ui.syncMetric.textContent = partial ? "PARCIAL" : "ONLINE";
       if (ui.syncDescription) ui.syncDescription.textContent = `Última leitura concluída às ${lastSyncAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}.`;
       if (ui.syncCode) ui.syncCode.textContent = "SYNC / 30S";
@@ -260,6 +284,7 @@
       setSourceState(ui.videoSource, "ERRO", false);
       if (ui.newsMetric) ui.newsMetric.textContent = "ERRO DE LEITURA";
       if (ui.videoMetric) ui.videoMetric.textContent = "ERRO DE LEITURA";
+      if (ui.playlistMetric) ui.playlistMetric.textContent = "ERRO DE LEITURA";
       if (ui.syncMetric) ui.syncMetric.textContent = "OFFLINE";
       if (ui.lastSync) ui.lastSync.textContent = lastSyncAt ? `Última leitura válida: ${lastSyncAt.toLocaleTimeString("pt-BR")}` : "Nenhuma leitura válida ainda";
       renderEmpty("Não foi possível carregar o feed", "O painel não altera o Firebase. Confere se o banco permite leitura pública desses caminhos e tenta novamente.", true);
@@ -283,7 +308,54 @@
     });
   });
 
-  syncFeed();
-  timer = window.setInterval(() => syncFeed(), INTERVAL_MS);
-  window.addEventListener("beforeunload", () => { if (timer) window.clearInterval(timer); }, { once: true });
+  document.querySelectorAll("[data-rga-date]").forEach((button) => {
+    button.addEventListener("click", () => {
+      activePeriod = button.dataset.rgaDate || "all";
+      document.querySelectorAll("[data-rga-date]").forEach((other) => {
+        const active = other === button;
+        other.classList.toggle("is-active", active);
+        other.setAttribute("aria-pressed", String(active));
+      });
+      renderFeed();
+    });
+  });
+  ui.clearFilters?.addEventListener("click", () => {
+    activeFilter = "all";
+    activePeriod = "all";
+    if (ui.search) ui.search.value = "";
+    document.querySelectorAll("[data-rga-filter]").forEach((button) => {
+      const active = button.dataset.rgaFilter === "all";
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+    document.querySelectorAll("[data-rga-date]").forEach((button) => {
+      const active = button.dataset.rgaDate === "all";
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+    renderFeed();
+  });
+
+  function startAutoRefresh() {
+    if (timer || document.hidden) return;
+    timer = window.setInterval(() => syncFeed(), INTERVAL_MS);
+  }
+  function stopAutoRefresh() {
+    if (!timer) return;
+    window.clearInterval(timer);
+    timer = null;
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      stopAutoRefresh();
+    } else {
+      void syncFeed();
+      startAutoRefresh();
+    }
+  });
+  if (!document.hidden) {
+    void syncFeed();
+    startAutoRefresh();
+  }
+  window.addEventListener("beforeunload", stopAutoRefresh, { once: true });
 })();

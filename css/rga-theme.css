@@ -1,0 +1,90 @@
+.rgaWatchDateControls { flex-basis: 100%; }
+.rgaWatchDateFilter { min-height: 31px; padding: 0 9px; border: 1px solid #2b4556; border-radius: 6px; background: #0c1a26; color: #a5b8c2; font: inherit; font-size: .61rem; }
+.rgaWatchDateFilter:hover { border-color: #51888b; background: #112833; color: #e5f2f1; }
+.rgaWatchDateFilter.is-active { border-color: #4a9f92; background: rgba(53,148,151,.14); color: #a7e4d4; }
+.rgaWatchClearFilters { min-height: 34px; padding: 0 10px; border: 1px solid #365064; border-radius: 7px; background: #102130; color: #b7c8d3; font: inherit; font-size: .65rem; }
+.rgaWatchClearFilters:hover { border-color: #64a7ad; background: #15303a; color: #fff; }
+.rgaWatchResultsCount { margin: 0 0 10px; color: #92a7b3; font-size: .66rem; }
+.rgaWatchMetricPlaylist { border-top: 2px solid #359497; }
+@media(min-width:1050px) { .rgaWatchMetrics { grid-template-columns: repeat(4,minmax(0,1fr)); } }
+@media(max-width:720px) { .rgaWatchMetrics { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media(max-width:480px) { .rgaWatchMetrics { grid-template-columns: 1fr; } }
+
+html[data-theme="light"] body.radio-mode {
+  --rga-bg: #f0f4f6;
+  --rga-panel: #fff;
+  --rga-panel-raised: #f4f8fa;
+  --rga-border: #cfdae0;
+  --rga-text: #263d4a;
+  --rga-muted: #526b77;
+  --rga-subtle: #708793;
+  background: #eef3f5;
+  color: #263d4a;
+}
+html[data-theme="light"] body.radio-mode .sidebar { border-right-color: #d3dfe4; background: linear-gradient(180deg,#f9fbfc,#edf3f6); }
+html[data-theme="light"] body.radio-mode .sidebar-brand strong { color: #203d4c; }
+html[data-theme="light"] body.radio-mode .sidebar-brand small,html[data-theme="light"] body.radio-mode .sidebar .nav-label { color: #697f8a; }
+html[data-theme="light"] body.radio-mode .sidebar .nav-item { color: #4a6370; }
+html[data-theme="light"] body.radio-mode .sidebar .nav-item:hover { background: #e6eff3; color: #183c50; }
+html[data-theme="light"] body.radio-mode .sidebar #radio-nav.active { border-color: #b7d0d5; background: #e6f2f2; color: #214e54; box-shadow: inset 2px 0 #258d88; }
+html[data-theme="light"] body.radio-mode .sidebar .privacy-card { border-color: #d1dfe3; background: #f5f9fa; }
+html[data-theme="light"] body.radio-mode .sidebar .privacy-card strong { color: #365361; }
+html[data-theme="light"] body.radio-mode .sidebar .privacy-card p { color: #6b828d; }
+html[data-theme="light"] body.radio-mode .sidebar #new-entry-sidebar { border-color: #a7ced1; background: #deeeee; color: #234a4d; }
+html[data-theme="light"] #workspace #radio-view.rga-watch { color: #293f4d; color-scheme: light; }
+html[data-theme="light"] #workspace #radio-view.rga-watch h1,html[data-theme="light"] #workspace #radio-view.rga-watch h2,html[data-theme="light"] #workspace #radio-view.rga-watch h3 { color: #1d3d50; }
+html[data-theme="light"] #workspace #radio-view.rga-watch p { color: #526b78; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchBrandMark { border-color: #b6d2d2; background: linear-gradient(145deg,#e1f1ef,#d4e4eb); color: #276368; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchKicker { color: #287c7a !important; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchPrivateLabel { border-color: #bfdcd4; background: #edf8f4; color: #286750; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchAction { border-color: #cad9e0; background: #fff; color: #365768 !important; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchAction:hover { border-color: #8ebeb7; background: #f1f8f6; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchActionPrimary { border-color: #a9d0c3; background: #d8eee5; color: #22584b !important; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchIntro { border-color: #c9dbe1; background: radial-gradient(ellipse at 95% 0%,rgba(44,139,145,.08),transparent 35%),linear-gradient(125deg,#f5fafb,#eaf2f5); }
+html[data-theme="light"] #workspace #radio-view .rgaWatchIntro h2 { color: #1d4055; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchIntro p:not(.rgaWatchOverline) { color: #526d7a; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchSourceBadge { border-color: #d0dfe4; background: rgba(255,255,255,.82); }
+html[data-theme="light"] #workspace #radio-view .rgaWatchSourceBadgeLabel { color: #66808b; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchSourceBadge strong { color: #294b5b; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchSourceBadge p { color: #617985 !important; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchNotice { border-color: #e5d6b7; background: #fffaf0; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchNoticeText strong { color: #674d24; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchNoticeText p { color: #786949; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchMetric,html[data-theme="light"] #workspace #radio-view .rgaWatchPanel { border-color: #d3dfe4; background: linear-gradient(145deg,#fff,#f6f9fa); box-shadow: 0 8px 24px rgba(27,58,74,.055); }
+html[data-theme="light"] #workspace #radio-view .rgaWatchMetricTop { color: #6c828d; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchMetricState { color: #287d6d; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchMetricCode { color: #657f8b; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchPanelHead h2 { color: #234658; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchPanelDescription,html[data-theme="light"] #workspace #radio-view .rgaWatchPanelHead p { color: #627985; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchPanelKicker { color: #287c7a !important; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchPanelBadge { border-color: #c4dfd7; background: #eff8f5; color: #337a68; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchSearch { border-color: #cbd9df; background: #fff; color: #607884; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchSearch input { color: #294754; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchSearch input::placeholder { color: #82949e; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchFilter,html[data-theme="light"] #workspace #radio-view .rgaWatchDateFilter { border-color: #d0dce2; background: #fff; color: #526b77; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchFilter:hover,html[data-theme="light"] #workspace #radio-view .rgaWatchDateFilter:hover { border-color: #99c5c6; background: #f0f8f7; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchFilter.is-active,html[data-theme="light"] #workspace #radio-view .rgaWatchDateFilter.is-active { border-color: #72b3a5; background: #e6f5f0; color: #246a59; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchRefresh { border-color: #add1d1; background: #e4f2f1; color: #28666a; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchClearFilters { border-color: #cbd9df; background: #fff; color: #526b77; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchFeedStatus,html[data-theme="light"] #workspace #radio-view .rgaWatchResultsCount { color: #607884; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchFeedCard { border-color: #d2dfe4; background: #fff; box-shadow: 0 5px 16px rgba(24,59,76,.045); }
+html[data-theme="light"] #workspace #radio-view .rgaWatchFeedTitle { color: #24485b; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchFeedDate { color: #6d8490; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchFeedSummary { color: #546d79; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchKind { border-color: #c8dfe0; background: #edf7f6; color: #286e6c; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchKind-video { border-color: #e4d6bb; background: #fcf6e9; color: #80622e; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchKind-playlist { border-color: #d4cae5; background: #f4f0fa; color: #645487; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchFeedTags span { border-color: #d6e1e6; background: #f3f7f9; color: #536d79; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchOpenLink { color: #176a8e !important; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchRecordId { color: #758b96; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchEmpty { border-color: #d3dfe4; background: #f8fafb; color: #536d79; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchEmpty h3 { color: #28495b; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchSourceRow { border-color: #d8e2e7; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchSourceRow strong { color: #315364; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchSourceRow small { color: #738995; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchSourceStatus { color: #297965; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchQuickLink { border-color: #d3dfe4; background: #fff; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchQuickCopy strong { color: #315364; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchQuickCopy small { color: #6c8490; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchChecklist li { color: #526b77; }
+html[data-theme="light"] #workspace #radio-view .rgaWatchFooter { border-color: #d2dfe4; color: #6d838e; }

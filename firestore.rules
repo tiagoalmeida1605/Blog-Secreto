@@ -2,12 +2,9 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // IMPORTANTE: substitua este texto pelo UID exato da conta proprietária.
-    // Faça isso antes de publicar as regras. Enquanto estiver como placeholder,
-    // nenhuma conta consegue acessar os registros.
     function isOwner() {
       return request.auth != null
-        && request.auth.uid == 'z2oLd0jzSmfHiwYocDE2pJOmVOn2OPRIETARIO';
+        && request.auth.uid == 'z2oLd0jzSmfHiwYocDE2pJOmVOn2';
     }
 
     function validEntry(data) {

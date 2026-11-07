@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --check js/app.js && node --check js/settings.js && node --check js/firebase.js && node --check js/config.js && node --test tests/settings.test.js",
+    "check": "node --check js/app.js && node --check js/settings.js && node --check js/firebase.js && node --check js/config.js && node --check js/markdown.js && node --check js/rga-watch-feed.js && node --check js/github-activity.js && node --check js/nexus-assistant.js && node --check js/nexus-chat-store.js && node --test",
     "test": "node --test"
   }
 }

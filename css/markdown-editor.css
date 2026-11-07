@@ -1,0 +1,48 @@
+.markdown-editor { overflow: hidden; border: 1px solid #2b3a4f; border-radius: 12px; background: #090f18; }
+.markdown-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; padding: 8px; border-bottom: 1px solid #28384d; background: #101a27; }
+.markdown-tool-group { display: flex; align-items: center; gap: 3px; padding-right: 7px; border-right: 1px solid #2a394d; }
+.markdown-tool-group button,.markdown-preview-toggle { display: inline-flex; align-items: center; justify-content: center; min-width: 32px; min-height: 32px; padding: 0 7px; border: 1px solid transparent; border-radius: 7px; background: transparent; color: #b4c5d8; font-size: .75rem; font-weight: 700; }
+.markdown-tool-group button:hover,.markdown-preview-toggle:hover { border-color: #3a5876; background: #1a2b3e; color: #eef7ff; }
+.markdown-tool-group button:focus-visible,.markdown-preview-toggle:focus-visible { outline: 2px solid #69b7ff; outline-offset: 2px; }
+.markdown-preview-toggle { margin-left: auto; padding: 0 10px; border-color: #2e5273; color: #9bd5ff; }
+.markdown-editable,.markdown-preview { min-height: 230px; max-height: min(48vh, 550px); overflow: auto; padding: 17px 18px; color: #e4edf7; font-size: .9rem; line-height: 1.8; overflow-wrap: anywhere; }
+.markdown-editable { outline: none; white-space: pre-wrap; }
+.markdown-editable:empty::before { color: #718198; content: attr(data-placeholder); pointer-events: none; }
+.markdown-editable:focus { box-shadow: inset 0 0 0 2px rgba(67,151,219,.28); }
+.markdown-editable h2,.markdown-preview h2 { margin: 1em 0 .45em; color: #f0f7ff; font: 800 1.35rem/1.35 Manrope,sans-serif; }
+.markdown-editable h3,.markdown-preview h3 { margin: 1em 0 .4em; color: #e7f2ff; font: 750 1.1rem/1.4 Manrope,sans-serif; }
+.markdown-editable p,.markdown-preview p { margin: 0 0 .75em; }
+.markdown-editable blockquote,.markdown-preview blockquote { margin: .8em 0; padding: .2em 0 .2em 14px; border-left: 3px solid #398ed2; color: #a9c1d9; }
+.markdown-editable pre,.markdown-preview pre { overflow: auto; padding: 12px 14px; border: 1px solid #263a50; border-radius: 8px; background: #060b12; color: #cce5ff; font: .82rem/1.65 ui-monospace,SFMono-Regular,Consolas,monospace; white-space: pre-wrap; }
+.markdown-editable code,.markdown-preview code { padding: .12em .35em; border-radius: 4px; background: #182637; color: #b6e3ff; font: .88em ui-monospace,SFMono-Regular,Consolas,monospace; }
+.markdown-editable pre code,.markdown-preview pre code { padding: 0; background: transparent; color: inherit; }
+.markdown-editable a,.markdown-preview a { color: #72c6ff; text-decoration: underline; text-underline-offset: 2px; }
+.markdown-editable ul,.markdown-editable ol,.markdown-preview ul,.markdown-preview ol { padding-left: 1.6em; }
+.markdown-editable hr,.markdown-preview hr { margin: 1.2em 0; border: 0; border-top: 1px solid #344a61; }
+.markdown-editor-meta { display: flex; justify-content: space-between; gap: 12px; padding: 7px 12px; border-top: 1px solid #26384b; color: #8398ae; font-size: .69rem; }
+#editor-dirty[data-dirty="true"] { color: #f0c77c; }
+#entry-content { display: none; }
+.editor-form .editor-foot { justify-content: flex-end; }
+html[data-theme="light"] .markdown-editor { border-color: #c6d5e2; background: #fff; }
+html[data-theme="light"] .markdown-toolbar { border-color: #d7e1e9; background: #f1f6fa; }
+html[data-theme="light"] .markdown-tool-group { border-color: #d4dfe8; }
+html[data-theme="light"] .markdown-tool-group button,html[data-theme="light"] .markdown-preview-toggle { color: #34566f; }
+html[data-theme="light"] .markdown-tool-group button:hover,html[data-theme="light"] .markdown-preview-toggle:hover { border-color: #a9c5d8; background: #e6f1f8; color: #123d5c; }
+html[data-theme="light"] .markdown-editable,html[data-theme="light"] .markdown-preview { color: #293d4d; }
+html[data-theme="light"] .markdown-editable:empty::before { color: #8093a2; }
+html[data-theme="light"] .markdown-editable h2,html[data-theme="light"] .markdown-preview h2,html[data-theme="light"] .markdown-editable h3,html[data-theme="light"] .markdown-preview h3 { color: #183f5c; }
+html[data-theme="light"] .markdown-editable blockquote,html[data-theme="light"] .markdown-preview blockquote { color: #496476; }
+html[data-theme="light"] .markdown-editable pre,html[data-theme="light"] .markdown-preview pre { border-color: #d5e1e9; background: #f1f5f8; color: #273f52; }
+html[data-theme="light"] .markdown-editable code,html[data-theme="light"] .markdown-preview code { background: #eaf1f5; color: #205276; }
+html[data-theme="light"] .markdown-editable pre code,html[data-theme="light"] .markdown-preview pre code { background: transparent; color: inherit; }
+html[data-theme="light"] .markdown-editable a,html[data-theme="light"] .markdown-preview a { color: #0867a1; }
+html[data-theme="light"] .markdown-editable hr,html[data-theme="light"] .markdown-preview hr { border-color: #cbd9e3; }
+html[data-theme="light"] .markdown-editor-meta { border-color: #d7e1e9; color: #607989; }
+html[data-theme="light"] #editor-dirty[data-dirty="true"] { color: #815700; }
+@media(max-width:600px) {
+  .markdown-toolbar { gap: 4px; padding: 6px; }
+  .markdown-tool-group { gap: 1px; padding-right: 4px; }
+  .markdown-tool-group button { min-width: 29px; padding: 0 5px; font-size: .68rem; }
+  .markdown-preview-toggle { min-height: 30px; padding: 0 7px; font-size: .67rem; }
+  .markdown-editable,.markdown-preview { min-height: 190px; max-height: 44vh; padding: 13px; font-size: .86rem; }
+}

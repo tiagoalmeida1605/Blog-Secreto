@@ -103,9 +103,21 @@ Nas páginas públicas, o tema claro/escuro é alternado pelo controlador em `js
 
 O workspace privado em `index.html` tem uma central de configurações própria: tema escuro, claro ou automático; escala de texto; e redução de movimento. Essas preferências são guardadas localmente sob a chave `bs-settings-v1`, não são enviadas ao Firebase e não são sincronizadas na nuvem. O modo automático acompanha mudanças no tema do sistema, e a preferência de movimento reduzido do sistema é sempre respeitada.
 
+## Workspace privado
+
+O workspace em `index.html` mantém os registros pessoais no Cloud Firestore como texto Markdown. A barra de ferramentas do editor oferece formatação visual; a prévia é criada sem inserir HTML fornecido pelo usuário. Os registros antigos em texto puro continuam válidos.
+
+O RGA Dark consulta somente as fontes públicas `noticias` e `playlists` do Firebase Realtime Database, com atualização automática a cada 30 segundos enquanto a página está visível. Pesquisa e filtros são aplicados aos dados em memória. O tema claro e o escuro usam as preferências globais do workspace.
+
+O NEXUS Dev Space inclui GitHub Activity, que consulta apenas endpoints públicos da [GitHub REST API](https://docs.github.com/en/rest/activity/events). A prévia não usa token nem modifica repositórios; o cache temporário fica no navegador e a API pública pode limitar requisições.
+
+O NEXUS Assistant usa Puter.js. As conversas e a preferência do modelo ficam no armazenamento local do navegador; o histórico anterior é copiado durante a migração sem apagar a chave antiga. O contexto do workspace fica desativado por padrão. Para compartilhá-lo, selecione as fontes e registros, revise a prévia e confirme o envio ao serviço externo.
+
 ## Desenvolvimento
 
-Sirva o projeto a partir da raiz do repositório com o comando acima e recarregue a página após alterar os arquivos. `npm run check` verifica a sintaxe dos módulos do workspace e executa os testes das preferências; `npm test` executa a suíte automatizada.
+Sirva o projeto a partir da raiz do repositório com `python3 -m http.server 8000` e recarregue a página após alterar os arquivos. `npm run check` verifica a sintaxe dos módulos do workspace e executa todos os testes; `npm test` também executa a suíte automatizada.
+
+As regras de `firestore.rules` devem usar o mesmo UID proprietário configurado em `js/config.js`; não flexibilize as regras para contornar erros de leitura ou escrita.
 
 ## Contribuição
 

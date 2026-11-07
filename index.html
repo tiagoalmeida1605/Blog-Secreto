@@ -10,8 +10,12 @@
   <link rel="stylesheet" href="./css/app.css">
   <link rel="stylesheet" href="./css/radio-dashboard.css">
   <link rel="stylesheet" href="./css/nexus-assistant.css">
+  <link rel="stylesheet" href="./css/nexus-assistant-v2.css">
+  <link rel="stylesheet" href="./css/markdown-editor.css">
+  <link rel="stylesheet" href="./css/github-activity.css">
   <link rel="stylesheet" href="./css/unified-dark-theme.css">
   <link rel="stylesheet" href="./css/settings.css">
+  <link rel="stylesheet" href="./css/rga-theme.css">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%237b8cff'/%3E%3Cpath d='M20 17h24v6H26v8h16v6H26v10h-6z' fill='%230b0e14'/%3E%3C/svg%3E">
   <script src="https://js.puter.com/v2/"></script>
   <script type="module" src="./js/app.js"></script>
@@ -162,12 +166,18 @@
         </article>
         <article class="rgaWatchMetric rgaWatchMetricVideo">
           <div class="rgaWatchMetricTop"><span class="rgaWatchMetricIndex">SOURCE / 02</span><span class="rgaWatchMetricState">CONECTANDO</span></div>
-          <h3>Vídeos e playlists</h3>
-          <p>Conteúdo audiovisual cadastrado pela equipe da rádio.</p>
+          <h3>Vídeos</h3>
+          <p>Vídeos cadastrados pela equipe da rádio.</p>
+          <span class="rgaWatchMetricCode">RTDB / playlists</span>
+        </article>
+        <article class="rgaWatchMetric rgaWatchMetricPlaylist">
+          <div class="rgaWatchMetricTop"><span class="rgaWatchMetricIndex">SOURCE / 03</span><span class="rgaWatchMetricState">AGUARDANDO</span></div>
+          <h3>Playlists</h3>
+          <p>Playlists públicas encontradas na fonte audiovisual.</p>
           <span class="rgaWatchMetricCode">RTDB / playlists</span>
         </article>
         <article class="rgaWatchMetric rgaWatchMetricSync">
-          <div class="rgaWatchMetricTop"><span class="rgaWatchMetricIndex">SYSTEM / 03</span><span class="rgaWatchMetricState">AGUARDANDO</span></div>
+          <div class="rgaWatchMetricTop"><span class="rgaWatchMetricIndex">SYSTEM / 04</span><span class="rgaWatchMetricState">AGUARDANDO</span></div>
           <h3>Última sincronização</h3>
           <p>Horário atualizado a cada sincronização automática.</p>
           <span class="rgaWatchMetricCode">SYNC / PENDING</span>
@@ -190,10 +200,19 @@
               <div class="rgaWatchFeedControls" role="group" aria-label="Filtrar publicações">
                 <button type="button" class="rgaWatchFilter is-active" data-rga-filter="all" aria-pressed="true">Tudo</button>
                 <button type="button" class="rgaWatchFilter" data-rga-filter="noticia" aria-pressed="false">Notícias</button>
-                <button type="button" class="rgaWatchFilter" data-rga-filter="video" aria-pressed="false">Vídeos e playlists</button>
+                <button type="button" class="rgaWatchFilter" data-rga-filter="video" aria-pressed="false">Vídeos</button>
+                <button type="button" class="rgaWatchFilter" data-rga-filter="playlist" aria-pressed="false">Playlists</button>
               </div>
+              <div class="rgaWatchFeedControls rgaWatchDateControls" role="group" aria-label="Filtrar por período">
+                <button type="button" class="rgaWatchDateFilter is-active" data-rga-date="all" aria-pressed="true">Qualquer data</button>
+                <button type="button" class="rgaWatchDateFilter" data-rga-date="today" aria-pressed="false">Hoje</button>
+                <button type="button" class="rgaWatchDateFilter" data-rga-date="7" aria-pressed="false">7 dias</button>
+                <button type="button" class="rgaWatchDateFilter" data-rga-date="30" aria-pressed="false">30 dias</button>
+              </div>
+              <button type="button" id="rga-watch-clear-filters" class="rgaWatchClearFilters">Limpar filtros</button>
               <button type="button" id="rga-watch-refresh" class="rgaWatchRefresh"><span aria-hidden="true">↻</span> Atualizar agora</button>
             </div>
+            <p id="rga-watch-results-count" class="rgaWatchResultsCount" aria-live="polite">Aguardando publicações…</p>
             <div class="rgaWatchFeedStatus" aria-live="polite"><span id="rga-watch-connection-dot" class="rgaWatchConnectionDot is-loading"></span><span id="rga-watch-feed-status">Conectando ao Firebase…</span><span id="rga-watch-last-sync">Aguardando primeira leitura</span></div>
             <div id="radio-activity-feed" class="rgaWatchFeedGrid" aria-live="polite" aria-busy="true">
               <div class="rgaWatchEmpty"><span class="rgaWatchEmptyGlyph" aria-hidden="true">↻</span><h3>Buscando publicações</h3><p>Consultando as notícias e os vídeos cadastrados pela equipe da RGA.</p></div>
@@ -220,7 +239,7 @@
         <aside class="rgaWatchAsideColumn" aria-label="Ferramentas de desenvolvimento">
           <section class="rgaWatchPanel" aria-labelledby="rga-watch-sources-title">
             <div class="rgaWatchPanelHead">
-              <div><p class="rgaWatchPanelKicker">DATA SOURCES / 03</p><h2 id="rga-watch-sources-title">Fontes mapeadas</h2><p class="rgaWatchPanelDescription">Estrutura existente no site oficial; leitura ainda não ligada a esta tela.</p></div>
+              <div><p class="rgaWatchPanelKicker">DATA SOURCES / 03</p><h2 id="rga-watch-sources-title">Fontes monitoradas</h2><p class="rgaWatchPanelDescription">Estado da leitura somente leitura no Realtime Database.</p></div>
             </div>
             <div class="rgaWatchSourceRows">
               <div class="rgaWatchSourceRow"><div><strong>Notícias</strong><small>Firebase / noticias</small></div><span id="rga-watch-news-source" class="rgaWatchSourceStatus">CONECTANDO</span></div>
@@ -263,6 +282,7 @@
           <button class="nexus-tab" id="nexus-tab-projects" type="button" role="tab" aria-selected="false" aria-controls="nexus-panel-projects" data-nexus-tab="projects">Project Deck</button>
           <button class="nexus-tab" id="nexus-tab-log" type="button" role="tab" aria-selected="false" aria-controls="nexus-panel-log" data-nexus-tab="log">Development Log</button>
           <button class="nexus-tab" id="nexus-tab-ideas" type="button" role="tab" aria-selected="false" aria-controls="nexus-panel-ideas" data-nexus-tab="ideas">Idea Lab</button>
+          <button class="nexus-tab" id="nexus-tab-github" type="button" role="tab" aria-selected="false" aria-controls="nexus-panel-github" data-nexus-tab="github">GitHub Activity</button>
           <button class="nexus-tab" id="nexus-tab-assistant" type="button" role="tab" aria-selected="false" aria-controls="nexus-panel-assistant" data-nexus-tab="assistant"><span class="nxai-tab-mark" aria-hidden="true">✦</span> Assistente</button>
         </nav>
 
@@ -350,7 +370,32 @@
           <aside class="nexus-disclaimer"><span class="nexus-disclaimer-mark" aria-hidden="true">i</span><p><strong>Transparência:</strong> o Idea Lab ainda não salva conteúdo. A funcionalidade de registrar e persistir ideias poderá entrar numa próxima etapa sem misturar ideias do NEXUS com os teus registros pessoais.</p></aside>
         </section>
 
-        
+        <section id="nexus-panel-github" class="nexus-panel-view" role="tabpanel" tabindex="0" aria-labelledby="nexus-tab-github" data-nexus-panel="github" hidden>
+          <div class="github-activity">
+            <header class="github-activity-header">
+              <div><p class="eyebrow">NEXUS / PUBLIC ACTIVITY</p><h2>GitHub Activity</h2><p>Prévia somente leitura da atividade pública de <a href="https://github.com/tiagoalmeida1605" target="_blank" rel="noopener noreferrer">@tiagoalmeida1605 ↗</a></p></div>
+              <div class="github-activity-actions"><span class="github-preview-badge">PRÉVIA FUNCIONAL</span><button id="github-refresh" class="button button-quiet" type="button">↻ Atualizar</button></div>
+            </header>
+            <div id="github-status" class="github-status" role="status" aria-live="polite">Aguardando carregamento público do GitHub…</div>
+            <section class="github-profile-card" aria-label="Perfil GitHub">
+              <img id="github-avatar" alt="" width="58" height="58" hidden>
+              <div><p class="github-label">PERFIL PÚBLICO</p><h3 id="github-name">tiagoalmeida1605</h3><p id="github-bio">Dados fornecidos pela GitHub REST API.</p></div>
+              <div class="github-public-count"><strong id="github-repo-count">—</strong><span>repositórios públicos</span></div>
+            </section>
+            <div class="github-activity-columns">
+              <section class="github-panel" aria-labelledby="github-repos-title">
+                <div class="github-panel-heading"><div><p class="github-label">REPOSITORIES / 01</p><h3 id="github-repos-title">Repositórios recentes</h3></div></div>
+                <div id="github-repositories" class="github-repository-list" aria-live="polite"></div>
+              </section>
+              <section class="github-panel" aria-labelledby="github-events-title">
+                <div class="github-panel-heading"><div><p class="github-label">PUBLIC EVENTS / 02</p><h3 id="github-events-title">Atividade recente</h3></div></div>
+                <div id="github-events" class="github-event-list" aria-live="polite"></div>
+              </section>
+            </div>
+            <p id="github-updated" class="github-updated">Última atualização: aguardando dados</p>
+          </div>
+        </section>
+
         <section id="nexus-panel-assistant" class="nexus-panel-view nexus-assistant-panel" role="tabpanel" tabindex="0" aria-labelledby="nexus-tab-assistant" data-nexus-panel="assistant" hidden>
           <div class="nxai-shell">
             <header class="nxai-header">
@@ -360,8 +405,9 @@
                 <p>Conversa, organização e contexto do seu workspace, sob seu controle.</p>
               </div>
               <div class="nxai-header-actions">
-                <div class="nxai-model-chip"><span class="nxai-model-dot"></span><span><small>MODELO DE TESTE</small><strong>Qwen 3.8 Flash</strong></span></div>
+                <label class="nxai-model-select-label" for="nxai-model"><span>MODELO</span><select id="nxai-model" aria-label="Modelo do assistente"><option value="qwen/qwen3.8-flash">Qwen 3.8 Flash · atual</option><option value="gpt-5.4-nano">GPT-5.4 Nano · Puter default (condições variam)</option></select></label>
                 <button id="nxai-connect" class="nxai-button nxai-button-secondary" type="button">Conectar IA</button>
+                <button id="nxai-new-chat" class="nxai-button nxai-button-secondary" type="button">＋ Nova conversa</button>
                 <button id="nxai-clear" class="nxai-icon-button" type="button" title="Limpar conversa" aria-label="Limpar conversa">⌫</button>
               </div>
             </header>
@@ -373,6 +419,13 @@
 
             <div class="nxai-layout">
               <section class="nxai-chat-panel" aria-label="Conversa com o NEXUS Assistente">
+                <div class="nxai-conversation-bar">
+                  <label for="nxai-conversations">Conversas</label>
+                  <select id="nxai-conversations" aria-label="Selecionar conversa"></select>
+                  <button id="nxai-rename-chat" class="nxai-icon-button" type="button" aria-label="Renomear conversa" title="Renomear conversa">✎</button>
+                  <button id="nxai-delete-chat" class="nxai-icon-button" type="button" aria-label="Excluir conversa" title="Excluir conversa">×</button>
+                  <button id="nxai-export-chat" class="nxai-icon-button" type="button" aria-label="Exportar conversa em Markdown" title="Exportar conversa">↓</button>
+                </div>
                 <div id="nxai-messages" class="nxai-messages" aria-live="polite" aria-relevant="additions text">
                   <div id="nxai-welcome" class="nxai-welcome">
                     <div class="nxai-orb" aria-hidden="true"><span>NX</span><i></i><b></b></div>
@@ -391,8 +444,20 @@
                   <label class="nxai-context-toggle" for="nxai-include-context">
                     <input id="nxai-include-context" type="checkbox">
                     <span class="nxai-toggle-track" aria-hidden="true"></span>
-                    <span><strong>Incluir contexto do site</strong><small>Envia um resumo dos dados que já aparecem nesta página.</small></span>
+                    <span><strong>Incluir contexto selecionado</strong><small>Ative e escolha fontes/registros. Nada é enviado sem confirmação.</small></span>
                   </label>
+                  <div class="nxai-context-options" hidden>
+                    <label><input type="checkbox" data-context-source="library"> Biblioteca pessoal</label>
+                    <label><input type="checkbox" data-context-source="nexus"> NEXUS Dev Space</label>
+                    <label><input type="checkbox" data-context-source="github"> GitHub Activity</label>
+                    <label><input type="checkbox" data-context-source="rga"> RGA Dark</label>
+                    <label class="nxai-entry-selector" for="nxai-context-category">Categoria da biblioteca
+                      <select id="nxai-context-category"><option value="">Não incluir registros por categoria</option><option value="diary">Diário</option><option value="study">Estudos</option><option value="project">Projetos</option><option value="idea">Ideias</option><option value="other">Outros</option></select>
+                    </label>
+                    <label class="nxai-entry-selector" for="nxai-context-entries">Ou escolha registros específicos <select id="nxai-context-entries" multiple size="4" aria-label="Escolher registros pessoais"></select></label>
+                    <button id="nxai-preview-context" class="nxai-refresh-context" type="button">Pré-visualizar conteúdo compartilhado</button>
+                    <pre id="nxai-context-content" class="nxai-context-content" hidden></pre>
+                  </div>
                   <div class="nxai-composer-box">
                     <textarea id="nxai-input" rows="2" maxlength="6000" placeholder="Converse com o NEXUS... (Enter envia · Shift+Enter quebra linha)" aria-label="Mensagem para o NEXUS Assistente" required></textarea>
                     <div class="nxai-composer-bottom"><span id="nxai-char-count">0 / 6000</span><button id="nxai-send" class="nxai-send-button" type="submit"><span>Enviar</span><b aria-hidden="true">↑</b></button></div>
@@ -406,6 +471,7 @@
                 <p class="nxai-side-description">O assistente pode resumir partes do conteúdo que o próprio Blog Secreto já carregou. Esta versão não faz consultas novas nem escreve no Firebase.</p>
                 <div class="nxai-source-card"><div class="nxai-source-icon">▤</div><div><strong>Biblioteca pessoal</strong><small>Firestore carregado pela aplicação</small></div><span id="nxai-entry-count" class="nxai-source-count">0</span></div>
                 <div class="nxai-source-card"><div class="nxai-source-icon nxai-source-icon-blue">⌁</div><div><strong>Dev Space NEXUS</strong><small>Projetos, log e Idea Lab</small></div><span id="nxai-project-count" class="nxai-source-count">0</span></div>
+                <div class="nxai-source-card"><div class="nxai-source-icon nxai-source-icon-blue">GH</div><div><strong>GitHub Activity</strong><small>Dados públicos da API</small></div><span id="nxai-github-count" class="nxai-source-count">0</span></div>
                 <div class="nxai-source-card"><div class="nxai-source-icon nxai-source-icon-teal">◉</div><div><strong>Feed RGA</strong><small>Conteúdo já renderizado, se disponível</small></div><span id="nxai-rga-count" class="nxai-source-count">0</span></div>
                 <div id="nxai-context-preview" class="nxai-context-preview"><span class="nxai-context-preview-dot"></span><p>Contexto desligado. Marque a opção abaixo da conversa para incluir os dados na próxima mensagem.</p></div>
                 <button id="nxai-refresh-context" class="nxai-refresh-context" type="button"><span aria-hidden="true">↻</span> Atualizar resumo do contexto</button>
@@ -490,13 +556,29 @@
         <div><label for="entry-category">Categoria</label><select id="entry-category" name="category"><option value="diary">Diário</option><option value="study">Estudos</option><option value="project">Projetos</option><option value="idea">Ideias</option><option value="other">Outros</option></select></div>
         <div class="check-stack"><label class="check-row" for="entry-favorite"><input id="entry-favorite" name="favorite" type="checkbox"><span>Marcar como favorito</span></label><label class="check-row" for="entry-archived"><input id="entry-archived" name="archived" type="checkbox"><span>Guardar no arquivo</span></label></div>
       </div>
-      <label for="entry-content">Conteúdo</label>
-      <textarea id="entry-content" name="content" rows="12" maxlength="200000" placeholder="Escreva livremente. Seus registros ficam privados..." required></textarea>
-      <div class="editor-foot"><span id="content-count" class="muted">0 caracteres</span><div class="editor-actions"><button id="delete-entry" class="button button-danger" type="button" hidden>Excluir</button><button id="cancel-entry" class="button button-quiet" type="button">Cancelar</button><button id="save-entry" class="button button-primary" type="submit">Salvar registro</button></div></div>
+      <label for="entry-editor">Conteúdo</label>
+      <div class="markdown-editor">
+        <div class="markdown-toolbar" role="toolbar" aria-label="Formatação do registro">
+          <div class="markdown-tool-group" aria-label="Texto"><button type="button" data-editor-command="bold" title="Negrito (Ctrl+B)" aria-label="Negrito"><strong>B</strong></button><button type="button" data-editor-command="italic" title="Itálico (Ctrl+I)" aria-label="Itálico"><em>I</em></button><button type="button" data-editor-command="strikeThrough" title="Tachado" aria-label="Tachado"><s>S</s></button><button type="button" data-editor-command="inline-code" title="Código em linha" aria-label="Código em linha">&lt;/&gt;</button></div>
+          <div class="markdown-tool-group" aria-label="Blocos"><button type="button" data-editor-command="h2" title="Título nível 2" aria-label="Título nível 2">H2</button><button type="button" data-editor-command="h3" title="Título nível 3" aria-label="Título nível 3">H3</button><button type="button" data-editor-command="insertUnorderedList" title="Lista não ordenada" aria-label="Lista não ordenada">• Lista</button><button type="button" data-editor-command="insertOrderedList" title="Lista ordenada" aria-label="Lista ordenada">1. Lista</button><button type="button" data-editor-command="blockquote" title="Citação" aria-label="Citação">❝</button><button type="button" data-editor-command="pre" title="Bloco de código" aria-label="Bloco de código">{ }</button></div>
+          <div class="markdown-tool-group" aria-label="Inserção e histórico"><button type="button" data-editor-command="createLink" title="Inserir link" aria-label="Inserir link">↗</button><button type="button" data-editor-command="insertHorizontalRule" title="Separador horizontal" aria-label="Separador horizontal">―</button><button type="button" data-editor-command="undo" title="Desfazer (Ctrl+Z)" aria-label="Desfazer">↶</button><button type="button" data-editor-command="redo" title="Refazer (Ctrl+Shift+Z)" aria-label="Refazer">↷</button></div>
+          <button id="editor-preview-toggle" class="markdown-preview-toggle" type="button" aria-pressed="false">Pré-visualizar</button>
+        </div>
+        <div id="entry-editor" class="markdown-editable" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Conteúdo do registro em Markdown" aria-required="true" data-placeholder="Escreva livremente. Use a barra para formatar; o conteúdo será salvo como Markdown."></div>
+        <div id="entry-preview" class="markdown-preview" aria-label="Prévia formatada do registro" hidden></div>
+        <textarea id="entry-content" name="content" maxlength="200000" tabindex="-1" aria-hidden="true"></textarea>
+        <div class="markdown-editor-meta"><span id="content-count" class="muted">0 caracteres</span><span id="editor-dirty" role="status" aria-live="polite">Sem alterações pendentes</span></div>
+      </div>
+      <div class="editor-foot"><div class="editor-actions"><button id="delete-entry" class="button button-danger" type="button" hidden>Excluir</button><button id="cancel-entry" class="button button-quiet" type="button">Cancelar</button><button id="save-entry" class="button button-primary" type="submit">Salvar registro</button></div></div>
     </form>
+  </dialog>
+  <dialog id="nxai-context-dialog" class="nxai-context-dialog" aria-labelledby="nxai-context-dialog-title">
+    <div><p class="nxai-eyebrow">COMPARTILHAMENTO EXTERNO</p><h2 id="nxai-context-dialog-title">Revise o contexto antes de enviar</h2><p>Este conteúdo será enviado ao serviço externo Puter para gerar a resposta.</p><pre id="nxai-context-dialog-preview"></pre></div>
+    <div class="nxai-context-dialog-actions"><button id="nxai-context-cancel" class="button button-quiet" type="button">Cancelar</button><button id="nxai-context-confirm" class="button button-primary" type="button">Enviar contexto e pergunta</button></div>
   </dialog>
   <script type="module" src="./js/rga-watch-feed.js"></script>
   <script type="module" src="./js/nexus-assistant.js"></script>
+  <script type="module" src="./js/github-activity.js"></script>
   <script defer src="./js/bs-ui-icons.js"></script>
 </body>
 </html>
