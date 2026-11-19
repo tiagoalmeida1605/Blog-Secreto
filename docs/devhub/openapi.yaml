@@ -1,0 +1,139 @@
+openapi: 3.1.0
+info:
+  title: NEXUS DevHub API
+  version: "1.0.0"
+  description: API privada de leitura para informações técnicas do Blog-Secreto.
+servers:
+  - url: /
+paths:
+  /api/devhub/v1/health:
+    get:
+      summary: Verifica se a API está ativa
+      responses:
+        "200":
+          description: API ativa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+              example:
+                ok: true
+                data: { status: ok }
+                meta:
+                  apiVersion: v1
+                  requestId: "00000000-0000-4000-8000-000000000000"
+                  generatedAt: "2026-11-19T21:00:00.000Z"
+  /api/devhub/v1/services:
+    get:
+      $ref: "#/components/pathItems/PrivateGet"
+  /api/devhub/v1/github:
+    get:
+      $ref: "#/components/pathItems/PrivateGet"
+  /api/devhub/v1/deployments:
+    get:
+      $ref: "#/components/pathItems/PrivateGet"
+  /api/devhub/v1/overview:
+    get:
+      $ref: "#/components/pathItems/PrivateGet"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Firebase ID Token
+  pathItems:
+    PrivateGet:
+      summary: Consulta privada de integração
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Dados de integração
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrivateSuccess"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+        "504":
+          $ref: "#/components/responses/Timeout"
+  responses:
+    Unauthorized:
+      description: Token ausente, inválido ou expirado
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Forbidden:
+      description: UID autenticado não é o proprietário
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unavailable:
+      description: Configuração ou dependência indisponível
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Timeout:
+      description: Dependência não respondeu dentro do timeout
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    Meta:
+      type: object
+      required: [apiVersion, requestId, generatedAt]
+      properties:
+        apiVersion: { type: string, enum: [v1] }
+        requestId: { type: string, format: uuid }
+        generatedAt: { type: string, format: date-time }
+    Success:
+      type: object
+      required: [ok, data, meta]
+      properties:
+        ok: { type: boolean, const: true }
+        data: { type: object }
+        meta: { $ref: "#/components/schemas/Meta" }
+    PrivateSuccess:
+      allOf:
+        - $ref: "#/components/schemas/Success"
+      description: Resposta privada com Cache-Control private, no-store
+    Error:
+      type: object
+      required: [ok, error]
+      properties:
+        ok: { type: boolean, const: false }
+        error:
+          type: object
+          required: [code, message, requestId]
+          properties:
+            code:
+              type: string
+              enum:
+                - UNAUTHENTICATED
+                - INVALID_TOKEN
+                - TOKEN_EXPIRED
+                - FORBIDDEN
+                - AUTH_NOT_CONFIGURED
+                - METHOD_NOT_ALLOWED
+                - GITHUB_HTTP_ERROR
+                - GITHUB_INVALID_RESPONSE
+                - GITHUB_UNAVAILABLE
+                - GITHUB_REPOSITORY_NOT_FOUND
+                - VERCEL_NOT_CONFIGURED
+                - VERCEL_PROJECT_NOT_CONFIGURED
+                - VERCEL_HTTP_ERROR
+                - VERCEL_INVALID_RESPONSE
+                - VERCEL_UNAVAILABLE
+                - DEPENDENCY_RATE_LIMITED
+                - DEPENDENCY_TIMEOUT
+                - INTERNAL_ERROR
+            message: { type: string }
+            requestId: { type: string, format: uuid }
