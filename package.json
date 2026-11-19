@@ -4,10 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --check js/app.js && node --check js/settings.js && node --check js/firebase.js && node --check js/config.js && node --check js/markdown.js && node --check js/rga-watch-feed.js && node --check js/github-activity.js && node --check js/nexus-assistant.js && node --check js/nexus-chat-store.js && node --check api/devhub/v1/*.mjs && node --check lib/devhub/*.mjs && node --test",
+    "check": "node --check js/app.js && node --check js/settings.js && node --check js/firebase.js && node --check js/config.js && node --check js/markdown.js && node --check js/rga-watch-feed.js && node --check js/github-activity.js && node --check js/nexus-assistant.js && node --check js/nexus-chat-store.js && node scripts/check-api-syntax.mjs && node --test",
     "test": "node --test"
   },
   "dependencies": {
     "firebase-admin": "^14.5.1"
+  },
+  "engines": {
+    "node": "24.x"
   }
 }

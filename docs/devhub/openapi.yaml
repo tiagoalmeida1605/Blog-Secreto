@@ -9,32 +9,33 @@ paths:
   /api/devhub/v1/health:
     get:
       summary: Verifica se a API está ativa
+      description: Endpoint público de liveness; não consulta Firebase ou integrações externas.
+      security: []
       responses:
         "200":
           description: API ativa
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Success"
+                $ref: "#/components/schemas/HealthSuccess"
               example:
                 ok: true
-                data: { status: ok }
+                data:
+                  status: ok
                 meta:
                   apiVersion: v1
                   requestId: "00000000-0000-4000-8000-000000000000"
                   generatedAt: "2026-11-19T21:00:00.000Z"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
   /api/devhub/v1/services:
-    get:
-      $ref: "#/components/pathItems/PrivateGet"
+    $ref: "#/components/pathItems/PrivateGet"
   /api/devhub/v1/github:
-    get:
-      $ref: "#/components/pathItems/PrivateGet"
+    $ref: "#/components/pathItems/PrivateGet"
   /api/devhub/v1/deployments:
-    get:
-      $ref: "#/components/pathItems/PrivateGet"
+    $ref: "#/components/pathItems/PrivateGet"
   /api/devhub/v1/overview:
-    get:
-      $ref: "#/components/pathItems/PrivateGet"
+    $ref: "#/components/pathItems/PrivateGet"
 components:
   securitySchemes:
     bearerAuth:
@@ -43,33 +44,98 @@ components:
       bearerFormat: Firebase ID Token
   pathItems:
     PrivateGet:
-      summary: Consulta privada de integração
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Dados de integração
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PrivateSuccess"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "503":
-          $ref: "#/components/responses/Unavailable"
-        "504":
-          $ref: "#/components/responses/Timeout"
+      get:
+        summary: Consulta privada de integração
+        description: Requer um Firebase ID Token válido do proprietário. Consultas externas têm timeout de 5 segundos e limites de até 5 resultados por coleção.
+        security:
+          - bearerAuth: []
+        responses:
+          "200":
+            description: "Dados da integração. Respostas privadas usam Cache-Control: private, no-store."
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/PrivateSuccess"
+                examples:
+                  services:
+                    summary: Estado de serviços
+                    value:
+                      ok: true
+                      data:
+                        name: Rádio Geração Ativa
+                        state: degraded
+                        health:
+                          name: Rádio Geração Ativa
+                          state: operational
+                          httpStatus: 200
+                          responseTimeMs: 84
+                          checkedAt: "2026-11-19T21:00:00.000Z"
+                          message: Serviço disponível.
+                        feed:
+                          name: Rádio Geração Ativa
+                          state: unavailable
+                          httpStatus: 503
+                          responseTimeMs: 103
+                          checkedAt: "2026-11-19T21:00:00.000Z"
+                          message: Serviço respondeu com erro HTTP.
+                      meta:
+                        apiVersion: v1
+                        requestId: "00000000-0000-4000-8000-000000000000"
+                        generatedAt: "2026-11-19T21:00:00.000Z"
+          "401":
+            $ref: "#/components/responses/Unauthorized"
+          "403":
+            $ref: "#/components/responses/Forbidden"
+          "405":
+            $ref: "#/components/responses/MethodNotAllowed"
+          "429":
+            $ref: "#/components/responses/RateLimited"
+          "500":
+            $ref: "#/components/responses/InternalError"
+          "502":
+            $ref: "#/components/responses/BadGateway"
+          "503":
+            $ref: "#/components/responses/Unavailable"
+          "504":
+            $ref: "#/components/responses/Timeout"
   responses:
     Unauthorized:
-      description: Token ausente, inválido ou expirado
+      description: Token ausente, inválido, expirado ou revogado
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
     Forbidden:
       description: UID autenticado não é o proprietário
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    MethodNotAllowed:
+      description: Método HTTP diferente de GET
+      headers:
+        Allow:
+          schema:
+            type: string
+          example: GET
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    RateLimited:
+      description: Limite de requisições informado por uma integração
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    InternalError:
+      description: Erro interno sem detalhes técnicos
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    BadGateway:
+      description: Integração respondeu com erro ou conteúdo inválido
       content:
         application/json:
           schema:
@@ -81,7 +147,7 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
     Timeout:
-      description: Dependência não respondeu dentro do timeout
+      description: Dependência não respondeu dentro do timeout configurado
       content:
         application/json:
           schema:
@@ -91,25 +157,279 @@ components:
       type: object
       required: [apiVersion, requestId, generatedAt]
       properties:
-        apiVersion: { type: string, enum: [v1] }
-        requestId: { type: string, format: uuid }
-        generatedAt: { type: string, format: date-time }
+        apiVersion:
+          type: string
+          const: v1
+        requestId:
+          type: string
+          format: uuid
+        generatedAt:
+          type: string
+          format: date-time
     Success:
       type: object
       required: [ok, data, meta]
       properties:
-        ok: { type: boolean, const: true }
-        data: { type: object }
-        meta: { $ref: "#/components/schemas/Meta" }
+        ok:
+          type: boolean
+          const: true
+        data:
+          type: object
+        meta:
+          $ref: "#/components/schemas/Meta"
+    HealthSuccess:
+      allOf:
+        - $ref: "#/components/schemas/Success"
+        - type: object
+          properties:
+            data:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  const: ok
     PrivateSuccess:
       allOf:
         - $ref: "#/components/schemas/Success"
-      description: Resposta privada com Cache-Control private, no-store
+        - type: object
+          properties:
+            data:
+              oneOf:
+                - $ref: "#/components/schemas/ServicesData"
+                - $ref: "#/components/schemas/GitHubData"
+                - $ref: "#/components/schemas/DeploymentsData"
+                - $ref: "#/components/schemas/OverviewData"
+    ServicesData:
+      type: object
+      required: [name, state]
+      properties:
+        name:
+          type: string
+          examples: [Rádio Geração Ativa]
+        state:
+          $ref: "#/components/schemas/IntegrationState"
+        health:
+          $ref: "#/components/schemas/ServiceCheck"
+        feed:
+          $ref: "#/components/schemas/ServiceCheck"
+    ServiceCheck:
+      type: object
+      required: [name, state, httpStatus, responseTimeMs, checkedAt, message]
+      properties:
+        name:
+          type: string
+        state:
+          $ref: "#/components/schemas/IntegrationState"
+        httpStatus:
+          type: [integer, "null"]
+        responseTimeMs:
+          type: number
+          minimum: 0
+        checkedAt:
+          type: string
+          format: date-time
+        message:
+          type: string
+        newsCount:
+          type: [integer, "null"]
+          minimum: 0
+        videoCount:
+          type: [integer, "null"]
+          minimum: 0
+    GitHubData:
+      type: object
+      required: [state, status, repositories]
+      properties:
+        state:
+          $ref: "#/components/schemas/IntegrationState"
+        status:
+          $ref: "#/components/schemas/IntegrationState"
+        configuredRepositories:
+          type: integer
+          minimum: 0
+        repositories:
+          type: array
+          items:
+            $ref: "#/components/schemas/Repository"
+        failures:
+          type: array
+          items:
+            $ref: "#/components/schemas/IntegrationFailure"
+        message:
+          type: string
+    Repository:
+      type: object
+      required: [repository, name, visibility, defaultBranch, updatedAt, htmlUrl, commits, actions]
+      properties:
+        repository:
+          type: string
+          pattern: "^[A-Za-z0-9-]+/[A-Za-z0-9_.-]+$"
+        name:
+          type: string
+        visibility:
+          type: string
+        defaultBranch:
+          type: [string, "null"]
+        updatedAt:
+          type: [string, "null"]
+          format: date-time
+        htmlUrl:
+          type: [string, "null"]
+          format: uri
+        commits:
+          type: array
+          maxItems: 5
+          items:
+            $ref: "#/components/schemas/Commit"
+        actions:
+          type: array
+          maxItems: 5
+          items:
+            $ref: "#/components/schemas/ActionRun"
+    Commit:
+      type: object
+      required: [sha, message, authoredAt, url]
+      properties:
+        sha:
+          type: [string, "null"]
+        message:
+          type: [string, "null"]
+        authoredAt:
+          type: [string, "null"]
+          format: date-time
+        url:
+          type: [string, "null"]
+          format: uri
+    ActionRun:
+      type: object
+      required: [id, name, status, conclusion, createdAt, updatedAt, url]
+      properties:
+        id:
+          type: [integer, "null"]
+        name:
+          type: [string, "null"]
+        status:
+          type: [string, "null"]
+        conclusion:
+          type: [string, "null"]
+        createdAt:
+          type: [string, "null"]
+          format: date-time
+        updatedAt:
+          type: [string, "null"]
+          format: date-time
+        url:
+          type: [string, "null"]
+          format: uri
+    DeploymentsData:
+      type: object
+      required: [projects]
+      properties:
+        projects:
+          type: array
+          items:
+            anyOf:
+              - $ref: "#/components/schemas/ProjectDeployments"
+              - $ref: "#/components/schemas/UnavailableProjectDeployments"
+    ProjectDeployments:
+      type: object
+      required: [project, deployments]
+      properties:
+        project:
+          type: string
+        deployments:
+          type: array
+          maxItems: 5
+          items:
+            $ref: "#/components/schemas/Deployment"
+    UnavailableProjectDeployments:
+      type: object
+      required: [project, state, deployments, error]
+      properties:
+        project:
+          type: string
+        state:
+          type: string
+          const: unavailable
+        deployments:
+          type: array
+          maxItems: 0
+        error:
+          $ref: "#/components/schemas/IntegrationFailure"
+    Deployment:
+      type: object
+      required: [id, name, environment, state, url, createdAt, readyAt]
+      properties:
+        id:
+          type: [string, integer, "null"]
+        name:
+          type: string
+        environment:
+          type: string
+        state:
+          type: string
+        url:
+          type: [string, "null"]
+          format: uri
+        createdAt:
+          type: [string, "null"]
+          format: date-time
+        readyAt:
+          type: [string, "null"]
+          format: date-time
+    OverviewData:
+      type: object
+      required: [overallState, integrations]
+      properties:
+        overallState:
+          $ref: "#/components/schemas/IntegrationState"
+        integrations:
+          type: object
+          required: [services, github, vercel]
+          properties:
+            services:
+              $ref: "#/components/schemas/ServicesData"
+            github:
+              $ref: "#/components/schemas/GitHubData"
+            vercel:
+              $ref: "#/components/schemas/VercelOverview"
+    VercelOverview:
+      type: object
+      required: [state, status, projects]
+      properties:
+        state:
+          $ref: "#/components/schemas/IntegrationState"
+        status:
+          $ref: "#/components/schemas/IntegrationState"
+        projects:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProjectDeployments"
+        failures:
+          type: array
+          items:
+            $ref: "#/components/schemas/IntegrationFailure"
+        message:
+          type: string
+    IntegrationFailure:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    IntegrationState:
+      type: string
+      enum: [operational, degraded, unavailable, partially_configured]
     Error:
       type: object
       required: [ok, error]
       properties:
-        ok: { type: boolean, const: false }
+        ok:
+          type: boolean
+          const: false
         error:
           type: object
           required: [code, message, requestId]
@@ -135,5 +455,8 @@ components:
                 - DEPENDENCY_RATE_LIMITED
                 - DEPENDENCY_TIMEOUT
                 - INTERNAL_ERROR
-            message: { type: string }
-            requestId: { type: string, format: uuid }
+            message:
+              type: string
+            requestId:
+              type: string
+              format: uuid

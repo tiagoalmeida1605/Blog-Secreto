@@ -2,6 +2,10 @@
 
 A primeira versão da API privada centraliza estado técnico do Blog-Secreto, da Rádio Geração Ativa, do GitHub e da Vercel dentro de Vercel Functions.
 
+## Runtime Vercel
+
+O projeto requer Node.js `24.x` (também declarado em `package.json` e no workflow de CI). No painel da Vercel, selecione Node.js 24.x como runtime do projeto para as Functions. Essa seleção é uma configuração manual do projeto; este repositório não configura nem altera o runtime remoto.
+
 ## Arquitetura
 
 - `api/devhub/v1/` contém os handlers HTTP versionados.
