@@ -107,10 +107,10 @@ Object.defineProperty(window, "blogSecretoContext", {
     },
     getNexusSummary() {
       return [
-        "NEXUS Dev Space: espaço pessoal de desenvolvimento.",
+        "NEXUS Dev Hub: espaço pessoal de desenvolvimento.",
         "NEXUS CLI: versão de referência 0.4.",
         "NEXUS-WEB: em desenvolvimento, sem lançamento anunciado.",
-        "Project Deck, Development Log e Idea Lab são painéis informativos da prévia."
+        "Projetos, Development Log e Idea Lab são painéis informativos da prévia."
       ].join("\n");
     }
   })
@@ -125,13 +125,13 @@ function setNotice(element, message, type = "error") {
 function showSetupRequirements() {
   ui.setupNotice.hidden = false;
   ui.setupNotice.textContent = !isFirebaseConfigured
-    ? "Configuração pendente: crie um projeto Firebase exclusivo para a v2 e preencha v2/js/firebase.js conforme o guia README_V2.md."
-    : "Falta configurar o UID proprietário em v2/js/config.js e colocar o mesmo UID em v2/firestore.rules. Até isso ser feito, o login fica desativado.";
+    ? "Configuração pendente: configure o Firebase do NEXUS Dev Hub antes de entrar."
+    : "Falta configurar o UID proprietário e garantir que ele corresponda às regras do Firestore. Até isso ser feito, o login fica desativado.";
   ui.loginForm.querySelectorAll("input, button").forEach((element) => { element.disabled = true; });
 }
 
 function showLogin() {
-  document.title = "Blog Secreto 2.0";
+  document.title = "NEXUS Dev Hub";
   document.body.classList.remove("nexus-mode", "radio-mode", "settings-mode");
   state.section = "library";
   state.entries = [];
@@ -293,12 +293,12 @@ function switchSection(section) {
   document.body.classList.toggle("radio-mode", nextSection === "radio");
   document.body.classList.toggle("settings-mode", nextSection === "settings");
   document.title = nextSection === "nexus"
-    ? "NEXUS · Dev Space | Blog Secreto 2.0"
+    ? "Visão geral | NEXUS Dev Hub"
     : nextSection === "radio"
-      ? "Rádio Geração Ativa | Blog Secreto 2.0"
+      ? "RGA Monitor | NEXUS Dev Hub"
       : nextSection === "settings"
-        ? "Configurações | Blog Secreto 2.0"
-      : "Blog Secreto 2.0";
+        ? "Configurações | NEXUS Dev Hub"
+      : "NEXUS Dev Hub";
 
   document.querySelectorAll("[data-filter]").forEach((button) => {
     const selected = nextSection === "library" && button.dataset.filter === state.filter;
@@ -654,7 +654,8 @@ function attachEvents() {
   ui.projectHub.addEventListener("keydown", (event) => {
     const focusedTab = event.target.closest(".nexus-tabs [role=tab][data-nexus-tab]");
     if (!focusedTab) return;
-    const tabs = [...document.querySelectorAll(".nexus-tabs [role=tab][data-nexus-tab]")];
+    const tabs = [...document.querySelectorAll(".nexus-tabs [role=tab][data-nexus-tab]")]
+      .filter((tab) => !tab.hidden && !tab.disabled);
     const index = tabs.indexOf(focusedTab);
     let nextIndex = index;
     if (event.key === "ArrowRight") nextIndex = (index + 1) % tabs.length;

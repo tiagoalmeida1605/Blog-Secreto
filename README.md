@@ -1,6 +1,6 @@
-# Blog Secreto
+# NEXUS Dev Hub
 
-Projeto pessoal de experimentação em desenvolvimento web, com páginas públicas para apresentar projetos e um painel administrativo integrado ao Firebase.
+Ambiente privado de desenvolvimento pessoal para centralizar projetos, registros, ideias, atividade do GitHub e ferramentas de desenvolvimento. O frontend do Dev Hub usa HTML, CSS e JavaScript sem framework, com autenticação e dados integrados ao Firebase.
 
 [![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)](https://developer.mozilla.org/docs/Web/HTML)
 [![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)](https://developer.mozilla.org/docs/Web/CSS)
@@ -11,7 +11,7 @@ Projeto pessoal de experimentação em desenvolvimento web, com páginas públic
 
 ## Sobre o projeto
 
-O Blog Secreto funciona como uma área para apresentar projetos e testar recursos web. O foco atual está no catálogo público de projetos e nas ferramentas para administrá-los. Apesar do nome, o código atual não implementa uma plataforma de publicação de artigos.
+O NEXUS Dev Hub é o espaço privado de acompanhamento do ecossistema NEXUS. O repositório também mantém as páginas públicas e ferramentas administrativas existentes; os serviços e integrações do Dev Hub são implementados separadamente para preservar os fluxos já existentes.
 
 ## Funcionalidades
 
@@ -107,7 +107,7 @@ O workspace privado em `index.html` tem uma central de configurações própria:
 
 O workspace em `index.html` mantém os registros pessoais no Cloud Firestore como texto Markdown. A barra de ferramentas do editor oferece formatação visual; a prévia é criada sem inserir HTML fornecido pelo usuário. Os registros antigos em texto puro continuam válidos.
 
-O RGA Dark consulta somente as fontes públicas `noticias` e `playlists` do Firebase Realtime Database, com atualização automática a cada 30 segundos enquanto a página está visível. Pesquisa e filtros são aplicados aos dados em memória. O tema claro e o escuro usam as preferências globais do workspace.
+O RGA Monitor consulta somente as fontes públicas `noticias` e `playlists` do Firebase Realtime Database, com atualização automática a cada 30 segundos enquanto a página está visível. Pesquisa e filtros são aplicados aos dados em memória. O tema claro e o escuro usam as preferências globais do workspace.
 
 O NEXUS Dev Space inclui GitHub Activity, que consulta apenas endpoints públicos da [GitHub REST API](https://docs.github.com/en/rest/activity/events). A prévia não usa token nem modifica repositórios; o cache temporário fica no navegador e a API pública pode limitar requisições.
 

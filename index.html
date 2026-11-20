@@ -4,38 +4,35 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#0b0e14">
+  <meta name="theme-color" content="#06162f">
   <meta name="robots" content="noindex, nofollow, noarchive">
-  <title>Blog Secreto 2.0</title>
+  <title>NEXUS Dev Hub</title>
   <link rel="stylesheet" href="./css/app.css">
   <link rel="stylesheet" href="./css/radio-dashboard.css">
-  <link rel="stylesheet" href="./css/nexus-assistant.css">
-  <link rel="stylesheet" href="./css/nexus-assistant-v2.css">
   <link rel="stylesheet" href="./css/markdown-editor.css">
   <link rel="stylesheet" href="./css/github-activity.css">
-  <link rel="stylesheet" href="./css/unified-dark-theme.css">
   <link rel="stylesheet" href="./css/settings.css">
   <link rel="stylesheet" href="./css/rga-theme.css">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%237b8cff'/%3E%3Cpath d='M20 17h24v6H26v8h16v6H26v10h-6z' fill='%230b0e14'/%3E%3C/svg%3E">
-  <script src="https://js.puter.com/v2/"></script>
+  <link rel="stylesheet" href="./css/unified-dark-theme.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23001b44'/%3E%3Cpath d='M16 15h13c13 0 21 7 21 17S42 49 29 49H16V15zm11 8v18h3c7 0 11-3 11-9s-4-9-11-9h-3z' fill='%2300a8ff'/%3E%3C/svg%3E">
   <script type="module" src="./js/app.js"></script>
 </head>
 <body>
   <main id="login-screen" class="auth-screen">
     <section class="auth-intro" aria-labelledby="brand-title">
-      <div class="brand-mark" aria-hidden="true">BS</div>
-      <p class="eyebrow">ESPAÇO PESSOAL · ACESSO RESTRITO</p>
-      <h1 id="brand-title">Blog <span>Secreto</span></h1>
-      <p class="intro-copy">Um lugar só seu para guardar ideias, organizar estudos, registrar projetos e escrever sem plateia.</p>
-      <div class="intro-tiles" aria-label="Tipos de registro">
-        <span>Diário</span><span>Estudos</span><span>Projetos</span><span>Ideias</span>
+      <div class="brand-mark" aria-hidden="true">NX</div>
+      <p class="eyebrow">NEXUS DEV HUB · AMBIENTE PRIVADO</p>
+      <h1 id="brand-title">NEXUS <span>Dev Hub</span></h1>
+      <p class="intro-copy">Seu centro de controle privado para projetos, integrações, atividade de desenvolvimento e ferramentas pessoais.</p>
+      <div class="intro-tiles" aria-label="Áreas do workspace">
+        <span>PROJECTS</span><span>DEV LOG</span><span>GITHUB</span><span>INTEGRATIONS</span>
       </div>
-      <p class="privacy-note"><span class="privacy-dot" aria-hidden="true"></span> Conteúdo protegido por autenticação e regras do banco de dados.</p>
+      <p class="privacy-note"><span class="privacy-dot" aria-hidden="true"></span> Workspace privado, protegido por autenticação e regras de acesso.</p>
     </section>
 
     <section class="auth-panel" aria-labelledby="login-title">
-      <div class="panel-kicker">SESSÃO PRIVADA</div>
-      <h2 id="login-title">Entrar no seu espaço</h2>
+      <div class="panel-kicker">AUTH / PRIVATE WORKSPACE</div>
+      <h2 id="login-title">Acessar o workspace</h2>
       <p class="muted">Use a conta proprietária configurada no Firebase.</p>
 
       <div id="setup-notice" class="notice notice-warn" role="status" hidden></div>
@@ -48,20 +45,20 @@
         <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Sua senha" required>
         <button id="login-submit" class="button button-primary button-wide" type="submit">Entrar <span aria-hidden="true">↗</span></button>
       </form>
-      <p class="auth-footnote">Não existe cadastro público nem página pública de publicações.</p>
+      <p class="auth-footnote">Acesso restrito ao proprietário. Não há cadastro público.</p>
     </section>
   </main>
 
   <div id="workspace" class="app-shell" hidden>
     <aside class="sidebar">
-      <a class="sidebar-brand" href="#inicio" aria-label="Blog Secreto, início">
-        <span class="brand-mark brand-mark-small" aria-hidden="true">BS</span>
-        <span><strong>Blog Secreto</strong><small>WORKSPACE PESSOAL</small></span>
+      <a class="sidebar-brand" href="#workspace" aria-label="NEXUS Dev Hub, início">
+        <span class="brand-mark brand-mark-small" aria-hidden="true">NX</span>
+        <span><strong>NEXUS Dev Hub</strong><small>PRIVATE WORKSPACE</small></span>
       </a>
 
       <button id="new-entry-sidebar" class="button button-primary new-entry-button" type="button"><span aria-hidden="true">＋</span> Novo registro</button>
 
-      <p class="nav-label">BIBLIOTECA</p>
+      <p class="nav-label">REGISTROS</p>
       <nav id="main-nav" class="main-nav" aria-label="Filtrar registros">
         <button class="nav-item active" data-filter="all" type="button"><span class="nav-symbol">▦</span><span>Todos os registros</span><span id="count-all" class="nav-count">0</span></button>
         <button class="nav-item" data-filter="diary" type="button"><span class="nav-symbol">▤</span><span>Diário</span></button>
@@ -71,10 +68,10 @@
         <button class="nav-item" data-filter="other" type="button"><span class="nav-symbol">···</span><span>Outros</span></button>
       </nav>
 
-      <p class="nav-label nav-label-spaced">PROJETO</p>
+      <p class="nav-label nav-label-spaced">WORKSPACE</p>
       <nav class="main-nav project-navigation" aria-label="Projetos em desenvolvimento">
-        <button id="nexus-nav" class="nav-item" data-view="nexus" type="button" aria-pressed="false"><span class="nav-symbol">⌁</span><span>NEXUS</span><span class="nav-count nexus-nav-state">DEV</span></button>
-        <button id="radio-nav" class="nav-item" data-view="radio" type="button" aria-pressed="false"><span class="nav-symbol" aria-hidden="true">◉</span><span>Rádio</span><span class="nav-count">RGA</span></button>
+        <button id="nexus-nav" class="nav-item" data-view="nexus" type="button" aria-pressed="false"><span class="nav-symbol">⌁</span><span>Visão geral</span><span class="nav-count nexus-nav-state">NX</span></button>
+        <button id="radio-nav" class="nav-item" data-view="radio" type="button" aria-pressed="false"><span class="nav-symbol" aria-hidden="true">◉</span><span>RGA Monitor</span><span class="nav-count">LIVE</span></button>
       </nav>
 
       <p class="nav-label nav-label-spaced">ORGANIZAÇÃO</p>
@@ -85,7 +82,7 @@
       </nav>
 
       <div class="sidebar-bottom">
-        <div class="privacy-card"><span class="privacy-card-icon" aria-hidden="true">◈</span><div><strong>Seu espaço, suas regras</strong><p>Os registros não são públicos.</p></div></div>
+        <div class="privacy-card"><span class="privacy-card-icon" aria-hidden="true">◈</span><div><strong>Private by default</strong><p>Os dados do workspace não são públicos.</p></div></div>
         <button id="logout-button" class="nav-item logout-button" type="button"><span class="nav-symbol">↪</span><span>Sair da sessão</span></button>
       </div>
     </aside>
@@ -94,9 +91,9 @@
       <div id="library-view">
       <header class="topbar">
         <div class="topbar-copy">
-          <p class="eyebrow">SEU ARQUIVO PESSOAL</p>
+          <p class="eyebrow">WORKSPACE / REGISTROS</p>
           <h1 id="page-title">Todos os registros</h1>
-          <p id="page-subtitle" class="muted">Um espaço organizado para o que passa pela sua cabeça.</p>
+          <p id="page-subtitle" class="muted">Notas e registros pessoais do seu ambiente de desenvolvimento.</p>
         </div>
         <div class="topbar-actions">
           <label class="search-box" for="search-input"><span aria-hidden="true">⌕</span><input id="search-input" type="search" placeholder="Buscar nos registros..." autocomplete="off"><kbd>/</kbd></label>
@@ -116,7 +113,7 @@
         <div class="section-heading"><div><p class="eyebrow">BIBLIOTECA</p><h2 id="entries-heading">Seus registros</h2></div><span id="visible-count" class="muted count-label">0 registros</span></div>
         <div id="entry-list" class="entry-grid" aria-live="polite" aria-busy="false"></div>
       </section>
-      <footer class="app-footer"><span>Blog Secreto 2.0</span><span>Privado por padrão · Seus dados continuam seus</span></footer>
+      <footer class="app-footer"><span>NEXUS DEV HUB</span><span>Privado por padrão · Seus dados continuam seus</span></footer>
       </div>
 
             <section id="radio-view" class="radio-hub rga-watch" aria-labelledby="radio-title" hidden>
@@ -125,7 +122,7 @@
           <span class="rgaWatchBrandMark" aria-hidden="true">RGA</span>
           <div>
             <p class="rgaWatchKicker">RÁDIO GERAÇÃO ATIVA <span aria-hidden="true">/</span> DEV MONITOR</p>
-            <h1 id="radio-title">RGA Dark</h1>
+            <h1 id="radio-title">RGA Monitor</h1>
             <p class="rgaWatchBrandSummary">Seu painel pessoal para acompanhar o que a equipe publica.</p>
           </div>
         </div>
@@ -262,28 +259,28 @@
         </aside>
       </div>
 
-      <footer class="rgaWatchFooter"><span><strong>RGA DARK</strong> / CONTENT OPS</span><span>MONITORAMENTO SOMENTE LEITURA · ATUALIZAÇÃO AUTOMÁTICA</span></footer>
+      <footer class="rgaWatchFooter"><span><strong>RGA MONITOR</strong> / CONTENT OPS</span><span>MONITORAMENTO SOMENTE LEITURA · ATUALIZAÇÃO AUTOMÁTICA</span></footer>
     </section>
 
       <section id="project-hub" class="project-hub nexus-space" aria-labelledby="nexus-title" hidden>
         <header class="nexus-workspace-header">
           <div class="nexus-breadcrumbs">
-            <p class="eyebrow">NEXUS <span aria-hidden="true">/</span> DEV SPACE</p>
-            <p class="nexus-workspace-caption">Seu ambiente pessoal de desenvolvimento.</p>
+            <p class="eyebrow">NEXUS <span aria-hidden="true">/</span> DEV HUB</p>
+            <p class="nexus-workspace-caption">Seu centro de controle pessoal de desenvolvimento.</p>
           </div>
           <div class="nexus-header-actions">
             <span class="nexus-private-chip"><span aria-hidden="true"></span> AMBIENTE PRIVADO</span>
-            <button id="back-to-library" class="button button-quiet nexus-back-button" type="button">← Blog Secreto</button>
+            <button id="back-to-library" class="button button-quiet nexus-back-button" type="button">← Registros</button>
           </div>
         </header>
 
         <nav class="nexus-tabs" aria-label="Seções do NEXUS" role="tablist">
           <button class="nexus-tab is-active" id="nexus-tab-overview" type="button" role="tab" aria-selected="true" aria-controls="nexus-panel-overview" data-nexus-tab="overview">Visão geral</button>
-          <button class="nexus-tab" id="nexus-tab-projects" type="button" role="tab" aria-selected="false" aria-controls="nexus-panel-projects" data-nexus-tab="projects">Project Deck</button>
+          <button class="nexus-tab" id="nexus-tab-projects" type="button" role="tab" aria-selected="false" aria-controls="nexus-panel-projects" data-nexus-tab="projects">Projetos</button>
           <button class="nexus-tab" id="nexus-tab-log" type="button" role="tab" aria-selected="false" aria-controls="nexus-panel-log" data-nexus-tab="log">Development Log</button>
           <button class="nexus-tab" id="nexus-tab-ideas" type="button" role="tab" aria-selected="false" aria-controls="nexus-panel-ideas" data-nexus-tab="ideas">Idea Lab</button>
           <button class="nexus-tab" id="nexus-tab-github" type="button" role="tab" aria-selected="false" aria-controls="nexus-panel-github" data-nexus-tab="github">GitHub Activity</button>
-          <button class="nexus-tab" id="nexus-tab-assistant" type="button" role="tab" aria-selected="false" aria-controls="nexus-panel-assistant" data-nexus-tab="assistant"><span class="nxai-tab-mark" aria-hidden="true">✦</span> Assistente</button>
+          <button class="nexus-tab" id="nexus-tab-assistant" type="button" role="tab" aria-selected="false" aria-controls="nexus-panel-assistant" data-nexus-tab="assistant" hidden><span class="nxai-tab-mark" aria-hidden="true">✦</span> Assistente</button>
         </nav>
 
         <section id="nexus-panel-overview" class="nexus-panel-view" role="tabpanel" tabindex="0" aria-labelledby="nexus-tab-overview" data-nexus-panel="overview">
@@ -295,11 +292,11 @@
                 <span class="nexus-preview-label">Prévia interna</span>
               </div>
               <p class="eyebrow nexus-kicker">NETWORKED EXECUTIVE INTELLIGENCE SYSTEM</p>
-              <h1 id="nexus-title">NEXUS<span class="nexus-title-mark"> / </span><span class="nexus-title-sub">Personal Development Environment</span></h1>
-              <p class="nexus-summary">Seu espaço para acompanhar projetos, registrar avanços, organizar ideias técnicas e construir o ecossistema NEXUS. Esta área tem identidade própria, mas continua dentro da sessão privada do Blog Secreto.</p>
+              <h1 id="nexus-title">NEXUS<span class="nexus-title-mark"> / </span><span class="nexus-title-sub">Dev Hub</span></h1>
+              <p class="nexus-summary">Seu espaço para acompanhar projetos, registrar avanços, organizar ideias técnicas e construir o ecossistema NEXUS Dev Hub.</p>
               <div class="nexus-hero-actions">
                 <a class="button button-primary nexus-repo-link" href="https://github.com/tiagoalmeida1605/NEXUS-WEB" target="_blank" rel="noopener noreferrer">Abrir repositório NEXUS-WEB <span aria-hidden="true">↗</span></a>
-                <span class="nexus-private-note">NEXUS BLUE DARK <span aria-hidden="true">·</span> BUILD DE PRÉVIA</span>
+                <span class="nexus-private-note">NEXUS BLUE <span aria-hidden="true">·</span> BUILD DE PRÉVIA</span>
               </div>
             </div>
             <aside class="nexus-status-panel" aria-label="Estado do projeto">
@@ -320,7 +317,7 @@
                 <div class="nexus-card-topline"><span class="nexus-card-index">01</span><span class="nexus-mini-status status-baseline">Base existente</span></div>
                 <p class="nexus-card-label">TERMINAL / CORE</p><h3>NEXUS CLI</h3>
                 <p>A base do assistente no terminal. A versão 0.4 é o marco de referência registrado para o núcleo CLI.</p>
-                <button class="nexus-inline-action" type="button" data-nexus-tab="projects">Ver Project Deck <span aria-hidden="true">→</span></button>
+                <button class="nexus-inline-action" type="button" data-nexus-tab="projects">Ver projetos <span aria-hidden="true">→</span></button>
               </article>
               <article class="nexus-overview-card">
                 <div class="nexus-card-topline"><span class="nexus-card-index">02</span><span class="nexus-mini-status status-active">Em desenvolvimento</span></div>
@@ -341,7 +338,7 @@
         </section>
 
         <section id="nexus-panel-projects" class="nexus-panel-view" role="tabpanel" tabindex="0" aria-labelledby="nexus-tab-projects" data-nexus-panel="projects" hidden>
-          <div class="nexus-page-heading"><div><p class="eyebrow">02 / PROJECT DECK</p><h2>Projetos e frentes</h2><p>Uma lista própria do teu espaço Dev, separada dos registros pessoais.</p></div><span class="nexus-count-chip">03 ENTRADAS</span></div>
+          <div class="nexus-page-heading"><div><p class="eyebrow">02 / PROJECTS</p><h2>Projetos e frentes</h2><p>Uma lista própria do teu espaço Dev, separada dos registros pessoais.</p></div><span class="nexus-count-chip">03 ENTRADAS</span></div>
           <div class="nexus-project-grid">
             <article class="nexus-project-card"><div class="nexus-project-card-heading"><span class="nexus-project-glyph" aria-hidden="true">CLI</span><span class="nexus-mini-status status-baseline">Base existente</span></div><p class="nexus-card-label">TERMINAL</p><h3>NEXUS CLI</h3><p>Assistente pessoal em terminal. A versão 0.4 é o marco de referência conhecido.</p><div class="nexus-project-meta"><span>Versão de referência</span><strong>0.4</strong></div></article>
             <article class="nexus-project-card"><div class="nexus-project-card-heading"><span class="nexus-project-glyph" aria-hidden="true">WEB</span><span class="nexus-mini-status status-active">Em desenvolvimento</span></div><p class="nexus-card-label">INTERFACE WEB</p><h3>NEXUS-WEB</h3><p>Espaço web do ecossistema. A experiência segue em construção e não é apresentada como versão final.</p><div class="nexus-project-meta"><a href="https://github.com/tiagoalmeida1605/NEXUS-WEB" target="_blank" rel="noopener noreferrer">Repositório no GitHub ↗</a><strong>DEV</strong></div></article>
@@ -431,11 +428,11 @@
                     <div class="nxai-orb" aria-hidden="true"><span>NX</span><i></i><b></b></div>
                     <p class="nxai-eyebrow">ASSISTENTE DO WORKSPACE</p>
                     <h3>Por onde começamos?</h3>
-                    <p>Posso ajudar a pensar nos seus projetos, organizar ideias ou analisar o conteúdo do Blog Secreto que você decidir compartilhar com a conversa.</p>
+                    <p>Posso ajudar a pensar nos seus projetos, organizar ideias ou analisar o conteúdo do workspace que você decidir compartilhar com a conversa.</p>
                     <div class="nxai-prompts" aria-label="Sugestões de conversa">
                       <button type="button" class="nxai-prompt" data-nxai-prompt="Me ajude a organizar minhas prioridades de desenvolvimento."><span>01</span><span><strong>Organizar prioridades</strong><small>Planejar o próximo passo</small></span><b aria-hidden="true">↗</b></button>
                       <button type="button" class="nxai-prompt" data-nxai-prompt="Explique como você poderia me ajudar a usar melhor esta área NEXUS."><span>02</span><span><strong>Conhecer o NEXUS</strong><small>Explorar este workspace</small></span><b aria-hidden="true">↗</b></button>
-                      <button type="button" class="nxai-prompt" data-nxai-prompt="Me ajude a resumir e organizar os registros do meu Blog Secreto."><span>03</span><span><strong>Revisar meus registros</strong><small>Usa contexto somente se eu permitir</small></span><b aria-hidden="true">↗</b></button>
+                      <button type="button" class="nxai-prompt" data-nxai-prompt="Me ajude a resumir e organizar os registros do meu workspace."><span>03</span><span><strong>Revisar meus registros</strong><small>Usa contexto somente se eu permitir</small></span><b aria-hidden="true">↗</b></button>
                     </div>
                   </div>
                 </div>
@@ -450,7 +447,7 @@
                     <label><input type="checkbox" data-context-source="library"> Biblioteca pessoal</label>
                     <label><input type="checkbox" data-context-source="nexus"> NEXUS Dev Space</label>
                     <label><input type="checkbox" data-context-source="github"> GitHub Activity</label>
-                    <label><input type="checkbox" data-context-source="rga"> RGA Dark</label>
+                    <label><input type="checkbox" data-context-source="rga"> RGA Monitor</label>
                     <label class="nxai-entry-selector" for="nxai-context-category">Categoria da biblioteca
                       <select id="nxai-context-category"><option value="">Não incluir registros por categoria</option><option value="diary">Diário</option><option value="study">Estudos</option><option value="project">Projetos</option><option value="idea">Ideias</option><option value="other">Outros</option></select>
                     </label>
@@ -468,7 +465,7 @@
 
               <aside class="nxai-context-panel" aria-label="Contexto e fontes do site">
                 <div class="nxai-side-heading"><div><p class="nxai-eyebrow">SITE CONTEXT / 01</p><h3>Contexto do workspace</h3></div><span class="nxai-readonly-pill">SOMENTE LEITURA</span></div>
-                <p class="nxai-side-description">O assistente pode resumir partes do conteúdo que o próprio Blog Secreto já carregou. Esta versão não faz consultas novas nem escreve no Firebase.</p>
+                <p class="nxai-side-description">O assistente pode resumir partes do conteúdo que o próprio workspace já carregou. Esta versão não faz consultas novas nem escreve no Firebase.</p>
                 <div class="nxai-source-card"><div class="nxai-source-icon">▤</div><div><strong>Biblioteca pessoal</strong><small>Firestore carregado pela aplicação</small></div><span id="nxai-entry-count" class="nxai-source-count">0</span></div>
                 <div class="nxai-source-card"><div class="nxai-source-icon nxai-source-icon-blue">⌁</div><div><strong>Dev Space NEXUS</strong><small>Projetos, log e Idea Lab</small></div><span id="nxai-project-count" class="nxai-source-count">0</span></div>
                 <div class="nxai-source-card"><div class="nxai-source-icon nxai-source-icon-blue">GH</div><div><strong>GitHub Activity</strong><small>Dados públicos da API</small></div><span id="nxai-github-count" class="nxai-source-count">0</span></div>
@@ -481,7 +478,7 @@
           </div>
         </section>
 
-        <footer class="nexus-footer"><span><strong>NEXUS BLUE DARK</strong><span aria-hidden="true"> / </span> DEV SPACE</span><span>PRÉVIA PRIVADA <span aria-hidden="true">·</span> EM DESENVOLVIMENTO</span></footer>
+        <footer class="nexus-footer"><span><strong>NEXUS DEV HUB</strong><span aria-hidden="true"> / </span> PRIVATE WORKSPACE</span><span>PRÉVIA PRIVADA <span aria-hidden="true">·</span> EM DESENVOLVIMENTO</span></footer>
       </section>
 
       <section id="settings-view" class="settings-view" aria-labelledby="settings-title" hidden>
@@ -577,7 +574,6 @@
     <div class="nxai-context-dialog-actions"><button id="nxai-context-cancel" class="button button-quiet" type="button">Cancelar</button><button id="nxai-context-confirm" class="button button-primary" type="button">Enviar contexto e pergunta</button></div>
   </dialog>
   <script type="module" src="./js/rga-watch-feed.js"></script>
-  <script type="module" src="./js/nexus-assistant.js"></script>
   <script type="module" src="./js/github-activity.js"></script>
   <script defer src="./js/bs-ui-icons.js"></script>
 </body>
