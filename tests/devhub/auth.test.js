@@ -1,7 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { generateKeyPairSync } from "node:crypto";
 import { requireDevHubOwner, verifyDevHubOwnerToken } from "../../lib/devhub/auth.mjs";
 import { DevHubError } from "../../lib/devhub/errors.mjs";
+
+const { privateKey } = generateKeyPairSync("rsa", {
+  modulusLength: 2048,
+  privateKeyEncoding: { type: "pkcs8", format: "pem" },
+  publicKeyEncoding: { type: "spki", format: "pem" }
+});
 
 const config = {
   ownerUid: "owner-uid",
@@ -9,7 +16,7 @@ const config = {
   serviceAccountJson: JSON.stringify({
     project_id: "blog-secretov2",
     client_email: "service@example.invalid",
-    private_key: "not-a-real-key"
+    private_key: privateKey
   }),
   checkRevocation: true
 };
@@ -33,6 +40,44 @@ test("devhub auth rejects missing and invalid Firebase configuration with generi
     () => verifyDevHubOwnerToken("token", { ...config, serviceAccountJson: "{}" }),
     (error) => error.status === 503 && error.code === "INVALID_SERVICE_ACCOUNT_CONFIG"
   );
+  await assert.rejects(
+    () => verifyDevHubOwnerToken("token", {
+      ...config,
+      serviceAccountJson: JSON.stringify({
+        project_id: "blog-secretov2",
+        client_email: "service@example.invalid",
+        private_key: "not-a-valid-pem"
+      })
+    }),
+    (error) => error.status === 503
+      && error.code === "INVALID_SERVICE_ACCOUNT_PRIVATE_KEY"
+      && !error.message.includes("not-a-valid-pem")
+  );
+});
+
+test("devhub auth accepts a valid RSA private key", async () => {
+  const result = await verifyDevHubOwnerToken("token", config, async () => ({ uid: "owner-uid" }));
+  assert.deepEqual(result, { uid: "owner-uid" });
+});
+
+test("devhub auth rejects a valid non-RSA private key", async () => {
+  const { privateKey: ecPrivateKey } = generateKeyPairSync("ec", {
+    namedCurve: "prime256v1",
+    privateKeyEncoding: { type: "pkcs8", format: "pem" },
+    publicKeyEncoding: { type: "spki", format: "pem" }
+  });
+  const nonRsaConfig = {
+    ...config,
+    serviceAccountJson: JSON.stringify({
+      project_id: "blog-secretov2",
+      client_email: "service@example.invalid",
+      private_key: ecPrivateKey
+    })
+  };
+  await assert.rejects(
+    () => verifyDevHubOwnerToken("token", nonRsaConfig, async () => ({ uid: "owner-uid" })),
+    (error) => error.status === 503 && error.code === "INVALID_SERVICE_ACCOUNT_PRIVATE_KEY"
+  );
 });
 
 test("devhub auth rejects a service account from a different Firebase project", async () => {
@@ -41,7 +86,7 @@ test("devhub auth rejects a service account from a different Firebase project", 
     serviceAccountJson: JSON.stringify({
       project_id: "another-project",
       client_email: "service@example.invalid",
-      private_key: "not-a-real-key"
+      private_key: privateKey
     })
   };
   await assert.rejects(
@@ -61,6 +106,36 @@ test("devhub auth reports Firebase Admin credential initialization errors as gen
 });
 
 test("devhub auth reports unexpected Firebase Admin initialization errors as generic 503", async () => {
+  const originalConsoleError = console.error;
+  let logEntry;
+  console.error = (message) => { logEntry = JSON.parse(message); };
+  try {
+    await assert.rejects(
+      () => verifyDevHubOwnerToken("token", config, null, () => {
+        const error = new Error("sensitive credential detail");
+        error.code = "ERR_OSSL_UNSUPPORTED";
+        error.cause = { code: "ERR_OSSL_BAD_DECRYPT" };
+        throw error;
+      }),
+      (error) => error.status === 503
+        && error.code === "FIREBASE_ADMIN_INITIALIZATION_FAILED"
+        && !error.message.includes("sensitive")
+    );
+  } finally {
+    console.error = originalConsoleError;
+  }
+
+  assert.deepEqual(logEntry, {
+    event: "firebase_admin_initialization_failed",
+    errorName: "Error",
+    errorCode: "ERR_OSSL_UNSUPPORTED",
+    causeCode: "ERR_OSSL_BAD_DECRYPT"
+  });
+  assert.equal(JSON.stringify(logEntry).includes("sensitive"), false);
+  assert.equal(JSON.stringify(logEntry).includes(privateKey), false);
+});
+
+test("devhub auth hides unexpected Firebase Admin initialization details", async () => {
   await assert.rejects(
     () => verifyDevHubOwnerToken("token", config, null, () => { throw new Error("sensitive credential detail"); }),
     (error) => error.status === 503
