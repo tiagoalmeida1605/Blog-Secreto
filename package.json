@@ -10,6 +10,11 @@
   "dependencies": {
     "firebase-admin": "^14.5.1"
   },
+  "overrides": {
+    "jwks-rsa": {
+      "jose": "5.10.0"
+    }
+  },
   "engines": {
     "node": "24.x"
   }
