@@ -35,7 +35,9 @@ export function AdminPage() {
   useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: light)");
     const applyTheme = () => {
-      document.documentElement.dataset.theme = theme === "system" ? media.matches ? "light" : "dark" : theme;
+      const activeTheme = theme === "system" ? media.matches ? "light" : "dark" : theme;
+      document.documentElement.dataset.theme = activeTheme;
+      document.querySelector('meta[name="theme-color"]')?.setAttribute("content", activeTheme === "light" ? "#edf4fa" : "#06162f");
     };
     applyTheme();
     if (theme === "system") media.addEventListener("change", applyTheme);

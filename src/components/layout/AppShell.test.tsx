@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
@@ -40,11 +40,20 @@ describe("AppShell", () => {
     );
 
     expect(await screen.findByText("Dashboard content")).toBeInTheDocument();
+    const logo = screen.getByRole("img", { name: "NEXUS Dev Hub" });
+    expect(logo).toHaveStyle({ width: "205px" });
+    expect([...logo.querySelectorAll("img")].map((image) => image.getAttribute("src"))).toEqual([
+      "/assets/nexus-dev-hub-horizontal-light.png",
+      "/assets/nexus-dev-hub-horizontal-dark.png",
+    ]);
     expect(screen.getByRole("link", { name: /Projects/ })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /GitHub Activity/ })).toBeInTheDocument();
     expect(screen.getByText("Development Log").closest("a")).toBeNull();
     expect(screen.getByText("Idea Lab").closest("a")).toBeNull();
     expect(screen.getAllByText("FUTURE")).toHaveLength(2);
     expect(screen.queryByText(/NEXUS AI/)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Recolher navegação" }));
+    expect(screen.getByRole("img", { name: "NEXUS Dev Hub" })).toHaveStyle({ width: "40px" });
   });
 });

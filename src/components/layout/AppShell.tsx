@@ -23,6 +23,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../../features/auth/AuthProvider";
 import { api } from "../../services/api";
 import { StateBadge } from "../feedback/StateBadge";
+import { BrandLogo } from "../BrandLogo";
 import { INTEGRATION_MODULES, type IntegrationModule } from "../../types/devhub";
 
 const navigation = [
@@ -47,7 +48,7 @@ export function AppShell() {
   const overview = useQuery({ queryKey: ["overview"], queryFn: api.getOverview });
   const settings = useQuery({ queryKey: ["settings"], queryFn: api.getSettings, enabled: Boolean(user) });
   const sectionName = sectionNames[location.pathname] || "Dashboard";
-  const initials = (user?.displayName || user?.email || "NX").slice(0, 2).toUpperCase();
+  const initials = (user?.displayName || user?.email || "OW").slice(0, 2).toUpperCase();
   const visibleIntegrations = settings.data?.visibleIntegrations || [...INTEGRATION_MODULES];
   const visibleNavigation = navigation.filter(({ integration }) => !integration || visibleIntegrations.includes(integration as IntegrationModule));
 
@@ -56,9 +57,8 @@ export function AppShell() {
       {mobileOpen && <button className="mobile-backdrop" onClick={() => setMobileOpen(false)} aria-label="Fechar navegação" />}
       <aside className="sidebar" aria-label="Navegação principal">
         <div className="sidebar-top">
-          <NavLink className="brand-lockup" to="/" onClick={() => setMobileOpen(false)}>
-            <span className="brand-mark">NX</span>
-            <span className="brand-name">NEXUS <b>DEV HUB</b><small>PERSONAL OPERATIONS</small></span>
+          <NavLink className="brand-lockup" to="/" onClick={() => setMobileOpen(false)} aria-label="NEXUS Dev Hub — Dashboard">
+            <BrandLogo layout={collapsed ? "symbol" : "horizontal"} width={collapsed ? 40 : 205} alt="NEXUS Dev Hub" />
           </NavLink>
           <button className="icon-button mobile-close" onClick={() => setMobileOpen(false)} aria-label="Fechar navegação"><X size={18} /></button>
         </div>

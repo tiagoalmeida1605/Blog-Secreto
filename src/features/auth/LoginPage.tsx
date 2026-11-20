@@ -3,6 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { ArrowRight, LockKeyhole, Network } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 import { LoadingScreen } from "../../components/feedback/LoadingScreen";
+import { BrandLogo } from "../../components/BrandLogo";
 
 function loginMessage(code: string) {
   const messages: Record<string, string> = {
@@ -44,7 +45,7 @@ export function LoginPage() {
   return (
     <main className="login-screen">
       <section className="login-brand">
-        <div className="brand-lockup"><span className="brand-mark">NX</span><span>NEXUS <b>DEV HUB</b></span></div>
+        <BrandLogo className="login-brand-logo" layout="horizontal" width={270} alt="NEXUS Dev Hub" />
         <div className="login-copy">
           <p className="eyebrow">PERSONAL DEVELOPMENT OPERATIONS</p>
           <h1>Seu ecossistema.<br /><span>Em um só lugar.</span></h1>
