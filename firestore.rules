@@ -31,15 +31,12 @@ service cloud.firestore {
       allow read: if isOwner();
       allow create: if isOwner()
         && validEntry(request.resource.data)
-        && request.resource.data.createdAt is string
-        && request.resource.data.createdAt.size() == 24
-        && request.resource.data.updatedAt is string
-        && request.resource.data.updatedAt.size() == 24;
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
       allow update: if isOwner()
         && validEntry(request.resource.data)
         && request.resource.data.createdAt == resource.data.createdAt
-        && request.resource.data.updatedAt is string
-        && request.resource.data.updatedAt.size() == 24;
+        && request.resource.data.updatedAt == request.time;
       allow delete: if isOwner();
     }
 
