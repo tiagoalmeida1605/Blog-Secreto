@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { generateKeyPairSync } from "node:crypto";
+import { cert, getApps, initializeApp } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
 import { requireDevHubOwner, verifyDevHubOwnerToken } from "../../lib/devhub/auth.mjs";
 import { DevHubError } from "../../lib/devhub/errors.mjs";
 
@@ -20,6 +22,91 @@ const config = {
   }),
   checkRevocation: true
 };
+
+test("devhub auth modular Firebase Admin imports are available", () => {
+  assert.equal(typeof cert, "function");
+  assert.equal(typeof getApps, "function");
+  assert.equal(typeof initializeApp, "function");
+  assert.equal(typeof getAuth, "function");
+});
+
+test("devhub auth initializes with modular Firebase Admin APIs and verifies tokens", async () => {
+  const app = { name: "[DEFAULT]" };
+  const calls = [];
+  const modularApi = {
+    getApps() {
+      calls.push(["getApps"]);
+      return [];
+    },
+    cert(serviceAccount) {
+      assert.equal(serviceAccount.project_id, config.firebaseProjectId);
+      assert.equal(serviceAccount.client_email, "service@example.invalid");
+      calls.push(["cert"]);
+      return { credential: "mock-credential" };
+    },
+    initializeApp(options) {
+      assert.deepEqual(options, {
+        credential: { credential: "mock-credential" },
+        projectId: config.firebaseProjectId
+      });
+      calls.push(["initializeApp"]);
+      return app;
+    },
+    getAuth(receivedApp) {
+      assert.equal(receivedApp, app);
+      calls.push(["getAuth"]);
+      return {
+        async verifyIdToken(token, checkRevocation) {
+          assert.equal(token, "opaque-test-token");
+          assert.equal(checkRevocation, true);
+          calls.push(["verifyIdToken"]);
+          return { uid: "owner-uid" };
+        }
+      };
+    }
+  };
+
+  const result = await verifyDevHubOwnerToken("opaque-test-token", config, null, undefined, modularApi);
+  assert.deepEqual(result, { uid: "owner-uid" });
+  assert.deepEqual(calls, [
+    ["getApps"],
+    ["cert"],
+    ["initializeApp"],
+    ["getAuth"],
+    ["verifyIdToken"]
+  ]);
+});
+
+test("devhub auth reuses an existing modular default app", async () => {
+  const defaultApp = { name: "[DEFAULT]" };
+  const calls = [];
+  const modularApi = {
+    getApps() {
+      calls.push("getApps");
+      return [{ name: "other-app" }, defaultApp];
+    },
+    cert() {
+      assert.fail("cert should not be called when reusing the default app");
+    },
+    initializeApp() {
+      assert.fail("initializeApp should not be called when reusing the default app");
+    },
+    getAuth(app) {
+      assert.equal(app, defaultApp);
+      calls.push("getAuth");
+      return {
+        async verifyIdToken() {
+          calls.push("verifyIdToken");
+          return { uid: "owner-uid" };
+        }
+      };
+    }
+  };
+
+  const result = await verifyDevHubOwnerToken("opaque-test-token", config, null, undefined, modularApi);
+  assert.deepEqual(result, { uid: "owner-uid" });
+  assert.deepEqual(calls, ["getApps", "getAuth", "verifyIdToken"]);
+});
 
 test("devhub auth requires a bearer token", async () => {
   await assert.rejects(() => requireDevHubOwner({ headers: {} }, {}), (error) => error.status === 401);
