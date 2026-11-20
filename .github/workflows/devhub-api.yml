@@ -2,7 +2,7 @@ name: DevHub API validation
 
 on:
   push:
-    branches: ["feat/devhub-api"]
+    branches: ["feat/devhub-api", "feat/devhub-react-rebuild"]
   pull_request:
 
 jobs:

@@ -1,128 +1,116 @@
 # NEXUS Dev Hub
 
-Ambiente privado de desenvolvimento pessoal para centralizar projetos, registros, ideias, atividade do GitHub e ferramentas de desenvolvimento. O frontend do Dev Hub usa HTML, CSS e JavaScript sem framework, com autenticação e dados integrados ao Firebase.
+Ambiente privado de desenvolvimento para administrar projetos e acompanhar integrações, deployments e atividade do ecossistema NEXUS. A aplicação é restrita ao proprietário e usa a identidade visual NEXUS BLUE.
 
-[![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)](https://developer.mozilla.org/docs/Web/HTML)
-[![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)](https://developer.mozilla.org/docs/Web/CSS)
-[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)](https://developer.mozilla.org/docs/Web/JavaScript)
-[![Firebase](https://img.shields.io/badge/Firebase-10.12.2-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com/)
+## Funcionalidades atuais
 
-[Repositório no GitHub](https://github.com/tiagoalmeida1605/Blog-Secreto)
+- Autenticação Firebase com persistência de sessão do SDK e rotas React protegidas.
+- Dashboard com respostas atuais da API, sem métricas simuladas.
+- Projects com cadastro, edição, busca, filtro e arquivamento não destrutivo.
+- Estado e atividade consultados no GitHub, Vercel e Rádio Geração Ativa.
+- Admin Center com preferências de widgets e módulos, persistidas pelo backend, e tema local.
+- System Monitor com estado e latência observada no navegador; não declara uptime ou recursos não coletados.
+- Analytics com coleta manual e histórico de snapshots protegidos no Firestore.
 
-## Sobre o projeto
-
-O NEXUS Dev Hub é o espaço privado de acompanhamento do ecossistema NEXUS. O repositório também mantém as páginas públicas e ferramentas administrativas existentes; os serviços e integrações do Dev Hub são implementados separadamente para preservar os fluxos já existentes.
-
-## Funcionalidades
-
-### Área pública
-
-- Página inicial com acesso às páginas de projetos e contato.
-- Catálogo carregado do Cloud Firestore, com informações de status, versão, tags, imagem e link quando disponíveis.
-- Registro de visualizações dos projetos, evitando contar novamente a mesma visita no navegador durante 24 horas.
-- Páginas de contato e erro 404.
-- Preferência de tema claro ou escuro salva no navegador.
-- Assistente incorporado às páginas públicas e disponível em uma página de demonstração.
-
-### Painel administrativo
-
-- Login e verificação de sessão com Firebase Authentication.
-- Dashboard com resumo dos projetos por status.
-- Cadastro, edição, busca, filtro e remoção de projetos.
-- Cadastro, edição, busca, filtro e remoção de tags.
-- Upload de imagens de projetos para Firebase Storage, com validação de tipo e tamanho e otimização no navegador.
-
-O formulário de contato é apenas visual: não está conectado a um serviço de envio de mensagens.
+O NEXUS AI Assistant permanece pausado. Seus arquivos legados foram preservados, mas não são importados pelo frontend novo. A interface anterior de registros não faz parte da experiência do Dev Hub. Documentos antigos não são apagados nem migrados.
 
 ## Tecnologias
 
 | Camada | Tecnologia |
 | --- | --- |
-| Estrutura das páginas | HTML |
-| Interface e temas | CSS |
-| Lógica da aplicação | JavaScript sem framework, com módulos ES |
-| Autenticação | Firebase Authentication |
-| Dados | Cloud Firestore |
-| Imagens | Firebase Storage |
-| Tipografia | Google Fonts |
-| Ícones | Phosphor Icons |
+| Frontend | React, Vite, TypeScript, Tailwind CSS 4 |
+| Navegação e dados | React Router, TanStack Query |
+| Gráficos e ícones | Recharts, Lucide React |
+| Autenticação do navegador | Firebase Authentication SDK |
+| Backend | Vercel Functions, Node.js 24.x, JavaScript ES Modules |
+| Dados privados | Firebase Admin SDK / Cloud Firestore |
 
-O projeto importa o Firebase JavaScript SDK 10.12.2 por módulos hospedados no CDN oficial do Firebase. Google Fonts e Phosphor Icons também são carregados externamente.
+O frontend entra por `index.html` e `src/`. As Vercel Functions continuam em `api/`, e a autenticação, os clientes e os serviços compartilhados ficam em `lib/devhub/`.
 
-## Arquitetura do projeto
+## Instalação e desenvolvimento
 
-```text
-.
-├── admin/                      # Login e painel administrativo
-│   ├── css/                    # Estilos do painel
-│   ├── js/                     # Autenticação, componentes e lógica administrativa
-│   │   ├── services/           # Serviços de projetos, tags, imagens e Firestore
-│   │   └── views/              # Telas administrativas
-│   └── *.html                  # Dashboard, login e páginas de gerenciamento
-├── assets/                     # Recursos visuais públicos
-├── components/
-│   └── ai-assistant/           # Assistente, estilos, provedores e serviços
-│       ├── api/                # Contrato de rotas documentadas
-│       └── js/                 # Núcleo, interface, provedores e armazenamento
-├── firebase/
-│   └── firebase.js             # Inicialização do Firebase
-├── js/                         # Scripts públicos de projetos e tema
-├── pages/                      # Projetos, contato e página 404
-├── style/                      # Estilos globais, de páginas e temas
-├── index.html                  # Página inicial
-└── README.md
+Requer Node.js 24.x e npm.
+
+```bash
+npm install
+npm run dev
 ```
 
-## Área administrativa
+Para executar também as Vercel Functions localmente, use o Vercel CLI:
 
-As páginas em `admin/` fornecem uma área de login e um painel para manter o catálogo. Os projetos podem ser criados, editados, filtrados por status e removidos; o editor também permite selecionar tags e enviar imagens. A área de tags permite gerenciar as tags usadas nos projetos.
+```bash
+npx vercel dev
+```
 
-As operações de autenticação e dados dependem de uma configuração válida do Firebase e das regras de acesso dos serviços.
+Configure as variáveis server-side localmente em `.env.local` para as Functions. Não copie secrets de produção, não confirme arquivos de ambiente e não use service account no frontend.
 
-## Firebase
+## Comandos
 
-A inicialização dos serviços está em [`firebase/firebase.js`](./firebase/firebase.js). O projeto usa:
+```bash
+npm run dev        # Vite local
+npm run build      # Typecheck e build em dist/
+npm run preview    # Servir o build localmente
+npm run typecheck  # TypeScript
+npm test           # Testes Node e componentes
+npm run check      # Typecheck, sintaxe das Functions e testes
+```
 
-- **Firebase Authentication** para o login e a verificação de sessão do painel.
-- **Cloud Firestore** para os documentos das coleções `projetos` e `tags`.
-- **Firebase Storage** para armazenar imagens associadas aos projetos.
+## Autenticação e segurança
 
-Os documentos de projeto incluem campos como título, descrição, status, versão, tags, links e dados da imagem; o contador de visualizações também é armazenado com o projeto. As tags são identificadas por slug e podem conter nome, categoria, descrição, cor, ícone, ordem e estado ativo.
+O Firebase Client SDK usa o mesmo projeto já configurado para o workspace anterior. A persistência de autenticação é configurada pelo SDK. O Dev Hub não grava Firebase ID Tokens em `localStorage` ou `sessionStorage`.
 
-Ao usar um projeto Firebase diferente, atualize a configuração de cliente e habilite os serviços necessários. Configure regras apropriadas de Authentication, Firestore e Storage antes de disponibilizar a aplicação. A configuração de cliente não substitui regras de segurança no Firebase.
+Cada rota privada da API valida criptograficamente o Firebase ID Token, verifica revogação e compara o UID com `DEVHUB_OWNER_UID`. A proteção do React Router é apenas uma barreira de interface, não substitui a autorização no backend. Não há cadastro público.
 
-## Assistente
+Service account, `GITHUB_TOKEN` e `VERCEL_API_TOKEN` só são lidos pelas Functions via ambiente server-side. Respostas privadas usam `Cache-Control: private, no-store`; logs e mensagens públicas não devem conter tokens nem segredos.
 
-O componente em `components/ai-assistant/` contém a interface de conversa, memória de conversação, busca, reconhecimento de intenções e gerenciamento de permissões. No estado atual, a implementação padrão usa um provedor local que pesquisa os dados disponíveis à aplicação; ela não chama um serviço de IA generativa.
+## Integrações e API
 
-Há classes e pontos de extensão para provedores remotos, mas elas não implementam chamadas às APIs de OpenAI, Gemini, Claude, Ollama ou LM Studio. Portanto, essas integrações não estão ativadas pelo código atual.
+O frontend chama exclusivamente a API do próprio Dev Hub para obter dados privados:
 
-## Tema e interface
+- `GET /api/devhub/v1/health` — liveness pública, sem consultar dependências.
+- `GET /api/devhub/v1/overview` — estado agregado de RGA, GitHub e Vercel.
+- `GET /api/devhub/v1/services` — verificações de serviço da RGA.
+- `GET /api/devhub/v1/github` — repositórios, commits e execuções GitHub Actions configurados.
+- `GET /api/devhub/v1/deployments` — deployments dos projetos Vercel configurados.
+- `GET|POST /api/devhub/v1/projects` e `PATCH /api/devhub/v1/projects/{projectId}` — projetos persistidos.
+- `GET|PUT /api/devhub/v1/settings` — preferências não sensíveis do workspace.
+- `GET|POST /api/devhub/v1/analytics` — histórico e coleta manual protegida.
+- `GET /api/devhub/v1/rga-feed` — feed público da RGA encaminhado pela API autenticada.
 
-Nas páginas públicas, o tema claro/escuro é alternado pelo controlador em `js/theme.js` e a escolha fica salva no `localStorage` do navegador. A interface administrativa também possui controles de tema próprios.
+As Functions existentes reutilizam os clientes em `lib/devhub/`. Não são feitas operações de escrita no GitHub ou na Vercel.
 
-O workspace privado em `index.html` tem uma central de configurações própria: tema escuro, claro ou automático; escala de texto; e redução de movimento. Essas preferências são guardadas localmente sob a chave `bs-settings-v1`, não são enviadas ao Firebase e não são sincronizadas na nuvem. O modo automático acompanha mudanças no tema do sistema, e a preferência de movimento reduzido do sistema é sempre respeitada.
+## Firestore
 
-## Workspace privado
+- `devhub_projects`: projetos com campos validados; exclusão definitiva não é oferecida, use o estado `archived`.
+- `devhub_settings/owner`: widgets do Dashboard e integrações visíveis, sem credenciais.
+- `devhub_analytics_snapshots`: snapshots gravados e lidos exclusivamente por Firebase Admin. As regras do cliente negam acesso direto.
+- `entries`: regras e documentos legados permanecem; não há migração ou limpeza automática.
 
-O workspace em `index.html` mantém os registros pessoais no Cloud Firestore como texto Markdown. A barra de ferramentas do editor oferece formatação visual; a prévia é criada sem inserir HTML fornecido pelo usuário. Os registros antigos em texto puro continuam válidos.
+As novas coleções têm regras explícitas de proprietário e validação de estrutura; o catch-all continua negando acesso. Dados de snapshots são criados somente pelo backend após uma coleta real.
 
-O RGA Monitor consulta somente as fontes públicas `noticias` e `playlists` do Firebase Realtime Database, com atualização automática a cada 30 segundos enquanto a página está visível. Pesquisa e filtros são aplicados aos dados em memória. O tema claro e o escuro usam as preferências globais do workspace.
+## Analytics e agendamento
 
-O NEXUS Dev Space inclui GitHub Activity, que consulta apenas endpoints públicos da [GitHub REST API](https://docs.github.com/en/rest/activity/events). A prévia não usa token nem modifica repositórios; o cache temporário fica no navegador e a API pública pode limitar requisições.
+A coleta é manual e autenticada. Cada snapshot agrega métricas reais consultadas no momento, registra estado por fonte e usa um bucket temporal para evitar duplicação. Consultas aceitam `7d`, `30d`, `90d` e `all`. Quando não há dados, a interface informa que o histórico está começando; não cria série histórica artificial.
 
-O NEXUS Assistant usa Puter.js. As conversas e a preferência do modelo ficam no armazenamento local do navegador; o histórico anterior é copiado durante a migração sem apagar a chave antiga. O contexto do workspace fica desativado por padrão. Para compartilhá-lo, selecione as fontes e registros, revise a prévia e confirme o envio ao serviço externo.
+Não há Cron Job configurado neste repositório. Para ativar coleta periódica futuramente, configure um agendamento da Vercel que invoque um endpoint server-side autenticado, com credencial de job armazenada como Secret e validação própria — nunca reutilize nem exponha tokens do proprietário no navegador. Nenhuma variável remota ou credencial de agendamento foi alterada nesta implementação.
 
-## Desenvolvimento
+## Variáveis de ambiente
 
-Sirva o projeto a partir da raiz do repositório com `python3 -m http.server 8000` e recarregue a página após alterar os arquivos. `npm run check` verifica a sintaxe dos módulos do workspace e executa todos os testes; `npm test` também executa a suíte automatizada.
+As Functions usam as variáveis listadas em [`.env.example`](./.env.example). Principais grupos:
 
-As regras de `firestore.rules` devem usar o mesmo UID proprietário configurado em `js/config.js`; não flexibilize as regras para contornar erros de leitura ou escrita.
+- Firebase Admin: `DEVHUB_OWNER_UID`, `FIREBASE_PROJECT_ID`, `FIREBASE_SERVICE_ACCOUNT_JSON`.
+- GitHub: `GITHUB_USERNAME`, `GITHUB_REPOSITORIES` e, opcionalmente, `GITHUB_TOKEN`.
+- Vercel: `VERCEL_API_TOKEN`, `VERCEL_TEAM_ID`, `VERCEL_PROJECT_ID_BLOG_SECRETO`, `VERCEL_PROJECT_ID_RGA`.
+- RGA: `RGA_BASE_URL`.
 
-## Contribuição
+Os campos `VITE_FIREBASE_*`, quando usados para substituir a configuração já existente do Firebase Client SDK, são configurações públicas do cliente; nunca coloque credenciais administrativas em variáveis `VITE_*`.
 
-Este é um projeto pessoal em desenvolvimento. Sugestões e correções podem ser propostas por meio das issues ou pull requests do repositório.
+## Vercel
 
-## Autor
+O `package.json` declara Node.js `24.x`, e as Functions permanecem em `api/`. O build do Vite gera `dist/`; `vercel.json` aplica fallback das rotas do React Router para `index.html`, sem mover as Functions. Confirme no painel da Vercel a configuração de Node.js e o comando/output detectados pelo projeto. Variáveis remotas não são gerenciadas por este repositório.
 
-[Tiago Silvestre](https://github.com/tiagoalmeida1605)
+Esta alteração não executa deploy nem altera configurações remotas da Vercel.
+
+## Documentação da API
+
+Veja [`docs/devhub/README.md`](./docs/devhub/README.md) e o contrato [`docs/devhub/openapi.yaml`](./docs/devhub/openapi.yaml).

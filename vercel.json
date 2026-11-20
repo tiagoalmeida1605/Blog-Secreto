@@ -1,0 +1,13 @@
+{
+  "rewrites": [
+    { "source": "/login", "destination": "/index.html" },
+    { "source": "/projects", "destination": "/index.html" },
+    { "source": "/analytics", "destination": "/index.html" },
+    { "source": "/integrations", "destination": "/index.html" },
+    { "source": "/github", "destination": "/index.html" },
+    { "source": "/vercel", "destination": "/index.html" },
+    { "source": "/rga", "destination": "/index.html" },
+    { "source": "/admin", "destination": "/index.html" },
+    { "source": "/system", "destination": "/index.html" }
+  ]
+}

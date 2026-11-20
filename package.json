@@ -1,14 +1,39 @@
 {
-  "name": "blog-secreto-v2",
-  "version": "2.0.0",
+  "name": "nexus-dev-hub",
+  "version": "3.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --check js/app.js && node --check js/settings.js && node --check js/firebase.js && node --check js/config.js && node --check js/markdown.js && node --check js/rga-watch-feed.js && node --check js/github-activity.js && node --check js/nexus-assistant.js && node --check js/nexus-chat-store.js && node --check js/devhub-api.js && node scripts/check-api-syntax.mjs && node --test",
-    "test": "node --test"
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "typecheck": "tsc --noEmit -p tsconfig.json --pretty",
+    "test": "node --test && vitest run",
+    "check:api": "node scripts/check-api-syntax.mjs",
+    "check": "npm run typecheck && npm run check:api && npm test"
   },
   "dependencies": {
-    "firebase-admin": "^14.5.1"
+    "@tanstack/react-query": "^5.108.2",
+    "firebase": "^13.4.0",
+    "firebase-admin": "^14.5.1",
+    "lucide-react": "^1.77.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.6",
+    "recharts": "^3.11.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "jsdom": "^31.0.1",
+    "tailwindcss": "^4.3.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
   },
   "overrides": {
     "jwks-rsa": {
